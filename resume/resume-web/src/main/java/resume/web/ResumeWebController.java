@@ -23,10 +23,4 @@ public class ResumeWebController {
 		
 	    return "thymeleaf/success";
 	}
-    
-    @GetMapping("/web/main")
-    public String mainView(final Model model) {
-    	
-    	return "thymeleaf/main";
-    }
 }

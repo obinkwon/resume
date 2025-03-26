@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}"/>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Login</h1>
+		<form action="/api/login" method="post">
+			<input class="login-input" type="text" id="username" name="username" placeholder="Username" required="" autofocus="">
+			<input class="login-input" type="password" id="password" name="password" placeholder="Password" required="">
+	        <button class="login-button custom">로그인</button>
+		</form>
+        <div class="divider"><span>or</span></div>
+        <button class="login-button google" onclick="javascript:location.href='/oauth2/authorization/google'">Continue with Google</button>
+        <button class="login-button naver" onclick="javascript:location.href='/oauth2/authorization/naver'">Continue with Naver</button>
+        <button class="login-button kakao" onclick="javascript:location.href='/oauth2/authorization/kakao'">Continue with Kakao</button>
+        <button class="login-button github" onclick="javascript:location.href='/oauth2/authorization/github'">Continue with Github</button>
+    </div>
+</body>
+</html>
