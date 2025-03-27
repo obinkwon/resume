@@ -1,6 +1,6 @@
 <img src="https://capsule-render.vercel.app/api?type=transparent&height=200&section=header&text=Resume&fontSize=90&fontColor=#ffffff&fontAlignY=38"/>
 <blockquote data-ke-style="style2">
-<p data-ke-size="size16">이력서 템플릿 만들기</p>
+<p data-ke-size="size16">이력서 템플릿 만들어서 출력하는 프로그램</p>
 </blockquote>
 <br/><br/><br/>
 
