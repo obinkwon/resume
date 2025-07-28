@@ -5,7 +5,8 @@
 <br/><br/><br/>
 
 ## 개발환경
-- sts : 4.27.0
+- ~~sts : 4.27.0~~
+- IntelliJ 2025.1.3
 - spring boot : 3.4.4
 - java : 17
 - gradle : 8.11.1
