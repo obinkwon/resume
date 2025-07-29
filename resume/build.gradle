@@ -45,6 +45,8 @@ subprojects {
 		implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 		//redis
 		implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+		//mybatis
+		implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 		//외부 jar 추가
 		implementation fileTree(dir: 'libs', include: ['*.jar'])
 	}
