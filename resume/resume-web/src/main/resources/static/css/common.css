@@ -1,0 +1,42 @@
+/* common css */
+
+body {
+    margin:0;
+    background:#f5f6fa;
+    font-family: Pretendard, sans-serif;
+}
+
+.container {
+    width:1200px;
+    margin:40px auto;
+}
+
+.section {
+    background:white;
+    padding:20px;
+    border-radius:8px;
+    margin-bottom:20px;
+}
+
+input, textarea, select {
+    width:100%;
+    padding:12px;
+    margin-bottom:10px;
+    border:1px solid #ddd;
+    border-radius:6px;
+    box-sizing:border-box;
+}
+
+.btn {
+    display:inline-block;
+    padding:12px 20px;
+    border-radius:6px;
+    text-decoration:none;
+    background:#e2e8f0;
+    color:#111;
+}
+
+.btn.primary {
+    background:#2563eb;
+    color:white;
+}

@@ -9,11 +9,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/web/resume")
 public class ResumeWebController {
 
-	@GetMapping("")
+	@GetMapping("/main")
 	public String resumeMainPage(Model model) {
+	    return "thymeleaf/resume/main";
+	}
+
+	@GetMapping("/regist")
+	public String resumeRegistPage(Model model) {
 		String str = (String) model.getAttribute("key");
 		System.out.println("str ::: "+ str);
-		
-	    return "thymeleaf/resume/main";
+
+		return "thymeleaf/resume/resume-form";
 	}
 }

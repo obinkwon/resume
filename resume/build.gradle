@@ -30,21 +30,16 @@ subprojects {
 		//spring
 		implementation 'org.springframework.boot:spring-boot-starter'
 		implementation 'org.springframework.boot:spring-boot-starter-web'
-		implementation 'org.springframework.boot:spring-boot-starter-security'
 		implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 		//lombok
 		implementation 'org.projectlombok:lombok:1.18.32'
 	    annotationProcessor 'org.projectlombok:lombok:1.18.32'
 	    //swagger
 	    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
-	    //jwt
-	    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
-		runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
-		runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
-		//oauth2
-		implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-		//redis
-		implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+		// MySQL
+		runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+		// JDBC + HikariCP
+		implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 		//mybatis
 		implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 		//외부 jar 추가

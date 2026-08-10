@@ -2,3 +2,4 @@ rootProject.name = 'resume'
 
 include 'resume-core'
 include 'resume-web'
+include 'resume-api'

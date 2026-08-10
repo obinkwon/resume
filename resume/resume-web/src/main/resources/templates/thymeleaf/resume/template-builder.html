@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>템플릿 구성</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/template-builder.css}">
+    <script th:src="@{/js/template-builder.js}"></script>
+</head>
+<body>
+    <div class="container builder-layout">
+        <div class="sidebar">
+            <h2>템플릿 설정</h2>
+            <label>템플릿</label>
+            <select name="templateCode">
+                <option value="minimal">Minimal</option>
+                <option value="modern">Modern</option>
+                <option value="ats">ATS Friendly</option>
+            </select>
+            <label>레이아웃</label>
+            <select name="layoutType">
+                <option value="single">한 컬럼</option>
+                <option value="sidebar">사이드바</option>
+                <option value="split">좌우 분할</option>
+            </select>
+            <label>대표 색상</label>
+            <input type="color" name="primaryColor" value="#2D3748">
+            <label>폰트</label>
+            <select name="fontFamily">
+                <option value="Pretendard">Pretendard</option>
+                <option value="Noto Sans KR">Noto Sans KR</option>
+                <option value="Roboto">Roboto</option>
+            </select>
+            <h3>섹션 표시</h3>
+            <label><input type="checkbox" checked> 자기소개</label>
+            <label><input type="checkbox" checked> 경력</label>
+            <label><input type="checkbox" checked> 학력</label>
+            <label><input type="checkbox" checked> 프로젝트</label>
+            <label><input type="checkbox" checked> 기술스택</label>
+            <button class="btn primary">설정 저장</button>
+        </div>
+        <div class="preview-panel">
+            <iframe th:src="@{/preview/{id}(id=${resumeId})}"></iframe>
+        </div>
+    </div>
+</body>
+</html>

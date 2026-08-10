@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PDF 미리보기</title>
+    <link rel="stylesheet" th:href="@{/css/preview.css}">
+    <script th:src="@{/js/preview.js}"></script>
+</head>
+<body>
+    <div class="toolbar">
+        <a class="btn" th:href="@{/template/{id}(id=${resume.resumeId})}">템플릿 수정</a>
+        <a class="btn primary"
+           th:href="@{/preview/{id}/pdf(id=${resume.resumeId})}">
+            PDF 다운로드
+        </a>
+        <a class="btn"
+           th:href="@{/preview/{id}/docx(id=${resume.resumeId})}">
+            DOCX 다운로드
+        </a>
+    </div>
+    <div class="pdf-page">
+        <h1 th:text="${resume.name}">홍길동</h1>
+        <p th:text="${resume.email}">hong@example.com</p>
+        <h2>자기소개</h2>
+        <p th:text="${resume.summary}"></p>
+        <h2>경력</h2>
+        <div th:each="exp : ${resume.experiences}">
+            <strong th:text="${exp.company}"></strong>
+            <span th:text="${exp.position}"></span>
+            <p th:text="${exp.description}"></p>
+        </div>
+    </div>
+</body>
+</html>

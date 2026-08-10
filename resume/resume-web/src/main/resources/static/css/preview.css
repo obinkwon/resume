@@ -1,0 +1,22 @@
+/* common css */
+
+body {
+    background:#ddd;
+    margin:0;
+}
+
+.toolbar {
+    background:#1f2937;
+    padding:15px;
+    display:flex;
+    gap:10px;
+}
+
+.pdf-page {
+    width:210mm;
+    min-height:297mm;
+    margin:20px auto;
+    background:white;
+    padding:25mm;
+    box-sizing:border-box;
+}
