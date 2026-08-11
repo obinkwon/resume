@@ -16,8 +16,6 @@ public class ResumeWebController {
 
 	@GetMapping("/regist")
 	public String resumeRegistPage(Model model) {
-		String str = (String) model.getAttribute("key");
-		System.out.println("str ::: "+ str);
 
 		return "thymeleaf/resume/resume-form";
 	}
