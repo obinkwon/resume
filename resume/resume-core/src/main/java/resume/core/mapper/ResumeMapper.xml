@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.resume.core.mapper.ResumeMapper">
+    <insert id="insertResume" parameterType="com.resume.core.dto.ResumeSaveRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
+        INSERT INTO resume (
+            title,
+            name,
+            email,
+            phone,
+            summary
+        ) VALUES (
+            #{title},
+            #{name},
+            #{email},
+            #{phone},
+            #{summary}
+        )
+    </insert>
+
+    <insert id="insertExperience" parameterType="com.resume.core.dto.ExperienceDto">
+        INSERT INTO resume_experience (
+            resume_id,
+            company,
+            position,
+            start_date,
+            end_date,
+            description,
+            sort_order
+        ) VALUES (
+            #{resumeId},
+            #{company},
+            #{position},
+            #{startDate},
+            #{endDate},
+            #{description},
+            #{sortOrder}
+        )
+    </insert>
+
+    <insert id="insertEducation" parameterType="com.resume.core.dto.EducationDto">
+        INSERT INTO resume_education (
+            resume_id,
+            school,
+            major,
+            start_date,
+            end_date,
+            sort_order
+        ) VALUES (
+            #{resumeId},
+            #{school},
+            #{major},
+            #{startDate},
+            #{endDate},
+            #{sortOrder}
+        )
+    </insert>
+
+    <insert id="insertProject" parameterType="com.resume.core.dto.ProjectDto">
+        INSERT INTO resume_project (
+            resume_id,
+            project_name,
+            description,
+            tech_stack,
+            sort_order
+        ) VALUES (
+            #{resumeId},
+            #{projectName},
+            #{description},
+            #{techStack},
+            #{sortOrder}
+        )
+    </insert>
+
+    <insert id="insertSkill" parameterType="com.resume.core.dto.SkillDto">
+        INSERT INTO resume_skill (
+            resume_id,
+            skill_name,
+            sort_order
+        ) VALUES (
+            #{resumeId},
+            #{skillName},
+            #{sortOrder}
+        )
+    </insert>
+</mapper>
