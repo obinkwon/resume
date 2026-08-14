@@ -3,7 +3,7 @@ package resume;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = {"resume.web"})
+@SpringBootApplication
 public class ResumeWebMainApplication {
 
 	public static void main(String[] args) {

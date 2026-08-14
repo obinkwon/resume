@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.resume.core.mapper.ResumeMapper">
-    <insert id="insertResume" parameterType="com.resume.core.dto.ResumeSaveRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
+<mapper namespace="resume.core.mapper.ResumeMapper">
+    <insert id="insertResume" parameterType="resume.core.dto.ResumeSaveRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
         INSERT INTO resume (
             title,
             name,
@@ -18,7 +18,7 @@
         )
     </insert>
 
-    <insert id="insertExperience" parameterType="com.resume.core.dto.ExperienceDto">
+    <insert id="insertExperience" parameterType="resume.core.dto.ExperienceDto">
         INSERT INTO resume_experience (
             resume_id,
             company,
@@ -38,7 +38,7 @@
         )
     </insert>
 
-    <insert id="insertEducation" parameterType="com.resume.core.dto.EducationDto">
+    <insert id="insertEducation" parameterType="resume.core.dto.EducationDto">
         INSERT INTO resume_education (
             resume_id,
             school,
@@ -56,7 +56,7 @@
         )
     </insert>
 
-    <insert id="insertProject" parameterType="com.resume.core.dto.ProjectDto">
+    <insert id="insertProject" parameterType="resume.core.dto.ProjectDto">
         INSERT INTO resume_project (
             resume_id,
             project_name,
@@ -72,7 +72,7 @@
         )
     </insert>
 
-    <insert id="insertSkill" parameterType="com.resume.core.dto.SkillDto">
+    <insert id="insertSkill" parameterType="resume.core.dto.SkillDto">
         INSERT INTO resume_skill (
             resume_id,
             skill_name,
