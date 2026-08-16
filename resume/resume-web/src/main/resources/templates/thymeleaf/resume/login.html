@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="title">
+            <h1>Resume Builder</h1>
+            <p>이력서 작성을 시작해보세요.</p>
+        </div>
+        <form method="post" th:action="@{/web/login}">
+            <div class="form-group">
+                <label for="userKey">
+                    사용자 ID
+                </label>
+                <input
+                    type="text"
+                    id="userKey"
+                    name="userKey"
+                    placeholder="사용자 ID를 입력하세요"
+                    maxlength="100"
+                    required
+                    autofocus
+                />
+            </div>
+            <button type="submit" class="login-button">시작하기</button>
+        </form>
+        <div class="notice">
+            비밀번호 없이 사용자 ID로 시작합니다.
+        </div>
+    </div>
+</body>
+</html>
