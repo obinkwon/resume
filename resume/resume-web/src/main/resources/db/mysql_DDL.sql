@@ -4,7 +4,6 @@
 CREATE TABLE `users` (
   `user_id` bigint NOT NULL AUTO_INCREMENT COMMENT '사용자 PK',
   `user_key` varchar(100) NOT NULL COMMENT '외부에서 전달되는 사용자 식별값',
-  `name` varchar(50) DEFAULT NULL COMMENT '사용자 이름',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
   PRIMARY KEY (`user_id`),
@@ -18,7 +17,6 @@ CREATE TABLE `resumes` (
   `resume_id` bigint NOT NULL AUTO_INCREMENT COMMENT '이력서 PK',
   `user_id` bigint NOT NULL COMMENT '사용자 ID',
   `title` varchar(100) NOT NULL COMMENT '이력서 제목',
-  `summary` text COMMENT '이력서 요약',
   `template_id` bigint DEFAULT NULL COMMENT '적용 템플릿 ID',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
@@ -32,7 +30,7 @@ CREATE TABLE `resumes` (
 CREATE TABLE `resume_profile` (
   `profile_id` bigint NOT NULL AUTO_INCREMENT COMMENT '기본 정보 PK',
   `resume_id` bigint NOT NULL COMMENT '이력서 ID',
-  `full_name` varchar(100) NOT NULL COMMENT '이름',
+  `name` varchar(100) NOT NULL COMMENT '이름',
   `email` varchar(100) DEFAULT NULL COMMENT '이메일',
   `phone` varchar(30) DEFAULT NULL COMMENT '전화번호',
   `address` varchar(255) DEFAULT NULL COMMENT '주소',

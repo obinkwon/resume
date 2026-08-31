@@ -8,11 +8,13 @@ public interface ResumeMapper {
 
     void insertResume(ResumeSaveRequestDto requestDto);
 
-    void insertExperience(ExperienceDto expDto);
+    void insertProfile(ProfileDto profileDto);
 
-    void insertEducation(EducationDto eduDto);
+    void insertExperience(ExperienceDto experienceDto);
 
-    void insertProject(ProjectDto pDto);
+    void insertEducation(EducationDto educationDto);
 
-    void insertSkill(SkillDto sDto);
+    void insertProject(ProjectDto projectDto);
+
+    void insertSkill(SkillDto skillDto);
 }

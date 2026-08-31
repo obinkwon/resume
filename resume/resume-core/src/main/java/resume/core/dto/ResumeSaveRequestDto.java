@@ -12,9 +12,9 @@ public class ResumeSaveRequestDto {
     private Long resumeId;
     private Long userId;
     private String title;
-    private String summary;
     private String templateId;
 
+    private ProfileDto profile;
     private List<ExperienceDto> experiences;
     private List<EducationDto> educations;
     private List<ProjectDto> projects;

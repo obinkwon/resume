@@ -6,17 +6,37 @@
         INSERT INTO resumes (
             user_id
             , title
-            , summary
             , template_id
             , created_at
             , updated_at
         ) VALUES (
             #{userId}
             , #{title}
-            , #{summary}
             , #{templateId}
             , CURRENT_TIMESTAMP
             , CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <insert id="insertProfile" parameterType="resume.core.dto.ResumeSaveRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
+        INSERT INTO resume_profile (
+            resume_id
+            , name
+            , email
+            , phone
+            , address
+            , profile_image
+            , birth_date
+            , introduction
+        ) VALUES (
+            #{resumeId}
+            , #{name}
+            , #{email}
+            , #{phone}
+            , #{address}
+            , #{profileImage}
+            , #{birthDate}
+            , #{introduction}
         )
     </insert>
 

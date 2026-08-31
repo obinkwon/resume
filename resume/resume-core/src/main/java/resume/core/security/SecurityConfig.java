@@ -37,7 +37,7 @@ public class SecurityConfig {
 
         http.securityMatcher("/web/**", "/api/**", "/login", "/error", "/favicon.ico", "/css/**", "/js/**")
             .csrf(csrf -> csrf
-                    .ignoringRequestMatchers("/api/**")  // API 경로만 CSRF 검증 제외
+                    .ignoringRequestMatchers("/api/**", "/web/login")  // API 경로만 CSRF 검증 제외
             )
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/web/login", "/error", "/favicon.ico", "/css/**", "/js/**", "/images/**")

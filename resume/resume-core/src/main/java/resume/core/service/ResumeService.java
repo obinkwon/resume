@@ -1,11 +1,13 @@
 package resume.core.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import resume.core.dto.*;
 import resume.core.mapper.ResumeMapper;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -15,11 +17,13 @@ public class ResumeService {
 
     public Long saveResume(ResumeSaveRequestDto requestDto) {
         resumeMapper.insertResume(requestDto);
-
         Long resumeId = requestDto.getResumeId();
 
-        int order = 0;
+        requestDto.getProfile().setResumeId(resumeId);
+        resumeMapper.insertProfile(requestDto.getProfile());
 
+        int order = 0;
+        log.info("requestDto.getExperiences() ::: {}",requestDto.getExperiences());
         if (requestDto.getExperiences() != null) {
             for (ExperienceDto expDto : requestDto.getExperiences()) {
                 expDto.setResumeId(resumeId);

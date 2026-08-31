@@ -8,7 +8,6 @@
         SELECT
             user_id
             , user_key
-            , name
             , created_at
             , updated_at
         FROM users
@@ -18,11 +17,9 @@
     <insert id="insertUser" parameterType="resume.core.dto.UserDto" useGeneratedKeys="true" keyProperty="userId">
         /* UserMapper.insertUser */
         INSERT INTO users (
-            user_key,
-            name
+            user_key
         ) VALUES (
-            #{userKey},
-            #{name}
+            #{userKey}
         )
     </insert>
 </mapper>
