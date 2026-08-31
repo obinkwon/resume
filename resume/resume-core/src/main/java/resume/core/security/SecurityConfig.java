@@ -1,4 +1,4 @@
-package resume.web.security;
+package resume.core.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -35,15 +35,22 @@ public class SecurityConfig {
             new SimpleUrlAuthenticationFailureHandler("/web/login?error=true")
         );
 
-        http.securityMatcher("/web/**", "/login", "/error", "/favicon.ico", "/css/**", "/js/**")
+        http.securityMatcher("/web/**", "/api/**", "/login", "/error", "/favicon.ico", "/css/**", "/js/**")
+            .csrf(csrf -> csrf
+                    .ignoringRequestMatchers("/api/**")  // API 경로만 CSRF 검증 제외
+            )
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/web/login", "/css/**", "/js/**", "/images/**")
+                    .requestMatchers("/web/login", "/error", "/favicon.ico", "/css/**", "/js/**", "/images/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated()
             )
             // 기본 formLogin 사용하지 않음
             .formLogin(AbstractHttpConfigurer::disable)
+            .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint((request, response, authException) ->
+                            response.sendRedirect("/web/login"))
+            )
             // 로그아웃
             .logout(logout -> logout
                     .logoutUrl("/web/logout")

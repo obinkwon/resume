@@ -10,11 +10,10 @@ import java.util.List;
 public class ResumeSaveRequestDto {
 
     private Long resumeId;
+    private Long userId;
     private String title;
-    private String name;
-    private String email;
-    private String phone;
     private String summary;
+    private String templateId;
 
     private List<ExperienceDto> experiences;
     private List<EducationDto> educations;

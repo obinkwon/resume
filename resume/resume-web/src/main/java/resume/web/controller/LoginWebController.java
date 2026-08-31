@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import resume.core.dto.UserDto;
 import resume.core.service.LoginService;
-import resume.web.security.UserPrincipal;
+import resume.core.security.UserPrincipal;
 
 @Controller
 @RequiredArgsConstructor

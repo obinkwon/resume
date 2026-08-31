@@ -3,18 +3,20 @@
 
 <mapper namespace="resume.core.mapper.ResumeMapper">
     <insert id="insertResume" parameterType="resume.core.dto.ResumeSaveRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
-        INSERT INTO resume (
-            title,
-            name,
-            email,
-            phone,
-            summary
+        INSERT INTO resumes (
+            user_id
+            , title
+            , summary
+            , template_id
+            , created_at
+            , updated_at
         ) VALUES (
-            #{title},
-            #{name},
-            #{email},
-            #{phone},
-            #{summary}
+            #{userId}
+            , #{title}
+            , #{summary}
+            , #{templateId}
+            , CURRENT_TIMESTAMP
+            , CURRENT_TIMESTAMP
         )
     </insert>
 

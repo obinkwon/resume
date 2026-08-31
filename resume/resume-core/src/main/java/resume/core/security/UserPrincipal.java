@@ -1,4 +1,4 @@
-package resume.web.security;
+package resume.core.security;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

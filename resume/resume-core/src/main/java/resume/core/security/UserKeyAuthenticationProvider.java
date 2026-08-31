@@ -1,4 +1,4 @@
-package resume.web.security;
+package resume.core.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
