@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import resume.core.dto.*;
 import resume.core.mapper.ResumeMapper;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -15,7 +17,15 @@ public class ResumeService {
 
     private final ResumeMapper resumeMapper;
 
-    public Long saveResume(ResumeSaveRequestDto requestDto) {
+    public List<ResumeResponseDto> getResumeList(ResumeRequestDto requestDto) {
+        return resumeMapper.selectResumeList(requestDto);
+    }
+
+    public ResumeDetailResponseDto getResumeDetail(ResumeRequestDto requestDto) {
+        return resumeMapper.selectResumeDetail(requestDto);
+    }
+
+    public Long saveResume(ResumeRequestDto requestDto) {
         resumeMapper.insertResume(requestDto);
         Long resumeId = requestDto.getResumeId();
 

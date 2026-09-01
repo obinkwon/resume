@@ -7,20 +7,28 @@
 </head>
 <body>
     <div class="container">
-        <h1>Resume Template Engine</h1>
+        <div class="section">
+            <div class="page-header">
+                <h1>Resume Template Engine</h1>
+                <a class="btn primary" th:href="@{/web/resume/regist}">+ 새 이력서 작성</a>
+            </div>
 
-        <a class="btn primary" th:href="@{/web/resume/regist}">새 이력서 작성</a>
+            <div class="resume-list">
+                <div class="resume-card" th:each="resume : ${resumeList}">
+                    <span class="badge">이력서</span>
+                    <h3 th:text="${resume.title}"></h3>
+                    <p th:text="${resume.title}"></p>
 
-        <div class="resume-list">
-            <div class="resume-card" th:each="resume : ${resumeList}">
-                <h3 th:text="${resume.title}"></h3>
-                <p th:text="${resume.name}"></p>
-
-                <div class="actions">
-                    <a th:href="@{/web/resume/update/{id}(id=${resume.resumeId})}">수정</a>
-                    <a th:href="@{/web/resume/template/{id}(id=${resume.resumeId})}">템플릿</a>
-                    <a th:href="@{/web/resume/preview/{id}(id=${resume.resumeId})}">미리보기</a>
+                    <div class="actions">
+                        <a th:href="@{/web/resume/modify/{id}(id=${resume.resumeId})}">수정</a>
+                        <a class="template" th:href="@{/web/resume/template/{id}(id=${resume.resumeId})}">템플릿</a>
+                        <a th:href="@{/web/resume/preview/{id}(id=${resume.resumeId})}">미리보기</a>
+                    </div>
                 </div>
+            </div>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(resumeList)}">
+                아직 작성된 이력서가 없어요. 새 이력서를 만들어보세요!
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import resume.core.dto.ResumeSaveRequestDto;
+import resume.core.dto.ResumeRequestDto;
 import resume.core.security.UserPrincipal;
 import resume.core.service.ResumeService;
 
@@ -19,7 +19,7 @@ public class ResumeApiController {
     private final ResumeService resumeService;
 
     @PostMapping("/save")
-    public ResponseEntity<Long> save(@RequestBody ResumeSaveRequestDto request,
+    public ResponseEntity<Long> save(@RequestBody ResumeRequestDto request,
                                      @AuthenticationPrincipal UserPrincipal principal) {
         request.setUserId(principal.getUserId());
         return ResponseEntity.ok(resumeService.saveResume(request));

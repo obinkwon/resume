@@ -2,7 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="resume.core.mapper.ResumeMapper">
-    <insert id="insertResume" parameterType="resume.core.dto.ResumeSaveRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
+
+    <select id="selectResumeList" parameterType="resume.core.dto.ResumeRequestDto" resultType="resume.core.dto.ResumeResponseDto">
+        SELECT
+            resume_id
+            , title
+            , template_id
+            , created_at
+            , updated_at
+        FROM resumes
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectResumeDetail" parameterType="resume.core.dto.ResumeRequestDto" resultType="resume.core.dto.ResumeDetailResponseDto">
+        SELECT
+            user_id
+            , title
+            , template_id
+            , created_at
+            , updated_at
+        FROM resumes
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertResume" parameterType="resume.core.dto.ResumeRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
         INSERT INTO resumes (
             user_id
             , title
@@ -18,7 +41,7 @@
         )
     </insert>
 
-    <insert id="insertProfile" parameterType="resume.core.dto.ResumeSaveRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
+    <insert id="insertProfile" parameterType="resume.core.dto.ResumeRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
         INSERT INTO resume_profile (
             resume_id
             , name
