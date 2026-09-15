@@ -1,4 +1,4 @@
-# 데이터베이스 생성
+-- 데이터베이스 생성
 CREATE DATABASE resume default CHARACTER SET UTF8;
 
 CREATE USER 'resume'@'localhost' IDENTIFIED BY 'resume1234';
