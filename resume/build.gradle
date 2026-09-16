@@ -39,6 +39,8 @@ subprojects {
 	    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 		// MySQL
 		runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+		// postgresql
+		implementation 'org.postgresql:postgresql'
 		// JDBC + HikariCP
 		implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 		//mybatis
