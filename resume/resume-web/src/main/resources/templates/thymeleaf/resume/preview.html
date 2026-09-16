@@ -22,7 +22,7 @@
         <h1 th:text="${resume.name}">홍길동</h1>
         <p th:text="${resume.email}">hong@example.com</p>
         <h2>자기소개</h2>
-        <p th:text="${resume.summary}"></p>
+        <p th:text="${resume.introduction}"></p>
         <h2>경력</h2>
         <div th:each="exp : ${resume.experiences}">
             <strong th:text="${exp.company}"></strong>

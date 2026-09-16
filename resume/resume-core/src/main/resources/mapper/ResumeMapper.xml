@@ -3,6 +3,24 @@
 
 <mapper namespace="resume.core.mapper.ResumeMapper">
 
+    <resultMap id="resumeDetailResultMap" type="resume.core.dto.ResumeDetailResponseDto">
+        <id property="resumeId" column="resume_id"/>
+        <result property="templateId" column="template_id"/>
+        <result property="title" column="title"/>
+
+        <association property="profile" javaType="resume.core.dto.ProfileDto">
+            <id property="profileId" column="profile_id"/>
+            <result property="resumeId" column="profile_resume_id"/>
+            <result property="name" column="name"/>
+            <result property="email" column="email"/>
+            <result property="phone" column="phone"/>
+            <result property="address" column="address"/>
+            <result property="profileImage" column="profile_image"/>
+            <result property="birthDate" column="birth_date"/>
+            <result property="introduction" column="introduction"/>
+        </association>
+    </resultMap>
+
     <select id="selectResumeList" parameterType="resume.core.dto.ResumeRequestDto" resultType="resume.core.dto.ResumeResponseDto">
         SELECT
             resume_id
@@ -14,15 +32,23 @@
         WHERE user_id = #{userId}
     </select>
 
-    <select id="selectResumeDetail" parameterType="resume.core.dto.ResumeRequestDto" resultType="resume.core.dto.ResumeDetailResponseDto">
+    <select id="selectResumeDetail" parameterType="resume.core.dto.ResumeRequestDto" resultMap="resumeDetailResultMap">
         SELECT
-            user_id
-            , title
-            , template_id
-            , created_at
-            , updated_at
-        FROM resumes
-        WHERE user_id = #{userId}
+            r.resume_id
+            , r.template_id
+            , r.title
+            , rp.profile_id
+            , rp.resume_id AS profile_resume_id
+            , rp.name
+            , rp.email
+            , rp.phone
+            , rp.address
+            , rp.profile_image
+            , rp.birth_date
+            , rp.introduction
+        FROM resume.resumes r
+            LEFT JOIN resume.resume_profile rp ON rp.resume_id = r.resume_id
+        WHERE r.resume_id = #{resumeId}
     </select>
 
     <insert id="insertResume" parameterType="resume.core.dto.ResumeRequestDto" useGeneratedKeys="true" keyProperty="resumeId">

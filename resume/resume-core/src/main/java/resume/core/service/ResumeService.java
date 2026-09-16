@@ -22,7 +22,13 @@ public class ResumeService {
     }
 
     public ResumeDetailResponseDto getResumeDetail(ResumeRequestDto requestDto) {
-        return resumeMapper.selectResumeDetail(requestDto);
+        ResumeDetailResponseDto resumeDetail = resumeMapper.selectResumeDetail(requestDto);
+
+        if (resumeDetail != null && resumeDetail.getProfile() == null) {
+            resumeDetail.setProfile(new ProfileDto());
+        }
+
+        return resumeDetail;
     }
 
     public Long saveResume(ResumeRequestDto requestDto) {

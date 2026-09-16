@@ -7,5 +7,6 @@
         <setting name="jdbcTypeForNull" value="NULL" />
         <setting name="returnInstanceForEmptyRow" value="true"/>
         <setting name="defaultExecutorType" value="SIMPLE" />
+        <setting name="logImpl" value="org.apache.ibatis.logging.stdout.StdOutImpl"/>
     </settings>
 </configuration>

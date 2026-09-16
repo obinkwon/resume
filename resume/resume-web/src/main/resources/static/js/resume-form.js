@@ -28,7 +28,9 @@ $(function(){
             profile: {
                 name: document.querySelector('[name=name]').value,
                 email: document.querySelector('[name=email]').value,
-                phone: document.querySelector('[name=phone]').value
+                phone: document.querySelector('[name=phone]').value,
+                address: document.querySelector('[name=address]').value,
+                introduction: document.querySelector('[name=introduction]').value
             },
             experiences: [],
             educations: [],
