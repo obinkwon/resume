@@ -29,21 +29,10 @@
             </div>
             <div class="section">
                 <h2>기술 스택</h2>
-
                 <div id="skillList">
-                    <div class="skill-item"
-                         th:each="skill : ${resumeDetail?.skills}">
-
-                        <input type="text"
-                               name="skillName"
-                               placeholder="기술 입력"
-                               th:value="${skill.skillName}">
-
-                        <input type="text"
-                               name="category"
-                               placeholder="카테고리 (예: Backend)"
-                               th:value="${skill.category}">
-
+                    <div class="skill-item" th:each="skill : ${resumeDetail?.skills}">
+                        <input type="text" name="skillName" placeholder="기술 입력" th:value="${skill.skillName}">
+                        <input type="text" name="category" placeholder="카테고리 (예: Backend)" th:value="${skill.category}">
                         <select name="proficiency">
                             <option value="">숙련도 선택</option>
                             <option value="1" th:selected="${skill.proficiency == 1}">1 - 초급</option>
@@ -52,24 +41,26 @@
                             <option value="4" th:selected="${skill.proficiency == 4}">4</option>
                             <option value="5" th:selected="${skill.proficiency == 5}">5 - 고급</option>
                         </select>
-
                         <button type="button" class="removeSkill">삭제</button>
                     </div>
                 </div>
-
-                <button type="button" id="addSkill">+ 기술 추가</button>
+                <button type="button" class="addBtn" id="addSkill">+ 기술 추가</button>
             </div>
             <div class="section">
                 <h2>학력</h2>
                 <div id="educationList">
-                    <div class="item">
-                        <input type="text" name="school" placeholder="학교">
-                        <input type="text" name="major" placeholder="전공">
-                        <input type="date" name="eduStart">
-                        <input type="date" name="eduEnd">
+                    <!-- 기존 학력 -->
+                    <div class="item" th:each="education : ${resumeDetail?.educations}">
+                        <input type="text" name="schoolName" placeholder="학교" th:value="${education.schoolName}">
+                        <input type="text" name="major" placeholder="전공" th:value="${education.major}">
+                        <input type="text" name="degree" placeholder="학위 (예: 학사)" th:value="${education.degree}">
+                        <input type="date" name="startDate" th:value="${education.startDate}">
+                        <input type="date" name="endDate" th:value="${education.endDate}">
+                        <textarea name="description" placeholder="학력 설명" rows="3" th:text="${education.description}"></textarea>
+                        <button type="button" class="removeEducation">삭제</button>
                     </div>
                 </div>
-                <button type="button" id="addEducation">+ 학력 추가</button>
+                <button type="button" class="addBtn" id="addEducation">+ 학력 추가</button>
             </div>
             <div class="section">
                 <h2>경력</h2>

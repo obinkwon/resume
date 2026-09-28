@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class SkillDto {
 
+    private Long skillId;
     private Long resumeId;
     private String skillName;
     private String category;

@@ -10,9 +10,11 @@ import java.time.LocalDate;
 public class EducationDto {
 
     private Long resumeId;
-    private String school;
+    private String schoolName;
     private String major;
+    private String degree;
     private LocalDate startDate;
     private LocalDate endDate;
+    private String description;
     private int sortOrder;
 }

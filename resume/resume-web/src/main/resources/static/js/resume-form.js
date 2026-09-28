@@ -10,6 +10,7 @@ function isAllEmpty(obj) {
 }
 
 $(function(){
+    // 기술 추가
     $('#addSkill').on('click', function() {
         const skillHtml = `
             <div class="skill-item">
@@ -23,16 +24,28 @@ $(function(){
                     <option value="4">4</option>
                     <option value="5">5 - 고급</option>
                 </select>
-                <button type="button" class="removeSkill">삭제</button>
+                <button type="button" class="removeBtn">삭제</button>
             </div>
         `;
         $('#skillList').append(skillHtml);
     });
+    // 학력 추가
+    $('#addEducation').on('click', function() {
+        const educationHtml = `
+            <div class="item">
+                <input type="text" name="schoolName" placeholder="학교">
+                <input type="text" name="major" placeholder="전공">
+                <input type="text" name="degree" placeholder="학위 (예: 학사)">
+                <input type="date" name="startDate">
+                <input type="date" name="endDate">
+                <textarea name="description" placeholder="학력 설명" rows="3"></textarea>
+                <button type="button" class="removeBtn">삭제</button>
+            </div>
+        `;
+        $('#educationList').append(educationHtml);
+    });
     $('#addExperience').on('click', function(){
         addBlock('experienceList', '<div class="item"><input placeholder="회사명"></div>');
-    });
-    $('#addEducation').on('click', function(){
-        addBlock('educationList', '<div class="item"><input placeholder="학교"></div>');
     });
     $('#addProject').on('click', function(){
         addBlock('projectList', '<div class="item"><input placeholder="프로젝트명"></div>');
@@ -66,6 +79,27 @@ $(function(){
                 });
             }
         });
+        // 학력 추가
+        $('#educationList .item').each(function(index, item) {
+            const schoolName = $(item).find('[name=schoolName]').val().trim();
+            const major = $(item).find('[name=major]').val().trim();
+            const degree = $(item).find('[name=degree]').val().trim();
+            const startDate = $(item).find('[name=startDate]').val();
+            const endDate = $(item).find('[name=endDate]').val();
+            const description = $(item).find('[name=description]').val().trim();
+            // 학교명이 있는 경우만 저장
+            if (schoolName !== '') {
+                data.educations.push({
+                    schoolName: schoolName,
+                    major: major !== '' ? major : null,
+                    degree: degree !== '' ? degree : null,
+                    startDate: startDate !== '' ? startDate : null,
+                    endDate: endDate !== '' ? endDate : null,
+                    description: description !== '' ? description : null,
+                    sortOrder: index
+                });
+            }
+        });
 
         $('#experienceList .item').each(function(index, item) {
             const experience = {
@@ -77,18 +111,6 @@ $(function(){
             };
             if (!isAllEmpty(experience)) {
                 data.experiences.push(experience);
-            }
-        });
-
-        $('#educationList .item').each(function(index, item) {
-            const education = {
-                school: item.querySelector('[name=school]').value,
-                major: item.querySelector('[name=major]').value,
-                startDate: item.querySelector('[name=eduStart]').value,
-                endDate: item.querySelector('[name=eduEnd]').value
-            };
-            if (!isAllEmpty(education)) {
-                data.educations.push(education);
             }
         });
 
@@ -117,8 +139,12 @@ $(function(){
 
         //location.reload();
     });
-    // 제거
-    $('#skillList').on('click', '.removeSkill', function() {
+    // 기술 제거
+    $('#skillList').on('click', '.removeBtn', function() {
         $(this).closest('.skill-item').remove();
+    });
+    // 학력 제거
+    $('#educationList').on('click', '.removeBtn', function() {
+        $(this).closest('.item').remove();
     });
 });

@@ -12,15 +12,19 @@ public interface ResumeMapper {
 
     ResumeDetailResponseDto selectResumeDetail(ResumeRequestDto requestDto);
 
+    ProfileDto selectResumeProfile(long resumeId);
+
+    SkillDto selectResumeSkills(long resumeId);
+
     void insertResume(ResumeRequestDto requestDto);
 
     void insertProfile(ProfileDto profileDto);
 
     void insertSkill(SkillDto skillDto);
 
-    void insertExperience(ExperienceDto experienceDto);
-
     void insertEducation(EducationDto educationDto);
+
+    void insertExperience(ExperienceDto experienceDto);
 
     void insertProject(ProjectDto projectDto);
 }

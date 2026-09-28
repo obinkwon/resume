@@ -46,6 +46,8 @@ CREATE TABLE resume_profile (
     profile_image VARCHAR(255),
     birth_date DATE,
     introduction TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_resume_profile PRIMARY KEY (profile_id)
 );
 COMMENT ON TABLE resume_profile IS '이력서 기본 정보';
@@ -58,6 +60,8 @@ COMMENT ON COLUMN resume_profile.address IS '주소';
 COMMENT ON COLUMN resume_profile.profile_image IS '프로필 이미지 경로 또는 URL';
 COMMENT ON COLUMN resume_profile.birth_date IS '생년월일';
 COMMENT ON COLUMN resume_profile.introduction IS '자기소개';
+COMMENT ON COLUMN resume_profile.created_at IS '생성일시';
+COMMENT ON COLUMN resume_profile.updated_at IS '수정일시';
 -- ========================================
 -- 외부 링크
 -- ========================================
@@ -144,6 +148,8 @@ CREATE TABLE resume_education (
     end_date DATE,
     description TEXT,
     sort_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_resume_education PRIMARY KEY (education_id)
 );
 COMMENT ON TABLE resume_education IS '이력서 학력 정보';
@@ -156,6 +162,8 @@ COMMENT ON COLUMN resume_education.start_date IS '입학일';
 COMMENT ON COLUMN resume_education.end_date IS '졸업일';
 COMMENT ON COLUMN resume_education.description IS '학력 설명';
 COMMENT ON COLUMN resume_education.sort_order IS '출력 순서';
+COMMENT ON COLUMN resume_education.created_at IS '생성일시';
+COMMENT ON COLUMN resume_education.updated_at IS '수정일시';
 -- ========================================
 -- 기술 스택
 -- ========================================

@@ -8,19 +8,12 @@
         <result property="templateId" column="template_id"/>
         <result property="title" column="title"/>
 
-        <association property="profile" javaType="resume.core.dto.ProfileDto">
-            <id property="profileId" column="profile_id"/>
-            <result property="resumeId" column="profile_resume_id"/>
-            <result property="name" column="name"/>
-            <result property="email" column="email"/>
-            <result property="phone" column="phone"/>
-            <result property="address" column="address"/>
-            <result property="profileImage" column="profile_image"/>
-            <result property="birthDate" column="birth_date"/>
-            <result property="introduction" column="introduction"/>
-        </association>
+        <association property="profile" javaType="resume.core.dto.ProfileDto" select="selectResumeProfile" column="resume_id"/>
+        <collection property="skills" ofType="resume.core.dto.SkillDto" select="selectResumeSkills" column="resume_id"/>
+        <collection property="educations" ofType="resume.core.dto.EducationDto" select="selectResumeEducations" column="resume_id"/>
     </resultMap>
 
+    <!-- 이력서 목록 조회 -->
     <select id="selectResumeList" parameterType="resume.core.dto.ResumeRequestDto" resultType="resume.core.dto.ResumeResponseDto">
         SELECT
             resume_id
@@ -32,25 +25,70 @@
         WHERE user_id = #{userId}
     </select>
 
+    <!-- 이력서 상세 조회 -->
     <select id="selectResumeDetail" parameterType="resume.core.dto.ResumeRequestDto" resultMap="resumeDetailResultMap">
         SELECT
-            r.resume_id
-            , r.template_id
-            , r.title
-            , rp.profile_id
-            , rp.resume_id AS profile_resume_id
-            , rp.name
-            , rp.email
-            , rp.phone
-            , rp.address
-            , rp.profile_image
-            , rp.birth_date
-            , rp.introduction
-        FROM resumes r
-            LEFT JOIN resume_profile rp ON rp.resume_id = r.resume_id
-        WHERE r.resume_id = #{resumeId}
+            resume_id
+            , template_id
+            , title
+        FROM resumes
+        WHERE resume_id = #{resumeId}
     </select>
 
+    <!-- 이력서 프로필 상세 조회 -->
+    <select id="selectResumeProfile" parameterType="long" resultType="resume.core.dto.ProfileDto">
+        SELECT
+            profile_id
+            , resume_id
+            , name
+            , email
+            , phone
+            , address
+            , profile_image
+            , birth_date
+            , introduction
+            , created_at
+            , updated_at
+        FROM resume_profile
+        WHERE resume_id = #{resumeId}
+    </select>
+
+    <!-- 이력서 기술 목록 조회 -->
+    <select id="selectResumeSkills" parameterType="long" resultType="resume.core.dto.SkillDto">
+        SELECT
+            skill_id
+            , resume_id
+            , skill_name
+            , category
+            , proficiency
+            , sort_order
+            , created_at
+            , updated_at
+        FROM resume_skill
+        WHERE resume_id = #{resumeId}
+        ORDER BY sort_order
+    </select>
+
+    <!-- 이력서 학력 목록 조회 -->
+    <select id="selectResumeEducations" parameterType="long" resultType="resume.core.dto.EducationDto">
+        SELECT
+            education_id
+            , resume_id
+            , school_name
+            , major
+            , degree
+            , start_date
+            , end_date
+            , description
+            , sort_order
+            , created_at
+            , updated_at
+        FROM resume_education
+        WHERE resume_id = #{resumeId}
+        ORDER BY sort_order
+    </select>
+
+    <!-- 이력서 추가 -->
     <insert id="insertResume" parameterType="resume.core.dto.ResumeRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
         INSERT INTO resumes (
             user_id
@@ -67,7 +105,8 @@
         )
     </insert>
 
-    <insert id="insertProfile" parameterType="resume.core.dto.ResumeRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
+    <!-- 이력서 프로필 추가 -->
+    <insert id="insertProfile" parameterType="resume.core.dto.ResumeRequestDto">
         INSERT INTO resume_profile (
             resume_id
             , name
@@ -89,6 +128,7 @@
         )
     </insert>
 
+    <!-- 이력서 기술 추가 -->
     <insert id="insertSkill" parameterType="resume.core.dto.SkillDto">
         INSERT INTO resume_skill (
             resume_id
@@ -102,6 +142,34 @@
             #{resumeId}
             , #{skillName}
             , #{category}
+            , #{proficiency}
+            , #{sortOrder}
+            , CURRENT_TIMESTAMP
+            , CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <!-- 이력서 학력 추가 -->
+    <insert id="insertEducation" parameterType="resume.core.dto.EducationDto">
+        INSERT INTO resume_education (
+            resume_id
+            , school_name
+            , major
+            , degree
+            , start_date
+            , end_date
+            , description
+            , sort_order
+            , created_at
+            , updated_at
+        ) VALUES (
+            #{resumeId}
+            , #{schoolName}
+            , #{major}
+            , #{degree}
+            , #{startDate}
+            , #{endDate}
+            , #{description}
             , #{sortOrder}
             , CURRENT_TIMESTAMP
             , CURRENT_TIMESTAMP
@@ -124,24 +192,6 @@
             #{startDate},
             #{endDate},
             #{description},
-            #{sortOrder}
-        )
-    </insert>
-
-    <insert id="insertEducation" parameterType="resume.core.dto.EducationDto">
-        INSERT INTO resume_education (
-            resume_id,
-            school,
-            major,
-            start_date,
-            end_date,
-            sort_order
-        ) VALUES (
-            #{resumeId},
-            #{school},
-            #{major},
-            #{startDate},
-            #{endDate},
             #{sortOrder}
         )
     </insert>

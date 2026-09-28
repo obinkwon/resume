@@ -8,6 +8,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class ProfileDto {
+
     private Long profileId;
     private Long resumeId;
     private String name;
