@@ -39,7 +39,19 @@ public class ResumeService {
         resumeMapper.insertProfile(requestDto.getProfile());
 
         int order = 0;
-        log.info("requestDto.getExperiences() ::: {}",requestDto.getExperiences());
+
+        log.info("requestDto.getSkills() ::: {}",requestDto.getSkills());
+
+        if (requestDto.getSkills() != null) {
+            for (SkillDto sDto : requestDto.getSkills()) {
+                sDto.setResumeId(resumeId);
+                sDto.setSortOrder(order++);
+                resumeMapper.insertSkill(sDto);
+            }
+        }
+
+        order = 0;
+
         if (requestDto.getExperiences() != null) {
             for (ExperienceDto expDto : requestDto.getExperiences()) {
                 expDto.setResumeId(resumeId);
@@ -65,16 +77,6 @@ public class ResumeService {
                 pDto.setResumeId(resumeId);
                 pDto.setSortOrder(order++);
                 resumeMapper.insertProject(pDto);
-            }
-        }
-
-        order = 0;
-
-        if (requestDto.getSkills() != null) {
-            for (SkillDto sDto : requestDto.getSkills()) {
-                sDto.setResumeId(resumeId);
-                sDto.setSortOrder(order++);
-                resumeMapper.insertSkill(sDto);
             }
         }
 

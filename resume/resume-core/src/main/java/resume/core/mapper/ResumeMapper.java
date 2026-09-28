@@ -16,11 +16,11 @@ public interface ResumeMapper {
 
     void insertProfile(ProfileDto profileDto);
 
+    void insertSkill(SkillDto skillDto);
+
     void insertExperience(ExperienceDto experienceDto);
 
     void insertEducation(EducationDto educationDto);
 
     void insertProject(ProjectDto projectDto);
-
-    void insertSkill(SkillDto skillDto);
 }

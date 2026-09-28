@@ -9,5 +9,7 @@ public class SkillDto {
 
     private Long resumeId;
     private String skillName;
+    private String category;
+    private int proficiency;
     private int sortOrder;
 }

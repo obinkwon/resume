@@ -10,10 +10,12 @@
 - spring boot : 3.4.4
 - java : 17
 - gradle : 8.11.1
-- oauth-core : 0.0.1
+- ~~oauth-core : 0.0.1~~
 <br/><br/><br/>
 
 ## 수정내역
+### 2026
+- oauth-core 모듈 제거
 ### 2025
 - oauth-core 모듈 추가
 - 초기 세팅

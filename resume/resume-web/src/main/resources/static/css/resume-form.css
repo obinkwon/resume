@@ -1,4 +1,4 @@
-/* common css */
+/* resume-form css */
 
 .item {
     border:1px solid #ddd;
@@ -9,4 +9,43 @@
 
 button {
     cursor:pointer;
+}
+
+/* resume skill */
+.skill-item {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.skill-item input,
+.skill-item select {
+    margin-bottom: 0;
+}
+
+.skill-item .removeSkill {
+    padding: 11px 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    color: #64748b;
+}
+
+.skill-item .removeSkill:hover {
+    background: #f1f5f9;
+}
+
+#addSkill {
+    padding: 10px 16px;
+    border: 1px solid #2563eb;
+    border-radius: 6px;
+    background: #fff;
+    color: #2563eb;
+    cursor: pointer;
+}
+
+#addSkill:hover {
+    background: #eff6ff;
 }

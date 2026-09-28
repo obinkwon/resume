@@ -46,8 +46,8 @@
             , rp.profile_image
             , rp.birth_date
             , rp.introduction
-        FROM resume.resumes r
-            LEFT JOIN resume.resume_profile rp ON rp.resume_id = r.resume_id
+        FROM resumes r
+            LEFT JOIN resume_profile rp ON rp.resume_id = r.resume_id
         WHERE r.resume_id = #{resumeId}
     </select>
 
@@ -86,6 +86,25 @@
             , #{profileImage}
             , #{birthDate}
             , #{introduction}
+        )
+    </insert>
+
+    <insert id="insertSkill" parameterType="resume.core.dto.SkillDto">
+        INSERT INTO resume_skill (
+            resume_id
+            , skill_name
+            , category
+            , proficiency
+            , sort_order
+            , created_at
+            , updated_at
+        ) VALUES (
+            #{resumeId}
+            , #{skillName}
+            , #{category}
+            , #{sortOrder}
+            , CURRENT_TIMESTAMP
+            , CURRENT_TIMESTAMP
         )
     </insert>
 
@@ -143,15 +162,4 @@
         )
     </insert>
 
-    <insert id="insertSkill" parameterType="resume.core.dto.SkillDto">
-        INSERT INTO resume_skill (
-            resume_id,
-            skill_name,
-            sort_order
-        ) VALUES (
-            #{resumeId},
-            #{skillName},
-            #{sortOrder}
-        )
-    </insert>
 </mapper>

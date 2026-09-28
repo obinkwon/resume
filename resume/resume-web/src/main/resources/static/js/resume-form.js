@@ -10,6 +10,24 @@ function isAllEmpty(obj) {
 }
 
 $(function(){
+    $('#addSkill').on('click', function() {
+        const skillHtml = `
+            <div class="skill-item">
+                <input type="text" name="skillName" placeholder="기술 입력">
+                <input type="text" name="category" placeholder="카테고리 (예: Backend)">
+                <select name="proficiency">
+                    <option value="">숙련도 선택</option>
+                    <option value="1">1 - 초급</option>
+                    <option value="2">2</option>
+                    <option value="3">3 - 중급</option>
+                    <option value="4">4</option>
+                    <option value="5">5 - 고급</option>
+                </select>
+                <button type="button" class="removeSkill">삭제</button>
+            </div>
+        `;
+        $('#skillList').append(skillHtml);
+    });
     $('#addExperience').on('click', function(){
         addBlock('experienceList', '<div class="item"><input placeholder="회사명"></div>');
     });
@@ -18,9 +36,6 @@ $(function(){
     });
     $('#addProject').on('click', function(){
         addBlock('projectList', '<div class="item"><input placeholder="프로젝트명"></div>');
-    });
-    $('#addSkill').on('click', function(){
-        addBlock('skillList', '<input placeholder="기술 입력">');
     });
     $('#btnResumeSave').on('click', async function(){
         const data = {
@@ -37,6 +52,20 @@ $(function(){
             projects: [],
             skills: []
         };
+        // 기술 스택 추가
+        $('#skillList .skill-item').each(function(index, item) {
+            const skillName = $(item).find('[name=skillName]').val().trim();
+            const category = $(item).find('[name=category]').val().trim();
+            const proficiency = $(item).find('[name=proficiency]').val();
+            if (skillName !== '') {
+                data.skills.push({
+                    skillName: skillName,
+                    category: category !== '' ? category : null,
+                    proficiency: proficiency !== '' ? Number(proficiency) : null,
+                    sortOrder: index
+                });
+            }
+        });
 
         $('#experienceList .item').each(function(index, item) {
             const experience = {
@@ -74,13 +103,6 @@ $(function(){
             }
         });
 
-        $('#skillList input[name=skill]').each(function(index, input) {
-            const value = input.value.trim();
-            if (value !== '') {
-                data.skills.push({ skillName: value });
-            }
-        });
-
         const response = await fetch('/api/resume/save', {
             method: 'POST',
             headers: {
@@ -94,5 +116,9 @@ $(function(){
         alert('저장 완료');
 
         //location.reload();
+    });
+    // 제거
+    $('#skillList').on('click', '.removeSkill', function() {
+        $(this).closest('.skill-item').remove();
     });
 });
