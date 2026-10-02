@@ -14,25 +14,51 @@
         <form method="post">
             <div class="section">
                 <h2>이력서 정보</h2>
-                <input type="text" name="title" placeholder="이력서 제목" th:value="${resumeDetail?.title}">
+                <label class="field">
+                    <span class="label">이력서 제목</span>
+                    <input type="text" name="title" placeholder="이력서 제목" th:value="${resumeDetail?.title}">
+                </label>
             </div>
+
             <div class="section">
                 <h2>인적 사항</h2>
-                <input type="text" name="name" placeholder="이름" th:value="${resumeDetail?.profile?.name}">
-                <input type="email" name="email" placeholder="이메일" th:value="${resumeDetail?.profile?.email}">
-                <input type="text" name="phone" placeholder="전화번호" th:value="${resumeDetail?.profile?.phone}">
-                <input type="text" name="address" placeholder="주소" th:value="${resumeDetail?.profile?.address}">
+                <label class="field">
+                    <span class="label">이름</span>
+                    <input type="text" name="name" placeholder="이름" th:value="${resumeDetail?.profile?.name}">
+                </label>
+                <label class="field">
+                    <span class="label">이메일</span>
+                    <input type="email" name="email" placeholder="example@email.com" th:value="${resumeDetail?.profile?.email}">
+                </label>
+                <label class="field">
+                    <span class="label">전화번호</span>
+                    <input type="text" name="phone" placeholder="010-0000-0000" th:value="${resumeDetail?.profile?.phone}">
+                </label>
+                <label class="field">
+                    <span class="label">주소</span>
+                    <input type="text" name="address" placeholder="주소" th:value="${resumeDetail?.profile?.address}">
+                </label>
             </div>
+
             <div class="section">
                 <h2>자기소개</h2>
-                <textarea name="introduction" rows="6" th:text="${resumeDetail?.profile?.introduction}"></textarea>
+                <label class="field">
+                    <textarea name="introduction" rows="6" th:text="${resumeDetail?.profile?.introduction}"></textarea>
+                </label>
             </div>
+
             <div class="section">
                 <h2>기술 스택</h2>
+                <div id="skillHeader" class="item-row-header" th:classappend="${resumeDetail?.skills == null} ? 'd-none'">
+                    <span>기술명</span>
+                    <span>카테고리</span>
+                    <span>숙련도</span>
+                    <span></span>
+                </div>
                 <div id="skillList">
-                    <div class="skill-item" th:each="skill : ${resumeDetail?.skills}">
-                        <input type="text" name="skillName" placeholder="기술 입력" th:value="${skill.skillName}">
-                        <input type="text" name="category" placeholder="카테고리 (예: Backend)" th:value="${skill.category}">
+                    <div class="item-row" th:each="skill : ${resumeDetail?.skills}">
+                        <input type="text" name="skillName" placeholder="예: Spring Boot" th:value="${skill.skillName}">
+                        <input type="text" name="category" placeholder="예: Backend" th:value="${skill.category}">
                         <select name="proficiency">
                             <option value="">숙련도 선택</option>
                             <option value="1" th:selected="${skill.proficiency == 1}">1 - 초급</option>
@@ -41,51 +67,102 @@
                             <option value="4" th:selected="${skill.proficiency == 4}">4</option>
                             <option value="5" th:selected="${skill.proficiency == 5}">5 - 고급</option>
                         </select>
-                        <button type="button" class="removeSkill">삭제</button>
+                        <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
                     </div>
                 </div>
                 <button type="button" class="addBtn" id="addSkill">+ 기술 추가</button>
             </div>
+
             <div class="section">
                 <h2>학력</h2>
                 <div id="educationList">
-                    <!-- 기존 학력 -->
-                    <div class="item" th:each="education : ${resumeDetail?.educations}">
-                        <input type="text" name="schoolName" placeholder="학교" th:value="${education.schoolName}">
-                        <input type="text" name="major" placeholder="전공" th:value="${education.major}">
-                        <input type="text" name="degree" placeholder="학위 (예: 학사)" th:value="${education.degree}">
-                        <input type="date" name="startDate" th:value="${education.startDate}">
-                        <input type="date" name="endDate" th:value="${education.endDate}">
-                        <textarea name="description" placeholder="학력 설명" rows="3" th:text="${education.description}"></textarea>
-                        <button type="button" class="removeEducation">삭제</button>
+                    <div class="item-card" th:each="education : ${resumeDetail?.educations}">
+                        <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                        <label class="field">
+                            <span class="label">학교명</span>
+                            <input type="text" name="schoolName" placeholder="학교" th:value="${education.schoolName}">
+                        </label>
+                        <label class="field">
+                            <span class="label">전공</span>
+                            <input type="text" name="major" placeholder="전공" th:value="${education.major}">
+                        </label>
+                        <label class="field">
+                            <span class="label">학위</span>
+                            <input type="text" name="degree" placeholder="예: 학사" th:value="${education.degree}">
+                        </label>
+                        <div class="date-row">
+                            <label class="field">
+                                <span class="label">입학일</span>
+                                <input type="date" name="startDate" th:value="${education.startDate}">
+                            </label>
+                            <label class="field">
+                                <span class="label">졸업일</span>
+                                <input type="date" name="endDate" th:value="${education.endDate}">
+                            </label>
+                        </div>
+                        <label class="field">
+                            <span class="label">학력 설명</span>
+                            <textarea name="description" placeholder="학력 설명" rows="3" th:text="${education.description}"></textarea>
+                        </label>
                     </div>
                 </div>
                 <button type="button" class="addBtn" id="addEducation">+ 학력 추가</button>
             </div>
+
             <div class="section">
                 <h2>경력</h2>
                 <div id="experienceList">
-                    <div class="item">
-                        <input type="text" name="company" placeholder="회사명">
-                        <input type="text" name="position" placeholder="직무">
-                        <input type="date" name="startDate">
-                        <input type="date" name="endDate">
-                        <textarea name="description" placeholder="업무 내용"></textarea>
+                    <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                    <div class="item-card">
+                        <label class="field">
+                            <span class="label">회사명</span>
+                            <input type="text" name="company" placeholder="회사명">
+                        </label>
+                        <label class="field">
+                            <span class="label">직무</span>
+                            <input type="text" name="position" placeholder="직무">
+                        </label>
+                        <div class="date-row">
+                            <label class="field">
+                                <span class="label">입사일</span>
+                                <input type="date" name="startDate">
+                            </label>
+                            <label class="field">
+                                <span class="label">퇴사일</span>
+                                <input type="date" name="endDate">
+                            </label>
+                        </div>
+                        <label class="field">
+                            <span class="label">업무 내용</span>
+                            <textarea name="description" placeholder="업무 내용"></textarea>
+                        </label>
                     </div>
                 </div>
-                <button type="button" id="addExperience">+ 경력 추가</button>
+                <button type="button" class="addBtn" id="addExperience">+ 경력 추가</button>
             </div>
+
             <div class="section">
                 <h2>프로젝트</h2>
                 <div id="projectList">
-                    <div class="item">
-                        <input type="text" name="projectName" placeholder="프로젝트명">
-                        <textarea name="projectDescription" placeholder="설명"></textarea>
-                        <input type="text" name="techStack" placeholder="Java, Spring Boot, MyBatis">
+                    <div class="item-card">
+                        <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                        <label class="field">
+                            <span class="label">프로젝트명</span>
+                            <input type="text" name="projectName" placeholder="프로젝트명">
+                        </label>
+                        <label class="field">
+                            <span class="label">프로젝트 설명</span>
+                            <textarea name="projectDescription" placeholder="설명"></textarea>
+                        </label>
+                        <label class="field">
+                            <span class="label">사용 기술</span>
+                            <input type="text" name="techStack" placeholder="Java, Spring Boot, MyBatis">
+                        </label>
                     </div>
                 </div>
-                <button type="button" id="addProject">+ 프로젝트 추가</button>
+                <button type="button" class="addBtn" id="addProject">+ 프로젝트 추가</button>
             </div>
+
             <button id="btnResumeSave" type="button" class="btn primary">저장</button>
         </form>
     </div>

@@ -1,51 +1,113 @@
 /* resume-form css */
 
-.item {
-    border:1px solid #ddd;
-    padding:15px;
-    margin-bottom:15px;
-    border-radius:6px;
-}
-
 button {
-    cursor:pointer;
+    cursor: pointer;
 }
 
+.d-none { display: none !important; }
+
+/* ===== 버튼 ===== */
 .addBtn {
     padding: 10px 16px;
     border: 1px solid #2563eb;
     border-radius: 6px;
     background: #fff;
     color: #2563eb;
-    cursor: pointer;
 }
 
 .addBtn:hover {
     background: #eff6ff;
 }
 
+/* 공통: x 삭제 버튼 */
 .removeBtn {
-    padding: 11px 14px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background: #fff;
-    color: #64748b;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 22px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .removeBtn:hover {
-    background: #f1f5f9;
+    background: #fee2e2;
+    color: #ef4444;
 }
 
-/* resume skill */
-.skill-item {
+/* ===== 카드형 item (학력, 경력, 프로젝트) ===== */
+.item-card {
+    position: relative;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+}
+
+.item-card > .removeBtn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+/* ===== 한줄형 item (기술 스택) ===== */
+.item-row-header,
+.item-row {
+    --cols: 2fr 1.5fr 1fr 30px;   /* 필요하면 섹션별로 덮어쓰기 */
     display: grid;
-    grid-template-columns: 2fr 1.5fr 1fr auto;
+    grid-template-columns: var(--cols);
     gap: 10px;
     align-items: center;
+}
+
+.item-row-header {
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.item-row {
     margin-bottom: 10px;
 }
 
-.skill-item input,
-.skill-item select {
+.item-row input,
+.item-row select {
     margin-bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ===== 라벨 + 입력 묶음 ===== */
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.field .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0;
+}
+
+/* 시작일/종료일 나란히 */
+.date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }

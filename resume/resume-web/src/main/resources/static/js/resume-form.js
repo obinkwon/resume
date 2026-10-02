@@ -12,8 +12,9 @@ function isAllEmpty(obj) {
 $(function(){
     // 기술 추가
     $('#addSkill').on('click', function() {
+        $('#skillHeader').removeClass('d-none');
         const skillHtml = `
-            <div class="skill-item">
+            <div class="item-row">
                 <input type="text" name="skillName" placeholder="기술 입력">
                 <input type="text" name="category" placeholder="카테고리 (예: Backend)">
                 <select name="proficiency">
@@ -24,7 +25,7 @@ $(function(){
                     <option value="4">4</option>
                     <option value="5">5 - 고급</option>
                 </select>
-                <button type="button" class="removeBtn">삭제</button>
+                <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
             </div>
         `;
         $('#skillList').append(skillHtml);
@@ -32,23 +33,87 @@ $(function(){
     // 학력 추가
     $('#addEducation').on('click', function() {
         const educationHtml = `
-            <div class="item">
-                <input type="text" name="schoolName" placeholder="학교">
-                <input type="text" name="major" placeholder="전공">
-                <input type="text" name="degree" placeholder="학위 (예: 학사)">
-                <input type="date" name="startDate">
-                <input type="date" name="endDate">
-                <textarea name="description" placeholder="학력 설명" rows="3"></textarea>
-                <button type="button" class="removeBtn">삭제</button>
+            <div class="item-card">
+                <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                <label class="field">
+                    <span class="label">학교명</span>
+                    <input type="text" name="schoolName" placeholder="학교">
+                </label>
+                <label class="field">
+                    <span class="label">전공</span>
+                    <input type="text" name="major" placeholder="전공">
+                </label>
+                <label class="field">
+                    <span class="label">학위</span>
+                    <input type="text" name="degree" placeholder="예: 학사">
+                </label>
+                <div class="date-row">
+                    <label class="field">
+                        <span class="label">입학일</span>
+                        <input type="date" name="startDate">
+                    </label>
+                    <label class="field">
+                        <span class="label">졸업일</span>
+                        <input type="date" name="endDate">
+                    </label>
+                </div>
+                <label class="field">
+                    <span class="label">학력 설명</span>
+                    <textarea name="description" placeholder="학력 설명" rows="3"></textarea>
+                </label>
             </div>
         `;
         $('#educationList').append(educationHtml);
     });
     $('#addExperience').on('click', function(){
-        addBlock('experienceList', '<div class="item"><input placeholder="회사명"></div>');
+        const experienceHtml = `
+            <div class="item-card">
+                <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                <label class="field">
+                    <span class="label">회사명</span>
+                    <input type="text" name="company" placeholder="회사명">
+                </label>
+                <label class="field">
+                    <span class="label">직무</span>
+                    <input type="text" name="position" placeholder="직무">
+                </label>
+                <div class="date-row">
+                    <label class="field">
+                        <span class="label">입사일</span>
+                        <input type="date" name="startDate">
+                    </label>
+                    <label class="field">
+                        <span class="label">퇴사일</span>
+                        <input type="date" name="endDate">
+                    </label>
+                </div>
+                <label class="field">
+                    <span class="label">업무 내용</span>
+                    <textarea name="description" placeholder="업무 내용"></textarea>
+                </label>
+            </div>
+        `;
+        $('#experienceList').append(experienceHtml);
     });
     $('#addProject').on('click', function(){
-        addBlock('projectList', '<div class="item"><input placeholder="프로젝트명"></div>');
+        const projectHtml = `
+            <div class="item-card">
+                <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                <label class="field">
+                    <span class="label">프로젝트명</span>
+                    <input type="text" name="projectName" placeholder="프로젝트명">
+                </label>
+                <label class="field">
+                    <span class="label">프로젝트 설명</span>
+                    <textarea name="projectDescription" placeholder="설명"></textarea>
+                </label>
+                <label class="field">
+                    <span class="label">사용 기술</span>
+                    <input type="text" name="techStack" placeholder="Java, Spring Boot, MyBatis">
+                </label>
+            </div>
+        `;
+        $('#projectList').append(projectHtml);
     });
     $('#btnResumeSave').on('click', async function(){
         const data = {
@@ -142,6 +207,9 @@ $(function(){
     // 기술 제거
     $('#skillList').on('click', '.removeBtn', function() {
         $(this).closest('.skill-item').remove();
+
+        // 남은 항목이 없으면 헤더 숨김
+        $('#skillHeader').toggleClass('d-none', $('#skillList .skill-item').length === 0);
     });
     // 학력 제거
     $('#educationList').on('click', '.removeBtn', function() {
