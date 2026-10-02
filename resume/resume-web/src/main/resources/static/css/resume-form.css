@@ -6,9 +6,20 @@ button {
 
 .d-none { display: none !important; }
 
-/* ===== 버튼 ===== */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
 .addBtn {
-    padding: 10px 16px;
+    padding: 6px 12px;     /* 제목 줄에 맞게 약간 작게 */
+    font-size: 13px;
     border: 1px solid #2563eb;
     border-radius: 6px;
     background: #fff;
@@ -38,6 +49,46 @@ button {
 .removeBtn:hover {
     background: #fee2e2;
     color: #ef4444;
+}
+
+.saveBtn {
+    padding: 12px 28px;
+    border: 1px solid #2563eb;
+    border-radius: 6px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, box-shadow .15s;
+}
+
+.saveBtn:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.saveBtn:active {
+    background: #1e40af;
+}
+
+.saveBtn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .3);
+}
+
+.saveBtn:disabled {
+    background: #93c5fd;
+    border-color: #93c5fd;
+    cursor: not-allowed;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
 }
 
 /* ===== 카드형 item (학력, 경력, 프로젝트) ===== */

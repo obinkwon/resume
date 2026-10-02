@@ -48,7 +48,10 @@
             </div>
 
             <div class="section">
-                <h2>기술 스택</h2>
+                <div class="section-header">
+                    <h2>기술 스택</h2>
+                    <button type="button" class="addBtn" id="addSkill">+ 기술 추가</button>
+                </div>
                 <div id="skillHeader" class="item-row-header" th:classappend="${resumeDetail?.skills == null} ? 'd-none'">
                     <span>기술명</span>
                     <span>카테고리</span>
@@ -70,11 +73,13 @@
                         <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
                     </div>
                 </div>
-                <button type="button" class="addBtn" id="addSkill">+ 기술 추가</button>
             </div>
 
             <div class="section">
-                <h2>학력</h2>
+                <div class="section-header">
+                    <h2>학력</h2>
+                    <button type="button" class="addBtn" id="addEducation">+ 학력 추가</button>
+                </div>
                 <div id="educationList">
                     <div class="item-card" th:each="education : ${resumeDetail?.educations}">
                         <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
@@ -106,14 +111,16 @@
                         </label>
                     </div>
                 </div>
-                <button type="button" class="addBtn" id="addEducation">+ 학력 추가</button>
             </div>
 
             <div class="section">
-                <h2>경력</h2>
+                <div class="section-header">
+                    <h2>경력</h2>
+                    <button type="button" class="addBtn" id="addExperience">+ 경력 추가</button>
+                </div>
                 <div id="experienceList">
-                    <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
                     <div class="item-card">
+                        <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
                         <label class="field">
                             <span class="label">회사명</span>
                             <input type="text" name="company" placeholder="회사명">
@@ -138,11 +145,13 @@
                         </label>
                     </div>
                 </div>
-                <button type="button" class="addBtn" id="addExperience">+ 경력 추가</button>
             </div>
 
             <div class="section">
-                <h2>프로젝트</h2>
+                <div class="section-header">
+                    <h2>프로젝트</h2>
+                    <button type="button" class="addBtn" id="addProject">+ 프로젝트 추가</button>
+                </div>
                 <div id="projectList">
                     <div class="item-card">
                         <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
@@ -160,10 +169,10 @@
                         </label>
                     </div>
                 </div>
-                <button type="button" class="addBtn" id="addProject">+ 프로젝트 추가</button>
             </div>
-
-            <button id="btnResumeSave" type="button" class="btn primary">저장</button>
+            <div class="form-actions">
+                <button id="btnResumeSave" type="button" class="saveBtn">저장</button>
+            </div>
         </form>
     </div>
 </body>
