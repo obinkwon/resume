@@ -131,7 +131,7 @@ $(function(){
             skills: []
         };
         // 기술 스택 추가
-        $('#skillList .skill-item').each(function(index, item) {
+        $('#skillList .item-row').each(function(index, item) {
             const skillName = $(item).find('[name=skillName]').val().trim();
             const category = $(item).find('[name=category]').val().trim();
             const proficiency = $(item).find('[name=proficiency]').val();
@@ -145,7 +145,7 @@ $(function(){
             }
         });
         // 학력 추가
-        $('#educationList .item').each(function(index, item) {
+        $('#educationList .item-card').each(function(index, item) {
             const schoolName = $(item).find('[name=schoolName]').val().trim();
             const major = $(item).find('[name=major]').val().trim();
             const degree = $(item).find('[name=degree]').val().trim();
@@ -166,7 +166,7 @@ $(function(){
             }
         });
 
-        $('#experienceList .item').each(function(index, item) {
+        $('#experienceList .item-card').each(function(index, item) {
             const experience = {
                 company: item.querySelector('[name=company]').value,
                 position: item.querySelector('[name=position]').value,
@@ -179,7 +179,7 @@ $(function(){
             }
         });
 
-        $('#projectList .item').each(function(index, item) {
+        $('#projectList .item-card').each(function(index, item) {
             const project = {
                 projectName: item.querySelector('[name=projectName]').value,
                 description: item.querySelector('[name=projectDescription]').value,
@@ -206,13 +206,21 @@ $(function(){
     });
     // 기술 제거
     $('#skillList').on('click', '.removeBtn', function() {
-        $(this).closest('.skill-item').remove();
+        $(this).closest('.item-row').remove();
 
         // 남은 항목이 없으면 헤더 숨김
-        $('#skillHeader').toggleClass('d-none', $('#skillList .skill-item').length === 0);
+        $('#skillHeader').toggleClass('d-none', $('#skillList .item-row').length === 0);
     });
     // 학력 제거
     $('#educationList').on('click', '.removeBtn', function() {
-        $(this).closest('.item').remove();
+        $(this).closest('.item-card').remove();
+    });
+    // 경력 제거
+    $('#experienceList').on('click', '.removeBtn', function() {
+        $(this).closest('.item-card').remove();
+    });
+    // 프로젝트 제거
+    $('#projectList').on('click', '.removeBtn', function() {
+        $(this).closest('.item-card').remove();
     });
 });
