@@ -94,6 +94,8 @@ CREATE TABLE resume_experience (
     is_current BOOLEAN DEFAULT FALSE,
     description TEXT,
     sort_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_resume_experience PRIMARY KEY (experience_id)
 );
 COMMENT ON TABLE resume_experience IS '이력서 경력 정보';
@@ -106,6 +108,8 @@ COMMENT ON COLUMN resume_experience.end_date IS '종료일';
 COMMENT ON COLUMN resume_experience.is_current IS '재직 여부';
 COMMENT ON COLUMN resume_experience.description IS '경력 설명';
 COMMENT ON COLUMN resume_experience.sort_order IS '출력 순서';
+COMMENT ON COLUMN resume_experience.created_at IS '생성일시';
+COMMENT ON COLUMN resume_experience.updated_at IS '수정일시';
 -- ========================================
 -- 프로젝트
 -- ========================================

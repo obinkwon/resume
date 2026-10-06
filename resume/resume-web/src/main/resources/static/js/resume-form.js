@@ -87,6 +87,10 @@ $(function(){
                         <input type="date" name="endDate">
                     </label>
                 </div>
+                <label class="check">
+                    <input type="checkbox" name="isCurrent">
+                    <span>재직중</span>
+                </label>
                 <label class="field">
                     <span class="label">업무 내용</span>
                     <textarea name="description" placeholder="업무 내용"></textarea>
@@ -139,8 +143,7 @@ $(function(){
                 data.skills.push({
                     skillName: skillName,
                     category: category !== '' ? category : null,
-                    proficiency: proficiency !== '' ? Number(proficiency) : null,
-                    sortOrder: index
+                    proficiency: proficiency !== '' ? Number(proficiency) : null
                 });
             }
         });
@@ -160,22 +163,29 @@ $(function(){
                     degree: degree !== '' ? degree : null,
                     startDate: startDate !== '' ? startDate : null,
                     endDate: endDate !== '' ? endDate : null,
-                    description: description !== '' ? description : null,
-                    sortOrder: index
+                    description: description !== '' ? description : null
                 });
             }
         });
-
-        $('#experienceList .item-card').each(function(index, item) {
-            const experience = {
-                company: item.querySelector('[name=company]').value,
-                position: item.querySelector('[name=position]').value,
-                startDate: item.querySelector('[name=startDate]').value,
-                endDate: item.querySelector('[name=endDate]').value,
-                description: item.querySelector('[name=description]').value
-            };
-            if (!isAllEmpty(experience)) {
-                data.experiences.push(experience);
+        // 경력 추가
+        $('#experienceList .item-card').each(function (index, item) {
+            const companyName = $(item).find('[name=companyName]').val().trim();
+            const position = $(item).find('[name=position]').val().trim();
+            const startDate = $(item).find('[name=startDate]').val();
+            const endDate = $(item).find('[name=endDate]').val();
+            const isCurrent = $(item).find('[name=isCurrent]').prop('checked');
+            const description = $(item).find('[name=description]').val().trim();
+            // 회사명이 있는 경우만 저장
+            if (companyName !== '') {
+                data.experiences.push({
+                    companyName: companyName,
+                    position: position !== '' ? position : null,
+                    startDate: startDate !== '' ? startDate : null,
+                    endDate: (!isCurrent && endDate !== '') ? endDate : null,
+                    isCurrent: isCurrent,
+                    description: description !== '' ? description : null,
+                    sortOrder: data.experiences.length
+                });
             }
         });
 
@@ -218,6 +228,14 @@ $(function(){
     // 경력 제거
     $('#experienceList').on('click', '.removeBtn', function() {
         $(this).closest('.item-card').remove();
+    });
+    $('#experienceList').on('change', 'input[name="isCurrent"]', function () {
+        const $endDate = $(this).closest('.item-card').find('input[name="endDate"]');
+        if (this.checked) {
+            $endDate.val('').prop('disabled', true);
+        } else {
+            $endDate.prop('disabled', false);
+        }
     });
     // 프로젝트 제거
     $('#projectList').on('click', '.removeBtn', function() {

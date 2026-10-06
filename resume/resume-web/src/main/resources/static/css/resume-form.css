@@ -156,9 +156,43 @@ button {
     margin-bottom: 0;
 }
 
+.field input:disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+}
+
 /* 시작일/종료일 나란히 */
 .date-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+}
+/* ===== 체크박스 묶음 ===== */
+.check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #334155;
+    cursor: pointer;
+    user-select: none;          /* 라벨 글자 더블클릭 시 선택 방지 */
+}
+
+.check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    accent-color: #2563eb;      /* 체크 색을 버튼 파란색에 맞춤 */
+    cursor: pointer;
+}
+
+.check:hover {
+    color: #1e293b;
+}
+
+.check input[type="checkbox"]:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: 2px;
 }

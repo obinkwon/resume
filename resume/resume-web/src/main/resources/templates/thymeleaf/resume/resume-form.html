@@ -119,11 +119,11 @@
                     <button type="button" class="addBtn" id="addExperience">+ 경력 추가</button>
                 </div>
                 <div id="experienceList">
-                    <div class="item-card">
+                    <div class="item-card" th:each="experience : ${resumeDetail?.experiences}">
                         <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
                         <label class="field">
                             <span class="label">회사명</span>
-                            <input type="text" name="company" placeholder="회사명">
+                            <input type="text" name="companyName" placeholder="회사명">
                         </label>
                         <label class="field">
                             <span class="label">직무</span>
@@ -139,6 +139,10 @@
                                 <input type="date" name="endDate">
                             </label>
                         </div>
+                        <label class="check">
+                            <input type="checkbox" name="isCurrent" th:checked="${experience.isCurrent}">
+                            <span>재직중</span>
+                        </label>
                         <label class="field">
                             <span class="label">업무 내용</span>
                             <textarea name="description" placeholder="업무 내용"></textarea>

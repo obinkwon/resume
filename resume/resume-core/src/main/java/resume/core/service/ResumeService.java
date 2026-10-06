@@ -38,30 +38,18 @@ public class ResumeService {
         requestDto.getProfile().setResumeId(resumeId);
         resumeMapper.insertProfile(requestDto.getProfile());
 
+        // 기술 추가
         int order = 0;
-
-        log.info("requestDto.getSkills() ::: {}",requestDto.getSkills());
-
         if (requestDto.getSkills() != null) {
-            for (SkillDto sDto : requestDto.getSkills()) {
-                sDto.setResumeId(resumeId);
-                sDto.setSortOrder(order++);
-                resumeMapper.insertSkill(sDto);
+            for (SkillDto skillDto : requestDto.getSkills()) {
+                skillDto.setResumeId(resumeId);
+                skillDto.setSortOrder(order++);
+                resumeMapper.insertSkill(skillDto);
             }
         }
 
+        // 교육 추가
         order = 0;
-
-        if (requestDto.getExperiences() != null) {
-            for (ExperienceDto expDto : requestDto.getExperiences()) {
-                expDto.setResumeId(resumeId);
-                expDto.setSortOrder(order++);
-                resumeMapper.insertExperience(expDto);
-            }
-        }
-
-        order = 0;
-
         if (requestDto.getEducations() != null) {
             for (EducationDto eduDto : requestDto.getEducations()) {
                 eduDto.setResumeId(resumeId);
@@ -70,13 +58,23 @@ public class ResumeService {
             }
         }
 
+        // 경력 추가
         order = 0;
+        if (requestDto.getExperiences() != null) {
+            for (ExperienceDto expDto : requestDto.getExperiences()) {
+                expDto.setResumeId(resumeId);
+                expDto.setSortOrder(order++);
+                resumeMapper.insertExperience(expDto);
+            }
+        }
 
+        // 프로젝트 추가
+        order = 0;
         if (requestDto.getProjects() != null) {
-            for (ProjectDto pDto : requestDto.getProjects()) {
-                pDto.setResumeId(resumeId);
-                pDto.setSortOrder(order++);
-                resumeMapper.insertProject(pDto);
+            for (ProjectDto projDto : requestDto.getProjects()) {
+                projDto.setResumeId(resumeId);
+                projDto.setSortOrder(order++);
+                resumeMapper.insertProject(projDto);
             }
         }
 
