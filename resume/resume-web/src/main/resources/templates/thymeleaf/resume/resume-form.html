@@ -123,20 +123,20 @@
                         <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
                         <label class="field">
                             <span class="label">회사명</span>
-                            <input type="text" name="companyName" placeholder="회사명">
+                            <input type="text" name="companyName" placeholder="회사명" th:value="${experience.companyName}">
                         </label>
                         <label class="field">
                             <span class="label">직무</span>
-                            <input type="text" name="position" placeholder="직무">
+                            <input type="text" name="position" placeholder="직무" th:value="${experience.position}">
                         </label>
                         <div class="date-row">
                             <label class="field">
                                 <span class="label">입사일</span>
-                                <input type="date" name="startDate">
+                                <input type="date" name="startDate" th:value="${experience.startDate}">
                             </label>
                             <label class="field">
                                 <span class="label">퇴사일</span>
-                                <input type="date" name="endDate">
+                                <input type="date" name="endDate" th:value="${experience.endDate}">
                             </label>
                         </div>
                         <label class="check">
@@ -145,7 +145,7 @@
                         </label>
                         <label class="field">
                             <span class="label">업무 내용</span>
-                            <textarea name="description" placeholder="업무 내용"></textarea>
+                            <textarea name="description" placeholder="업무 내용" th:text="${experience.description}"></textarea>
                         </label>
                     </div>
                 </div>
@@ -157,19 +157,37 @@
                     <button type="button" class="addBtn" id="addProject">+ 프로젝트 추가</button>
                 </div>
                 <div id="projectList">
-                    <div class="item-card">
+                    <div class="item-card" th:each="project : ${resumeDetail?.projects}">
                         <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
                         <label class="field">
                             <span class="label">프로젝트명</span>
-                            <input type="text" name="projectName" placeholder="프로젝트명">
+                            <input type="text" name="projectName" placeholder="프로젝트명" th:value="${project.projectName}">
+                        </label>
+                        <div class="date-row">
+                            <label class="field">
+                                <span class="label">시작일</span>
+                                <input type="date" name="startDate" th:value="${project.startDate}">
+                            </label>
+                            <label class="field">
+                                <span class="label">종료일</span>
+                                <input type="date" name="endDate" th:value="${project.endDate}">
+                            </label>
+                        </div>
+                        <label class="field">
+                            <span class="label">담당 역할</span>
+                            <input type="text" name="role" placeholder="역할" th:value="${project.role}">
                         </label>
                         <label class="field">
                             <span class="label">프로젝트 설명</span>
-                            <textarea name="projectDescription" placeholder="설명"></textarea>
+                            <textarea name="description" placeholder="설명" th:text="${project.description}"></textarea>
                         </label>
                         <label class="field">
                             <span class="label">사용 기술</span>
-                            <input type="text" name="techStack" placeholder="Java, Spring Boot, MyBatis">
+                            <input type="text" name="techStack" placeholder="Java, Spring Boot, MyBatis" th:value="${project.techStack}">
+                        </label>
+                        <label class="field">
+                            <span class="label">URL</span>
+                            <input type="text" name="demoUrl" placeholder="URL" th:value="${project.demoUrl}">
                         </label>
                     </div>
                 </div>

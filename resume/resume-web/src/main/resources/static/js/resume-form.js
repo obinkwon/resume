@@ -107,13 +107,31 @@ $(function(){
                     <span class="label">프로젝트명</span>
                     <input type="text" name="projectName" placeholder="프로젝트명">
                 </label>
+                <div class="date-row">
+                    <label class="field">
+                        <span class="label">시작일</span>
+                        <input type="date" name="startDate">
+                    </label>
+                    <label class="field">
+                        <span class="label">종료일</span>
+                        <input type="date" name="endDate">
+                    </label>
+                </div>
+                <label class="field">
+                    <span class="label">담당 역할</span>
+                    <input type="text" name="role" placeholder="역할">
+                </label>
                 <label class="field">
                     <span class="label">프로젝트 설명</span>
-                    <textarea name="projectDescription" placeholder="설명"></textarea>
+                    <textarea name="description" placeholder="설명"></textarea>
                 </label>
                 <label class="field">
                     <span class="label">사용 기술</span>
                     <input type="text" name="techStack" placeholder="Java, Spring Boot, MyBatis">
+                </label>
+                <label class="field">
+                    <span class="label">URL</span>
+                    <input type="text" name="demoUrl" placeholder="URL">
                 </label>
             </div>
         `;
@@ -183,20 +201,30 @@ $(function(){
                     startDate: startDate !== '' ? startDate : null,
                     endDate: (!isCurrent && endDate !== '') ? endDate : null,
                     isCurrent: isCurrent,
-                    description: description !== '' ? description : null,
-                    sortOrder: data.experiences.length
+                    description: description !== '' ? description : null
                 });
             }
         });
-
+        // 프로젝트 추가
         $('#projectList .item-card').each(function(index, item) {
-            const project = {
-                projectName: item.querySelector('[name=projectName]').value,
-                description: item.querySelector('[name=projectDescription]').value,
-                techStack: item.querySelector('[name=techStack]').value
-            };
-            if (!isAllEmpty(project)) {
-                data.projects.push(project);
+            const projectName = $(item).find('[name=projectName]').val().trim();
+            const startDate = $(item).find('[name=startDate]').val();
+            const endDate = $(item).find('[name=endDate]').val();
+            const role = $(item).find('[name=role]').val().trim();
+            const description = $(item).find('[name=description]').val().trim();
+            const techStack = $(item).find('[name=techStack]').val().trim();
+            const demoUrl = $(item).find('[name=demoUrl]').val().trim();
+            // 프로젝트명이 있는 경우만 저장
+            if (projectName !== '') {
+                data.projects.push({
+                    projectName: projectName,
+                    startDate: startDate !== '' ? startDate : null,
+                    endDate: endDate !== '' ? endDate : null,
+                    role: role !== '' ? role : null,
+                    description: description !== '' ? description : null,
+                    techStack: techStack !== '' ? techStack : null,
+                    demoUrl: demoUrl !== '' ? demoUrl : null
+                });
             }
         });
 

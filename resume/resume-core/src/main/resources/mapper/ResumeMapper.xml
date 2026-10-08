@@ -12,6 +12,7 @@
         <collection property="skills" ofType="resume.core.dto.SkillDto" select="selectResumeSkills" column="resume_id"/>
         <collection property="educations" ofType="resume.core.dto.EducationDto" select="selectResumeEducations" column="resume_id"/>
         <collection property="experiences" ofType="resume.core.dto.ExperienceDto" select="selectResumeExperiences" column="resume_id"/>
+        <collection property="projects" ofType="resume.core.dto.ProjectDto" select="selectResumeProjects" column="resume_id"/>
     </resultMap>
 
     <!-- 이력서 목록 조회 -->
@@ -108,6 +109,26 @@
         ORDER BY sort_order
     </select>
 
+    <!-- 이력서 프로젝트 목록 조회 -->
+    <select id="selectResumeProjects" parameterType="long" resultType="resume.core.dto.ProjectDto">
+        SELECT
+            project_id
+            , resume_id
+            , project_name
+            , start_date
+            , end_date
+            , description
+            , role
+            , tech_stack
+            , demo_url
+            , sort_order
+            , created_at
+            , updated_at
+        FROM resume_project
+        WHERE resume_id = #{resumeId}
+        ORDER BY sort_order
+    </select>
+
     <!-- 이력서 추가 -->
     <insert id="insertResume" parameterType="resume.core.dto.ResumeRequestDto" useGeneratedKeys="true" keyProperty="resumeId">
         INSERT INTO resumes (
@@ -196,6 +217,7 @@
         )
     </insert>
 
+    <!-- 이력서 경력 추가 -->
     <insert id="insertExperience" parameterType="resume.core.dto.ExperienceDto">
         INSERT INTO resume_experience (
             resume_id
@@ -222,19 +244,32 @@
         )
     </insert>
 
+    <!-- 이력서 프로젝트 추가 -->
     <insert id="insertProject" parameterType="resume.core.dto.ProjectDto">
         INSERT INTO resume_project (
-            resume_id,
-            project_name,
-            description,
-            tech_stack,
-            sort_order
+            resume_id
+            , project_name
+            , start_date
+            , end_date
+            , description
+            , role
+            , tech_stack
+            , demo_url
+            , sort_order
+            , created_at
+            , updated_at
         ) VALUES (
-            #{resumeId},
-            #{projectName},
-            #{description},
-            #{techStack},
-            #{sortOrder}
+            , #{resumeId}
+            , #{projectName}
+            , #{startDate}
+            , #{endDate}
+            , #{role}
+            , #{description}
+            , #{techStack}
+            , #{demoUrl}
+            , #{sortOrder}
+            , CURRENT_TIMESTAMP
+            , CURRENT_TIMESTAMP
         )
     </insert>
 

@@ -19,6 +19,8 @@ public interface ResumeMapper {
     EducationDto selectResumeEducations(long resumeId);
     // 이력서 경력 목록 조회
     ExperienceDto selectResumeExperiences(long resumeId);
+    // 이력서 프로젝트 목록 조회
+    ProjectDto selectResumeProjects(long resumeId);
     // 이력서 추가
     void insertResume(ResumeRequestDto requestDto);
     // 이력서 프로필 추가
@@ -29,6 +31,6 @@ public interface ResumeMapper {
     void insertEducation(EducationDto educationDto);
     // 이력서 경력 추가
     void insertExperience(ExperienceDto experienceDto);
-
+    // 이력서 프로젝트 추가
     void insertProject(ProjectDto projectDto);
 }

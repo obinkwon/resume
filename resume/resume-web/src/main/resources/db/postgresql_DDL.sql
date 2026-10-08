@@ -122,9 +122,10 @@ CREATE TABLE resume_project (
     description TEXT,
     role VARCHAR(100),
     tech_stack TEXT,
-    github_url VARCHAR(255),
     demo_url VARCHAR(255),
     sort_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_resume_project PRIMARY KEY (project_id)
 );
 COMMENT ON TABLE resume_project IS '이력서 프로젝트 정보';
@@ -136,9 +137,10 @@ COMMENT ON COLUMN resume_project.end_date IS '종료일';
 COMMENT ON COLUMN resume_project.description IS '프로젝트 설명';
 COMMENT ON COLUMN resume_project.role IS '담당 역할';
 COMMENT ON COLUMN resume_project.tech_stack IS '사용 기술 스택';
-COMMENT ON COLUMN resume_project.github_url IS 'GitHub URL';
 COMMENT ON COLUMN resume_project.demo_url IS '데모 URL';
 COMMENT ON COLUMN resume_project.sort_order IS '출력 순서';
+COMMENT ON COLUMN resume_project.created_at IS '생성일시';
+COMMENT ON COLUMN resume_project.updated_at IS '수정일시';
 -- ========================================
 -- 학력
 -- ========================================
