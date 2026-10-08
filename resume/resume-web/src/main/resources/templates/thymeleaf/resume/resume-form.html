@@ -11,7 +11,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>이력서 작성</h1>
+        <div class="page-header">
+            <h1>이력서 작성</h1>
+            <button type="button" class="btn secondary" id="btnBack">
+                <i class="icon icon-arrow-left"></i> 뒤로가기
+            </button>
+        </div>
         <form method="post">
             <input type="hidden" name="resumeId" th:value="${resumeDetail?.resumeId}">
             <div class="section">
@@ -53,7 +58,9 @@
             <div class="section">
                 <div class="section-header">
                     <h2>기술 스택</h2>
-                    <button type="button" class="addBtn" id="addSkill">+ 기술 추가</button>
+                    <button type="button" class="btn outline sm addBtn" id="addSkill">
+                        <i class="icon icon-plus sm"></i> 기술 추가
+                    </button>
                 </div>
                 <div id="skillHeader" class="item-row-header" th:classappend="${resumeDetail?.skills == null} ? 'd-none'">
                     <span>기술명</span>
@@ -74,7 +81,9 @@
                             <option value="4" th:selected="${skill.proficiency == 4}">4</option>
                             <option value="5" th:selected="${skill.proficiency == 5}">5 - 고급</option>
                         </select>
-                        <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                            <i class="icon icon-close"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -82,12 +91,16 @@
             <div class="section">
                 <div class="section-header">
                     <h2>학력</h2>
-                    <button type="button" class="addBtn" id="addEducation">+ 학력 추가</button>
+                    <button type="button" class="btn outline sm addBtn" id="addEducation">
+                        <i class="icon icon-plus sm"></i> 학력 추가
+                    </button>
                 </div>
                 <div id="educationList">
                     <div class="item-card" th:each="education : ${resumeDetail?.educations}">
                         <input type="hidden" name="educationId" th:value="${education.educationId}">
-                        <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                            <i class="icon icon-close"></i>
+                        </button>
                         <label class="field">
                             <span class="label">학교명</span>
                             <input type="text" name="schoolName" placeholder="학교" th:value="${education.schoolName}">
@@ -121,12 +134,16 @@
             <div class="section">
                 <div class="section-header">
                     <h2>경력</h2>
-                    <button type="button" class="addBtn" id="addExperience">+ 경력 추가</button>
+                    <button type="button" class="btn outline sm addBtn" id="addExperience">
+                        <i class="icon icon-plus sm"></i> 경력 추가
+                    </button>
                 </div>
                 <div id="experienceList">
                     <div class="item-card" th:each="experience : ${resumeDetail?.experiences}">
                         <input type="hidden" name="experienceId" th:value="${experience.experienceId}">
-                        <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                            <i class="icon icon-close"></i>
+                        </button>
                         <label class="field">
                             <span class="label">회사명</span>
                             <input type="text" name="companyName" placeholder="회사명" th:value="${experience.companyName}">
@@ -160,12 +177,16 @@
             <div class="section">
                 <div class="section-header">
                     <h2>프로젝트</h2>
-                    <button type="button" class="addBtn" id="addProject">+ 프로젝트 추가</button>
+                    <button type="button" class="btn outline sm addBtn" id="addProject">
+                        <i class="icon icon-plus sm"></i> 프로젝트 추가
+                    </button>
                 </div>
                 <div id="projectList">
                     <div class="item-card" th:each="project : ${resumeDetail?.projects}">
                         <input type="hidden" name="projectId" th:value="${project.projectId}">
-                        <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                            <i class="icon icon-close"></i>
+                        </button>
                         <label class="field">
                             <span class="label">프로젝트명</span>
                             <input type="text" name="projectName" placeholder="프로젝트명" th:value="${project.projectName}">
@@ -200,7 +221,7 @@
                 </div>
             </div>
             <div class="form-actions">
-                <button id="btnResumeSave" type="button" class="saveBtn">저장</button>
+                <button id="btnResumeSave" type="button" class="btn primary lg">저장</button>
             </div>
         </form>
     </div>

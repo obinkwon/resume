@@ -25,7 +25,9 @@ $(function(){
                     <option value="4">4</option>
                     <option value="5">5 - 고급</option>
                 </select>
-                <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                    <i class="icon icon-close"></i>
+                </button>
             </div>
         `;
         $('#skillList').append(skillHtml);
@@ -34,7 +36,9 @@ $(function(){
     $('#addEducation').on('click', function() {
         const educationHtml = `
             <div class="item-card">
-                <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                    <i class="icon icon-close"></i>
+                </button>
                 <label class="field">
                     <span class="label">학교명</span>
                     <input type="text" name="schoolName" placeholder="학교">
@@ -68,7 +72,9 @@ $(function(){
     $('#addExperience').on('click', function(){
         const experienceHtml = `
             <div class="item-card">
-                <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                    <i class="icon icon-close"></i>
+                </button>
                 <label class="field">
                     <span class="label">회사명</span>
                     <input type="text" name="companyName" placeholder="회사명">
@@ -102,7 +108,9 @@ $(function(){
     $('#addProject').on('click', function(){
         const projectHtml = `
             <div class="item-card">
-                <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
+                <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                    <i class="icon icon-close"></i>
+                </button>
                 <label class="field">
                     <span class="label">프로젝트명</span>
                     <input type="text" name="projectName" placeholder="프로젝트명">
@@ -301,5 +309,13 @@ $(function(){
     // 프로젝트 제거
     $('#projectList').on('click', '.removeBtn', function() {
         $(this).closest('.item-card').remove();
+    });
+    $('#btnBack').on('click', function () {
+        // 이전 페이지가 있으면 뒤로, 직접 URL로 들어온 경우엔 목록으로
+        if (document.referrer && history.length > 1) {
+            history.back();
+        } else {
+            location.href = '/web/resume/main';
+        }
     });
 });

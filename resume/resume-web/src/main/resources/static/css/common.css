@@ -1,144 +1,369 @@
-/* common css */
+/* =========================================================
+   common.css
+   ========================================================= */
 
+/* ===== 디자인 토큰 ===== */
+:root {
+    /* 색상 */
+    --c-primary: #2563eb;
+    --c-primary-hover: #1d4ed8;
+    --c-primary-active: #1e40af;
+    --c-primary-soft: #eff6ff;
+
+    --c-danger: #ef4444;
+    --c-danger-hover: #dc2626;
+    --c-danger-soft: #fee2e2;
+
+    --c-success: #16a34a;
+    --c-success-soft: #dcfce7;
+
+    --c-text: #1e293b;
+    --c-text-sub: #475569;
+    --c-text-label: #334155;
+    --c-text-muted: #64748b;
+    --c-text-faint: #94a3b8;
+
+    --c-bg: #f5f6fa;
+    --c-surface: #fff;
+    --c-surface-sub: #f8fafc;
+    --c-border: #e2e8f0;
+    --c-border-strong: #cbd5e1;
+
+    /* 모양 */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 999px;
+
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, .04);
+    --shadow-md: 0 8px 20px rgba(15, 23, 42, .08);
+    --focus-ring: 0 0 0 3px rgba(37, 99, 235, .3);
+
+    --transition: .15s ease;
+}
+
+/* ===== 기본 ===== */
 body {
-    margin:0;
-    background:#f5f6fa;
+    margin: 0;
+    background: var(--c-bg);
     font-family: Pretendard, sans-serif;
-    color:#1e293b;
+    color: var(--c-text);
+    line-height: 1.5;
 }
 
 .container {
-    width:1200px;
-    margin:40px auto;
+    width: 1200px;
+    margin: 40px auto;
 }
 
 .section {
-    background:white;
-    padding:20px;
-    border-radius:8px;
-    margin-bottom:20px;
+    background: var(--c-surface);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
 }
 
 input, textarea, select {
-    width:100%;
-    padding:12px;
-    margin-bottom:10px;
-    border:1px solid #ddd;
-    border-radius:6px;
-    box-sizing:border-box;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--radius-sm);
+    box-sizing: border-box;
+    font: inherit;
+    color: inherit;
 }
 
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--c-primary);
+    box-shadow: var(--focus-ring);
+}
+
+button {
+    font: inherit;
+    cursor: pointer;
+}
+
+.d-none { display: none !important; }
+
+/* =========================================================
+   텍스트
+   ========================================================= */
+h1, h2, h3 { margin: 0 0 12px; line-height: 1.3; color: var(--c-text); }
+h1 { font-size: 24px; font-weight: 700; }
+h2 { font-size: 18px; font-weight: 700; }
+h3 { font-size: 16px; font-weight: 600; }
+
+/* 크기 */
+.text-xs { font-size: 12px; }
+.text-sm { font-size: 13px; }
+.text-md { font-size: 14px; }
+.text-lg { font-size: 16px; }
+
+/* 색 */
+.text-primary { color: var(--c-primary); }
+.text-danger  { color: var(--c-danger); }
+.text-success { color: var(--c-success); }
+.text-sub     { color: var(--c-text-sub); }
+.text-muted   { color: var(--c-text-muted); }
+.text-faint   { color: var(--c-text-faint); }
+
+/* 굵기 */
+.fw-normal { font-weight: 400; }
+.fw-medium { font-weight: 500; }
+.fw-bold   { font-weight: 600; }
+
+/* 정렬 / 말줄임 */
+.text-left   { text-align: left; }
+.text-center { text-align: center; }
+.text-right  { text-align: right; }
+.ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* 뱃지 */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    color: var(--c-primary);
+    background: #eef2ff;
+}
+.badge.danger  { color: var(--c-danger);  background: var(--c-danger-soft); }
+.badge.success { color: var(--c-success); background: var(--c-success-soft); }
+.badge.gray    { color: var(--c-text-sub); background: var(--c-border); }
+
+/* =========================================================
+   버튼
+   사용: <button class="btn primary">저장</button>
+        <a class="btn outline sm">수정</a>
+        <button class="btn icon"><i class="icon icon-close"></i></button>
+   ========================================================= */
 .btn {
-    display:inline-block;
-    padding:12px 20px;
-    border-radius:6px;
-    text-decoration:none;
-    background:#e2e8f0;
-    color:#111;
-    font-weight:500;
-    transition: background .15s ease, transform .15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: var(--c-border);
+    color: #111;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background var(--transition), color var(--transition),
+                border-color var(--transition), box-shadow var(--transition);
 }
 
+.btn:hover { background: var(--c-border-strong); }
+
+.btn:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+.btn:disabled,
+.btn.disabled {
+    opacity: .5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* --- 종류 --- */
 .btn.primary {
-    background:#2563eb;
-    color:white;
+    background: var(--c-primary);
+    border-color: var(--c-primary);
+    color: #fff;
+}
+.btn.primary:hover  { background: var(--c-primary-hover); border-color: var(--c-primary-hover); }
+.btn.primary:active { background: var(--c-primary-active); }
+
+.btn.outline {                       /* 파란 테두리 (+ 추가 버튼) */
+    background: var(--c-surface);
+    border-color: var(--c-primary);
+    color: var(--c-primary);
+}
+.btn.outline:hover { background: var(--c-primary-soft); }
+
+.btn.secondary {                     /* 회색 테두리 (뒤로가기, 취소) */
+    background: var(--c-surface);
+    border-color: var(--c-border-strong);
+    color: var(--c-text-sub);
+}
+.btn.secondary:hover {
+    background: #f1f5f9;
+    border-color: var(--c-text-faint);
+    color: var(--c-text);
 }
 
-.btn.primary:hover {
-    background:#1d4ed8;
+.btn.ghost {                         /* 배경 없음 */
+    background: transparent;
+    color: var(--c-text-sub);
+}
+.btn.ghost:hover { background: #f1f5f9; color: var(--c-text); }
+
+.btn.danger {
+    background: var(--c-danger);
+    border-color: var(--c-danger);
+    color: #fff;
+}
+.btn.danger:hover { background: var(--c-danger-hover); border-color: var(--c-danger-hover); }
+
+.btn.danger-ghost {                  /* 평소엔 조용하다가 hover 시 빨강 */
+    background: transparent;
+    color: var(--c-text-faint);
+}
+.btn.danger-ghost:hover { background: var(--c-danger-soft); color: var(--c-danger); }
+
+/* --- 크기 --- */
+.btn.sm { padding: 6px 12px; font-size: 13px; }
+.btn.lg { padding: 12px 28px; font-size: 15px; font-weight: 600; }
+.btn.block { display: flex; width: 100%; }
+
+/* --- 아이콘 전용 (정사각/원형) --- */
+.btn.icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
+}
+.btn.icon.sm { width: 26px; height: 26px; }
+
+/* --- 버튼 묶음 --- */
+.btn-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* resume list page */
+/* =========================================================
+   아이콘 (CSS mask → 글자색(currentColor)을 그대로 따라감)
+   사용: <i class="icon icon-plus"></i>
+        <i class="icon icon-trash lg"></i>
+   ========================================================= */
+.icon {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    -webkit-mask: var(--icon) center / contain no-repeat;
+            mask: var(--icon) center / contain no-repeat;
+    vertical-align: middle;
+}
+.icon.sm { width: 14px; height: 14px; }
+.icon.lg { width: 20px; height: 20px; }
 
+.icon-arrow-left  { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5M12 19l-7-7 7-7'/%3E%3C/svg%3E"); }
+.icon-arrow-right { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M12 5l7 7-7 7'/%3E%3C/svg%3E"); }
+.icon-plus        { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E"); }
+.icon-close       { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E"); }
+.icon-check       { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E"); }
+.icon-edit        { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E"); }
+.icon-trash       { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6'/%3E%3C/svg%3E"); }
+.icon-save        { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z'/%3E%3Cpath d='M17 21v-8H7v8M7 3v5h8'/%3E%3C/svg%3E"); }
+.icon-download    { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3'/%3E%3C/svg%3E"); }
+.icon-copy        { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2'/%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/%3E%3C/svg%3E"); }
+.icon-eye         { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E"); }
+.icon-search      { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E"); }
+
+/* =========================================================
+   resume list page
+   ========================================================= */
 .page-header {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
 }
 
 .page-header h1 {
-    font-size:24px;
-    margin:0;
+    margin: 0;
 }
 
 .resume-list {
-    display:grid;
+    display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap:20px;
+    gap: 20px;
 }
 
 .resume-card {
-    background:white;
-    border:1px solid #eef0f4;
-    border-radius:12px;
-    padding:20px;
-    box-shadow:0 1px 2px rgba(15,23,42,0.04);
+    background: var(--c-surface);
+    border: 1px solid #eef0f4;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
     transition: box-shadow .2s ease, transform .2s ease;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .resume-card:hover {
-    box-shadow:0 8px 20px rgba(15,23,42,0.08);
+    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
 }
 
 .resume-card .badge {
-    align-self:flex-start;
-    font-size:12px;
-    font-weight:600;
-    color:#2563eb;
-    background:#eef2ff;
-    padding:4px 10px;
-    border-radius:999px;
+    align-self: flex-start;
 }
 
 .resume-card h3 {
-    margin:4px 0 0;
-    font-size:18px;
+    margin: 4px 0 0;
+    font-size: 18px;
 }
 
 .resume-card p {
-    margin:0;
-    color:#64748b;
-    font-size:14px;
-    line-height:1.5;
-    min-height:21px;
+    margin: 0;
+    color: var(--c-text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 21px;
 }
 
 .resume-card .actions {
-    margin-top:12px;
-    padding-top:12px;
-    border-top:1px solid #f1f5f9;
-    display:flex;
-    gap:8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    gap: 8px;
 }
 
 .resume-card .actions a {
-    flex:1;
-    text-align:center;
-    padding:8px 0;
-    border-radius:6px;
-    font-size:13px;
-    text-decoration:none;
-    color:#475569;
-    background:#f8fafc;
-    transition: background .15s ease, color .15s ease;
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    text-decoration: none;
+    color: var(--c-text-sub);
+    background: var(--c-surface-sub);
+    transition: background var(--transition), color var(--transition);
 }
 
 .resume-card .actions a:hover {
-    background:#e2e8f0;
-    color:#111;
+    background: var(--c-border);
+    color: #111;
 }
 
 .resume-card .actions a.template {
-    color:#2563eb;
+    color: var(--c-primary);
 }
 
 .empty-state {
-    text-align:center;
-    padding:60px 20px;
-    color:#94a3b8;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--c-text-faint);
 }
