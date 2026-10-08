@@ -259,7 +259,7 @@
             , created_at
             , updated_at
         ) VALUES (
-            , #{resumeId}
+            #{resumeId}
             , #{projectName}
             , #{startDate}
             , #{endDate}

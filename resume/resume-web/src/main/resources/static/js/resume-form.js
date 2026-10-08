@@ -71,7 +71,7 @@ $(function(){
                 <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
                 <label class="field">
                     <span class="label">회사명</span>
-                    <input type="text" name="company" placeholder="회사명">
+                    <input type="text" name="companyName" placeholder="회사명">
                 </label>
                 <label class="field">
                     <span class="label">직무</span>
@@ -207,7 +207,7 @@ $(function(){
         });
         // 프로젝트 추가
         $('#projectList .item-card').each(function(index, item) {
-            const projectName = $(item).find('[name=projectName]').val().trim();
+            const projectName = $(item).find('[name=projectName]').val()?.trim();
             const startDate = $(item).find('[name=startDate]').val();
             const endDate = $(item).find('[name=endDate]').val();
             const role = $(item).find('[name=role]').val().trim();
