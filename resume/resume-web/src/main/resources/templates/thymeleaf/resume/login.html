@@ -3,35 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>로그인</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/login.css}">
 </head>
-<body>
+<body class="login-page">
     <div class="login-container">
-        <div class="title">
+        <div class="login-title">
             <h1>Resume Builder</h1>
-            <p>이력서 작성을 시작해보세요.</p>
+            <p class="text-muted text-md">이력서 작성을 시작해보세요.</p>
         </div>
+
+        <div class="login-error" th:if="${param.error}">
+            로그인에 실패했습니다.
+        </div>
+
         <form method="post" th:action="@{/web/login}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <div class="form-group">
-                <label for="userKey">
-                    사용자 ID
-                </label>
+                <label for="userKey">사용자 ID</label>
                 <input
-                    type="text"
-                    id="userKey"
-                    name="userKey"
-                    placeholder="사용자 ID를 입력하세요"
-                    maxlength="100"
-                    required
-                    autofocus
+                        type="text"
+                        id="userKey"
+                        name="userKey"
+                        placeholder="사용자 ID를 입력하세요"
+                        maxlength="100"
+                        required
+                        autofocus
                 />
             </div>
-            <button type="submit" class="login-button">시작하기</button>
+            <button type="submit" class="btn primary lg block">
+                시작하기 <i class="icon icon-arrow-right"></i>
+            </button>
         </form>
-        <div th:if="${param.error}">
-            로그인에 실패했습니다.
-        </div>
     </div>
 </body>
 </html>

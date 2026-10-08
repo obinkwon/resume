@@ -1,11 +1,6 @@
 /* resume-form css */
 
-button {
-    cursor: pointer;
-}
-
-.d-none { display: none !important; }
-
+/* ===== 섹션 헤더 (제목 + 추가 버튼) ===== */
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -17,78 +12,13 @@ button {
     margin: 0;
 }
 
-.addBtn {
-    padding: 6px 12px;     /* 제목 줄에 맞게 약간 작게 */
-    font-size: 13px;
-    border: 1px solid #2563eb;
-    border-radius: 6px;
-    background: #fff;
-    color: #2563eb;
-}
-
-.addBtn:hover {
-    background: #eff6ff;
-}
-
-/* 공통: x 삭제 버튼 */
-.removeBtn {
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: transparent;
-    color: #94a3b8;
-    font-size: 22px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.removeBtn:hover {
-    background: #fee2e2;
-    color: #ef4444;
-}
-
-.saveBtn {
-    padding: 12px 28px;
-    border: 1px solid #2563eb;
-    border-radius: 6px;
-    background: #2563eb;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .15s, box-shadow .15s;
-}
-
-.saveBtn:hover {
-    background: #1d4ed8;
-    border-color: #1d4ed8;
-}
-
-.saveBtn:active {
-    background: #1e40af;
-}
-
-.saveBtn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, .3);
-}
-
-.saveBtn:disabled {
-    background: #93c5fd;
-    border-color: #93c5fd;
-    cursor: not-allowed;
-}
-
+/* ===== 하단 저장 영역 ===== */
 .form-actions {
     display: flex;
     justify-content: flex-end;
     margin-top: 24px;
     padding-top: 16px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--c-border);
 }
 
 /* ===== 카드형 item (학력, 경력, 프로젝트) ===== */
@@ -97,7 +27,7 @@ button {
     border: 1px solid #ddd;
     padding: 15px;
     margin-bottom: 15px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
 }
 
 .item-card > .removeBtn {
@@ -109,7 +39,7 @@ button {
 /* ===== 한줄형 item (기술 스택) ===== */
 .item-row-header,
 .item-row {
-    --cols: 2fr 1.5fr 1fr 30px;   /* 필요하면 섹션별로 덮어쓰기 */
+    --cols: 2fr 1.5fr 1fr 32px;   /* 마지막 칸 = .btn.icon 크기 */
     display: grid;
     grid-template-columns: var(--cols);
     gap: 10px;
@@ -120,7 +50,7 @@ button {
     margin-bottom: 6px;
     font-size: 13px;
     font-weight: 600;
-    color: #334155;
+    color: var(--c-text-label);
 }
 
 .item-row {
@@ -130,8 +60,6 @@ button {
 .item-row input,
 .item-row select {
     margin-bottom: 0;
-    width: 100%;
-    box-sizing: border-box;
 }
 
 /* ===== 라벨 + 입력 묶음 ===== */
@@ -145,14 +73,12 @@ button {
 .field .label {
     font-size: 13px;
     font-weight: 600;
-    color: #334155;
+    color: var(--c-text-label);
 }
 
 .field input,
 .field select,
 .field textarea {
-    width: 100%;
-    box-sizing: border-box;
     margin-bottom: 0;
 }
 
@@ -167,6 +93,7 @@ button {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
+
 /* ===== 체크박스 묶음 ===== */
 .check {
     display: inline-flex;
@@ -174,9 +101,13 @@ button {
     gap: 8px;
     margin-bottom: 10px;
     font-size: 14px;
-    color: #334155;
+    color: var(--c-text-label);
     cursor: pointer;
-    user-select: none;          /* 라벨 글자 더블클릭 시 선택 방지 */
+    user-select: none;
+}
+
+.check:hover {
+    color: var(--c-text);
 }
 
 .check input[type="checkbox"] {
@@ -184,41 +115,15 @@ button {
     height: 16px;
     margin: 0;
     padding: 0;
-    accent-color: #2563eb;      /* 체크 색을 버튼 파란색에 맞춤 */
+    accent-color: var(--c-primary);
     cursor: pointer;
 }
 
-.check:hover {
-    color: #1e293b;
+.check input[type="checkbox"]:focus {
+    box-shadow: none;              /* common의 input:focus 링 제거 */
 }
 
 .check input[type="checkbox"]:focus-visible {
     outline: 2px solid #93c5fd;
     outline-offset: 2px;
-}
-
-/* ===== 뒤로가기 버튼 ===== */
-.backBtn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    font-size: 14px;
-    font-weight: 500;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    background: #fff;
-    color: #475569;
-    transition: background .15s, color .15s, border-color .15s;
-}
-
-.backBtn:hover {
-    background: #f1f5f9;
-    border-color: #94a3b8;
-    color: #1e293b;
-}
-
-.backBtn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(148, 163, 184, .4);
 }

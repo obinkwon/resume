@@ -1,47 +1,41 @@
-/* login css */
+/* login css
+   - 배경, 폰트, 입력창 기본/포커스, 버튼, 색상은 common.css 사용
+*/
 
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
+/* 화면 가운데 정렬 (body에 class="login-page") */
+.login-page {
     min-height: 100vh;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
-    background: #f5f6f8;
-    font-family: Arial, sans-serif;
 }
 
 .login-container {
     width: 380px;
+    max-width: calc(100% - 32px);   /* 좁은 화면 대비 */
     padding: 40px;
-
-    background: white;
-    border-radius: 12px;
-
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    background: var(--c-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .08);
+    box-sizing: border-box;
 }
 
-.title {
+/* 제목 */
+.login-title {
     text-align: center;
     margin-bottom: 30px;
 }
 
-.title h1 {
+.login-title h1 {
     margin: 0 0 10px;
     font-size: 28px;
 }
 
-.title p {
+.login-title p {
     margin: 0;
-    color: #777;
-    font-size: 14px;
 }
 
+/* 입력 */
 .form-group {
     margin-bottom: 20px;
 }
@@ -50,51 +44,39 @@ body {
     display: block;
     margin-bottom: 8px;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
+    color: var(--c-text-label);
 }
 
 .form-group input {
-    width: 100%;
     height: 46px;
-
     padding: 0 12px;
-
-    border: 1px solid #ddd;
-    border-radius: 6px;
-
+    margin-bottom: 0;
     font-size: 15px;
 }
 
-.form-group input:focus {
-    outline: none;
-    border-color: #333;
-}
-
-.login-button {
-    width: 100%;
+/* 로그인 버튼: 입력창과 높이 맞춤 */
+.login-container .btn.block {
     height: 46px;
-
-    border: none;
-    border-radius: 6px;
-
-    background: #222;
-    color: white;
-
-    font-size: 15px;
-    font-weight: bold;
-
-    cursor: pointer;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
-.login-button:hover {
-    background: #000;
+/* 로그인 실패 메시지 */
+.login-error {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--c-danger-soft);
+    color: var(--c-danger-hover);
+    font-size: 13px;
+    font-weight: 500;
 }
 
+/* 하단 안내 문구 */
 .notice {
     margin-top: 20px;
-
     text-align: center;
-
     font-size: 12px;
-    color: #999;
+    color: var(--c-text-faint);
 }
