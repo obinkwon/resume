@@ -343,7 +343,10 @@ h3 { font-size: 16px; font-weight: 600; }
 
 .resume-card .actions a {
     flex: 1;
-    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
     padding: 8px 0;
     border-radius: var(--radius-sm);
     font-size: 13px;
@@ -366,4 +369,8 @@ h3 { font-size: 16px; font-weight: 600; }
     text-align: center;
     padding: 60px 20px;
     color: var(--c-text-faint);
+}
+
+.empty-state p {
+    margin: 0 0 16px;
 }

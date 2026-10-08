@@ -1,0 +1,87 @@
+/* resume-list css
+   - 버튼, 뱃지, 아이콘, 색상은 common.css 사용
+*/
+
+/* ===== 카드 목록 ===== */
+.resume-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.resume-card {
+    background: var(--c-surface);
+    border: 1px solid #eef0f4;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .2s ease, transform .2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.resume-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.resume-card .badge {
+    align-self: flex-start;
+}
+
+.resume-card h3 {
+    margin: 4px 0 0;
+    font-size: 18px;
+}
+
+.resume-card p {
+    margin: 0;
+    color: var(--c-text-muted);
+    font-size: 14px;
+    min-height: 21px;
+}
+
+/* ===== 카드 하단 버튼 (수정 / 템플릿 / 미리보기) ===== */
+.resume-card .actions {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    gap: 8px;
+}
+
+.resume-card .actions a {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 0;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    text-decoration: none;
+    color: var(--c-text-sub);
+    background: var(--c-surface-sub);
+    transition: background var(--transition), color var(--transition);
+}
+
+.resume-card .actions a:hover {
+    background: var(--c-border);
+    color: #111;
+}
+
+.resume-card .actions a.template {
+    color: var(--c-primary);
+}
+
+/* ===== 목록 비었을 때 ===== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--c-text-faint);
+}
+
+.empty-state p {
+    margin: 0 0 16px;
+}

@@ -18,7 +18,7 @@ public class ResumeWebController {
 
 	private final ResumeService resumeService;
 
-	@GetMapping("/main")
+	@GetMapping("/list")
 	public String resumeMainPage(Authentication authentication, Model model, ResumeRequestDto requestDto) {
 
 		UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
@@ -26,7 +26,7 @@ public class ResumeWebController {
 
 		model.addAttribute("user", principal);
 		model.addAttribute("resumeList", resumeService.getResumeList(requestDto));
-		return "thymeleaf/resume/main";
+		return "thymeleaf/resume/resume-list";
 	}
 
 	@GetMapping("/regist")
