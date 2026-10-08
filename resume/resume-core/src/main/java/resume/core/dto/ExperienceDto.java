@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Setter
 public class ExperienceDto {
 
+    private Long experienceId;
     private Long resumeId;
     private String companyName;
     private String position;

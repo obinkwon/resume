@@ -138,109 +138,142 @@ $(function(){
         $('#projectList').append(projectHtml);
     });
     $('#btnResumeSave').on('click', async function(){
+        let isSaving = false;
+        if (isSaving) return; // 중복 클릭 방지
+        const $doc = $(document);
+        const errors = [];
+
         const data = {
-            title: document.querySelector('[name=title]').value,
+            resumeId: getVal($doc, 'resumeId'),
+            title: getVal($doc, 'title'),
             profile: {
-                name: document.querySelector('[name=name]').value,
-                email: document.querySelector('[name=email]').value,
-                phone: document.querySelector('[name=phone]').value,
-                address: document.querySelector('[name=address]').value,
-                introduction: document.querySelector('[name=introduction]').value
+                profileId: getVal($doc, 'profileId'),
+                name: getVal($doc, 'name'),
+                email: getVal($doc, 'email'),
+                phone: getVal($doc, 'phone'),
+                address: getVal($doc, 'address'),
+                introduction: getVal($doc, 'introduction')
             },
             experiences: [],
             educations: [],
             projects: [],
             skills: []
         };
-        // 기술 스택 추가
-        $('#skillList .item-row').each(function(index, item) {
-            const skillName = $(item).find('[name=skillName]').val().trim();
-            const category = $(item).find('[name=category]').val().trim();
-            const proficiency = $(item).find('[name=proficiency]').val();
-            if (skillName !== '') {
-                data.skills.push({
-                    skillName: skillName,
-                    category: category !== '' ? category : null,
-                    proficiency: proficiency !== '' ? Number(proficiency) : null
-                });
-            }
-        });
-        // 학력 추가
-        $('#educationList .item-card').each(function(index, item) {
-            const schoolName = $(item).find('[name=schoolName]').val().trim();
-            const major = $(item).find('[name=major]').val().trim();
-            const degree = $(item).find('[name=degree]').val().trim();
-            const startDate = $(item).find('[name=startDate]').val();
-            const endDate = $(item).find('[name=endDate]').val();
-            const description = $(item).find('[name=description]').val().trim();
-            // 학교명이 있는 경우만 저장
-            if (schoolName !== '') {
-                data.educations.push({
-                    schoolName: schoolName,
-                    major: major !== '' ? major : null,
-                    degree: degree !== '' ? degree : null,
-                    startDate: startDate !== '' ? startDate : null,
-                    endDate: endDate !== '' ? endDate : null,
-                    description: description !== '' ? description : null
-                });
-            }
-        });
-        // 경력 추가
-        $('#experienceList .item-card').each(function (index, item) {
-            const companyName = $(item).find('[name=companyName]').val().trim();
-            const position = $(item).find('[name=position]').val().trim();
-            const startDate = $(item).find('[name=startDate]').val();
-            const endDate = $(item).find('[name=endDate]').val();
-            const isCurrent = $(item).find('[name=isCurrent]').prop('checked');
-            const description = $(item).find('[name=description]').val().trim();
-            // 회사명이 있는 경우만 저장
-            if (companyName !== '') {
-                data.experiences.push({
-                    companyName: companyName,
-                    position: position !== '' ? position : null,
-                    startDate: startDate !== '' ? startDate : null,
-                    endDate: (!isCurrent && endDate !== '') ? endDate : null,
-                    isCurrent: isCurrent,
-                    description: description !== '' ? description : null
-                });
-            }
-        });
-        // 프로젝트 추가
-        $('#projectList .item-card').each(function(index, item) {
-            const projectName = $(item).find('[name=projectName]').val()?.trim();
-            const startDate = $(item).find('[name=startDate]').val();
-            const endDate = $(item).find('[name=endDate]').val();
-            const role = $(item).find('[name=role]').val().trim();
-            const description = $(item).find('[name=description]').val().trim();
-            const techStack = $(item).find('[name=techStack]').val().trim();
-            const demoUrl = $(item).find('[name=demoUrl]').val().trim();
-            // 프로젝트명이 있는 경우만 저장
-            if (projectName !== '') {
-                data.projects.push({
-                    projectName: projectName,
-                    startDate: startDate !== '' ? startDate : null,
-                    endDate: endDate !== '' ? endDate : null,
-                    role: role !== '' ? role : null,
-                    description: description !== '' ? description : null,
-                    techStack: techStack !== '' ? techStack : null,
-                    demoUrl: demoUrl !== '' ? demoUrl : null
-                });
-            }
+
+        // 기술 스택
+        $('#skillList .item-row').each(function () {
+            const $item = $(this);
+            const skillName = getVal($item, 'skillName');
+            if (skillName === null) return;
+            data.skills.push({
+                skillId: getVal($item, 'skillId'),
+                skillName: skillName,
+                category: getVal($item, 'category'),
+                proficiency: getNumber($item, 'proficiency')
+            });
         });
 
-        const response = await fetch('/api/resume/save', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
+        // 학력
+        $('#educationList .item-card').each(function () {
+            const $item = $(this);
+            const schoolName = getVal($item, 'schoolName');
+            if (schoolName === null) return;
+            const startDate = getVal($item, 'startDate');
+            const endDate = getVal($item, 'endDate');
+            if (isInvalidPeriod(startDate, endDate)) {
+                errors.push(`학력 [${schoolName}] 종료일이 시작일보다 빠릅니다.`);
+            }
+            data.educations.push({
+                educationId: getVal($item, 'educationId'),
+                schoolName: schoolName,
+                major: getVal($item, 'major'),
+                degree: getVal($item, 'degree'),
+                startDate: startDate,
+                endDate: endDate,
+                description: getVal($item, 'description')
+            });
         });
 
-        const result = await response.json();
+        // 경력
+        $('#experienceList .item-card').each(function () {
+            const $item = $(this);
+            const companyName = getVal($item, 'companyName');
+            if (companyName === null) return;
+            const isCurrent = $item.find('[name=isCurrent]').prop('checked') === true;
+            const startDate = getVal($item, 'startDate');
+            const endDate = isCurrent ? null : getVal($item, 'endDate');
+            if (isInvalidPeriod(startDate, endDate)) {
+                errors.push(`경력 [${companyName}] 종료일이 시작일보다 빠릅니다.`);
+            }
+            data.experiences.push({
+                experienceId: getVal($item, 'experienceId'),
+                companyName: companyName,
+                position: getVal($item, 'position'),
+                startDate: startDate,
+                endDate: endDate,
+                isCurrent: isCurrent,
+                description: getVal($item, 'description')
+            });
+        });
 
-        alert('저장 완료');
+        // 프로젝트
+        $('#projectList .item-card').each(function () {
+            const $item = $(this);
+            const projectName = getVal($item, 'projectName');
+            if (projectName === null) return;
+            const startDate = getVal($item, 'startDate');
+            const endDate = getVal($item, 'endDate');
+            if (isInvalidPeriod(startDate, endDate)) {
+                errors.push(`프로젝트 [${projectName}] 종료일이 시작일보다 빠릅니다.`);
+            }
+            data.projects.push({
+                projectId: getVal($item, 'projectId'),
+                projectName: projectName,
+                startDate: startDate,
+                endDate: endDate,
+                role: getVal($item, 'role'),
+                description: getVal($item, 'description'),
+                techStack: getVal($item, 'techStack'),
+                demoUrl: getVal($item, 'demoUrl')
+            });
+        });
 
-        //location.reload();
+        if (errors.length > 0) {
+            alert(errors.join('\n'));
+            return;
+        }
+
+        isSaving = true;
+        try {
+            const response = await fetch('/api/resume/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            // 4xx/5xx도 fetch는 성공으로 처리하므로 직접 확인
+            if (!response.ok) {
+                const msg = await response.text();
+                throw new Error(msg || `HTTP ${response.status}`);
+            }
+
+            // 응답 본문이 비어 있어도 JSON 파싱 에러가 나지 않도록
+            const text = await response.text();
+            const result = text ? JSON.parse(text) : null;
+
+            // 신규 저장 후 다시 저장할 때 insert가 중복되지 않도록 발급된 ID 반영 (응답에 resumeId가 있을 경우)
+            if (result && result.resumeId) {
+                $('[name=resumeId]').val(result.resumeId);
+            }
+
+            alert('저장 완료');
+            // location.href = '/web/resume/main';
+        } catch (e) {
+            console.error('이력서 저장 실패', e);
+            alert('저장 중 오류가 발생했습니다.\n' + e.message);
+        } finally {
+            isSaving = false;
+        }
     });
     // 기술 제거
     $('#skillList').on('click', '.removeBtn', function() {

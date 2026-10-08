@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Setter
 public class ProjectDto {
 
+    private Long projectId;
     private Long resumeId;
     private String projectName;
     private LocalDate startDate;

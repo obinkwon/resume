@@ -12,7 +12,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ResumeService {
 
     private final ResumeMapper resumeMapper;
@@ -31,12 +30,24 @@ public class ResumeService {
         return resumeDetail;
     }
 
+    @Transactional
     public Long saveResume(ResumeRequestDto requestDto) {
-        resumeMapper.insertResume(requestDto);
         Long resumeId = requestDto.getResumeId();
+        // 기존에 있으면 수정 / 없으면 등록
+        if(requestDto.getResumeId() != null){
+            resumeMapper.updateResume(requestDto);
+        } else {
+            resumeMapper.insertResume(requestDto);
+            resumeId = requestDto.getResumeId();
+        }
 
         requestDto.getProfile().setResumeId(resumeId);
-        resumeMapper.insertProfile(requestDto.getProfile());
+        // 기존에 있으면 수정 / 없으면 등록
+        if(requestDto.getProfile().getProfileId() != null){
+            resumeMapper.updateProfile(requestDto.getProfile());
+        } else {
+            resumeMapper.insertProfile(requestDto.getProfile());
+        }
 
         // 기술 추가
         int order = 0;
@@ -44,7 +55,12 @@ public class ResumeService {
             for (SkillDto skillDto : requestDto.getSkills()) {
                 skillDto.setResumeId(resumeId);
                 skillDto.setSortOrder(order++);
-                resumeMapper.insertSkill(skillDto);
+                // 기존에 있으면 수정 / 없으면 등록
+                if(skillDto.getSkillId() != null){
+                    resumeMapper.updateSkill(skillDto);
+                } else {
+                    resumeMapper.insertSkill(skillDto);
+                }
             }
         }
 
@@ -54,7 +70,12 @@ public class ResumeService {
             for (EducationDto eduDto : requestDto.getEducations()) {
                 eduDto.setResumeId(resumeId);
                 eduDto.setSortOrder(order++);
-                resumeMapper.insertEducation(eduDto);
+                // 기존에 있으면 수정 / 없으면 등록
+                if(eduDto.getEducationId() != null){
+                    resumeMapper.updateEducation(eduDto);
+                } else {
+                    resumeMapper.insertEducation(eduDto);
+                }
             }
         }
 
@@ -64,7 +85,12 @@ public class ResumeService {
             for (ExperienceDto expDto : requestDto.getExperiences()) {
                 expDto.setResumeId(resumeId);
                 expDto.setSortOrder(order++);
-                resumeMapper.insertExperience(expDto);
+                // 기존에 있으면 수정 / 없으면 등록
+                if(expDto.getExperienceId() != null){
+                    resumeMapper.updateExperience(expDto);
+                } else {
+                    resumeMapper.insertExperience(expDto);
+                }
             }
         }
 
@@ -74,7 +100,12 @@ public class ResumeService {
             for (ProjectDto projDto : requestDto.getProjects()) {
                 projDto.setResumeId(resumeId);
                 projDto.setSortOrder(order++);
-                resumeMapper.insertProject(projDto);
+                // 기존에 있으면 수정 / 없으면 등록
+                if(projDto.getProjectId() != null){
+                    resumeMapper.updateProject(projDto);
+                } else {
+                    resumeMapper.insertProject(projDto);
+                }
             }
         }
 

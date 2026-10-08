@@ -147,7 +147,7 @@
     </insert>
 
     <!-- 이력서 프로필 추가 -->
-    <insert id="insertProfile" parameterType="resume.core.dto.ResumeRequestDto">
+    <insert id="insertProfile" parameterType="resume.core.dto.ProfileDto">
         INSERT INTO resume_profile (
             resume_id
             , name
@@ -157,6 +157,8 @@
             , profile_image
             , birth_date
             , introduction
+            , created_at
+            , updated_at
         ) VALUES (
             #{resumeId}
             , #{name}
@@ -166,6 +168,8 @@
             , #{profileImage}
             , #{birthDate}
             , #{introduction}
+            , CURRENT_TIMESTAMP
+            , CURRENT_TIMESTAMP
         )
     </insert>
 
@@ -263,8 +267,8 @@
             , #{projectName}
             , #{startDate}
             , #{endDate}
-            , #{role}
             , #{description}
+            , #{role}
             , #{techStack}
             , #{demoUrl}
             , #{sortOrder}
@@ -272,5 +276,82 @@
             , CURRENT_TIMESTAMP
         )
     </insert>
+
+    <!-- 이력서 수정 -->
+    <update id="updateResume" parameterType="resume.core.dto.ResumeRequestDto">
+        UPDATE resumes
+        SET title = #{title}
+            , template_id = #{templateId}
+            , updated_at = CURRENT_TIMESTAMP
+        WHERE resume_id = #{resumeId}
+    </update>
+
+    <!-- 이력서 프로필 수정 -->
+    <update id="updateProfile" parameterType="resume.core.dto.ProfileDto">
+        UPDATE resume_profile
+        SET name = #{name}
+            , email = #{email}
+            , phone = #{phone}
+            , address = #{address}
+            , profile_image = #{profileImage}
+            , birth_date = #{birthDate}
+            , introduction = #{introduction}
+            , updated_at = CURRENT_TIMESTAMP
+        WHERE profile_id = #{profileId}
+    </update>
+
+    <!-- 이력서 기술 수정 -->
+    <update id="updateSkill" parameterType="resume.core.dto.SkillDto">
+        UPDATE resume_skill
+        SET skill_name = #{skillName}
+            , category = #{category}
+            , proficiency = #{proficiency}
+            , sort_order = #{sortOrder}
+            , updated_at = CURRENT_TIMESTAMP
+        WHERE skill_id = #{skillId}
+    </update>
+
+    <!-- 이력서 학력 수정 -->
+    <update id="updateEducation" parameterType="resume.core.dto.EducationDto">
+        UPDATE resume_education
+        SET school_name = #{schoolName}
+            , major = #{major}
+            , degree = #{degree}
+            , start_date = #{startDate}
+            , end_date = #{endDate}
+            , description = #{description}
+            , sort_order = #{sortOrder}
+            , updated_at = CURRENT_TIMESTAMP
+        WHERE education_id = #{educationId}
+    </update>
+
+    <!-- 이력서 경력 수정 -->
+    <update id="updateExperience" parameterType="resume.core.dto.ExperienceDto">
+        UPDATE resume_experience
+        SET company_name = #{companyName}
+            , position = #{position}
+            , start_date = #{startDate}
+            , end_date = #{endDate}
+            , is_current = #{isCurrent}
+            , description = #{description}
+            , sort_order = #{sortOrder}
+            , updated_at = CURRENT_TIMESTAMP
+        WHERE experience_id = #{experienceId}
+    </update>
+
+    <!-- 이력서 프로젝트 수정 -->
+    <update id="updateProject" parameterType="resume.core.dto.ProjectDto">
+        UPDATE resume_project
+        SET project_name = #{projectName}
+            , start_date = #{startDate}
+            , end_date = #{endDate}
+            , description = #{description}
+            , role = #{role}
+            , tech_stack = #{techStack}
+            , demo_url = #{demoUrl}
+            , sort_order = #{sortOrder}
+            , updated_at = CURRENT_TIMESTAMP
+        WHERE project_id = #{projectId}
+    </update>
 
 </mapper>

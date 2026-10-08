@@ -6,12 +6,14 @@
     <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/resume-form.css}">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script th:src="@{/js/common.js}"></script>
     <script th:src="@{/js/resume-form.js}"></script>
 </head>
 <body>
     <div class="container">
         <h1>이력서 작성</h1>
         <form method="post">
+            <input type="hidden" name="resumeId" th:value="${resumeDetail?.resumeId}">
             <div class="section">
                 <h2>이력서 정보</h2>
                 <label class="field">
@@ -21,6 +23,7 @@
             </div>
 
             <div class="section">
+                <input type="hidden" name="profileId" th:value="${resumeDetail?.profile?.profileId}">
                 <h2>인적 사항</h2>
                 <label class="field">
                     <span class="label">이름</span>
@@ -60,6 +63,7 @@
                 </div>
                 <div id="skillList">
                     <div class="item-row" th:each="skill : ${resumeDetail?.skills}">
+                        <input type="hidden" name="skillId" th:value="${skill.skillId}">
                         <input type="text" name="skillName" placeholder="예: Spring Boot" th:value="${skill.skillName}">
                         <input type="text" name="category" placeholder="예: Backend" th:value="${skill.category}">
                         <select name="proficiency">
@@ -82,6 +86,7 @@
                 </div>
                 <div id="educationList">
                     <div class="item-card" th:each="education : ${resumeDetail?.educations}">
+                        <input type="hidden" name="educationId" th:value="${education.educationId}">
                         <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
                         <label class="field">
                             <span class="label">학교명</span>
@@ -120,6 +125,7 @@
                 </div>
                 <div id="experienceList">
                     <div class="item-card" th:each="experience : ${resumeDetail?.experiences}">
+                        <input type="hidden" name="experienceId" th:value="${experience.experienceId}">
                         <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
                         <label class="field">
                             <span class="label">회사명</span>
@@ -158,6 +164,7 @@
                 </div>
                 <div id="projectList">
                     <div class="item-card" th:each="project : ${resumeDetail?.projects}">
+                        <input type="hidden" name="projectId" th:value="${project.projectId}">
                         <button type="button" class="removeBtn" aria-label="삭제">&times;</button>
                         <label class="field">
                             <span class="label">프로젝트명</span>
