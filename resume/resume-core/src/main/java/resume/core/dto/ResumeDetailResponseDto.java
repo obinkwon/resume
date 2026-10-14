@@ -18,8 +18,10 @@ public class ResumeDetailResponseDto {
     private String title;
 
     private ProfileDto profile;
-    private List<SkillDto> skills;
-    private List<EducationDto> educations;
     private List<ExperienceDto> experiences;
+    private List<EducationDto> educations;
     private List<ProjectDto> projects;
+    private List<SkillDto> skills;
+    private List<LinkDto> links;
+    private List<CertificateDto> certificates;
 }

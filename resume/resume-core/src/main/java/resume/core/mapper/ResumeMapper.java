@@ -14,13 +14,17 @@ public interface ResumeMapper {
     // 이력서 프로필 상세 조회
     ProfileDto selectResumeProfile(long resumeId);
     // 이력서 기술 목록 조회
-    SkillDto selectResumeSkills(long resumeId);
+    List<SkillDto> selectResumeSkills(long resumeId);
     // 이력서 학력 목록 조회
-    EducationDto selectResumeEducations(long resumeId);
+    List<EducationDto> selectResumeEducations(long resumeId);
     // 이력서 경력 목록 조회
-    ExperienceDto selectResumeExperiences(long resumeId);
+    List<ExperienceDto> selectResumeExperiences(long resumeId);
     // 이력서 프로젝트 목록 조회
-    ProjectDto selectResumeProjects(long resumeId);
+    List<ProjectDto> selectResumeProjects(long resumeId);
+    // 이력서 외부링크 목록 조회
+    List<LinkDto> selectResumeLinks(long resumeId);
+    // 이력서 자격증 목록 조회
+    List<CertificateDto> selectResumeCertificates(long resumeId);
 
     // 이력서 추가
     void insertResume(ResumeRequestDto requestDto);
@@ -34,6 +38,10 @@ public interface ResumeMapper {
     void insertExperience(ExperienceDto experienceDto);
     // 이력서 프로젝트 추가
     void insertProject(ProjectDto projectDto);
+    // 이력서 외부링크 추가
+    void insertLink(LinkDto linkDto);
+    // 이력서 자격증 추가
+    void insertCertificate(CertificateDto certificateDto);
 
     // 이력서 수정
     void updateResume(ResumeRequestDto requestDto);
@@ -47,4 +55,8 @@ public interface ResumeMapper {
     void updateExperience(ExperienceDto experienceDto);
     // 이력서 프로젝트 수정
     void updateProject(ProjectDto projectDto);
+    // 이력서 외부링크 수정
+    void updateLink(LinkDto linkDto);
+    // 이력서 자격증 수정
+    void updateCertificate(CertificateDto certificateDto);
 }

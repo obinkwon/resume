@@ -52,6 +52,11 @@
     font-weight: 600;
     color: var(--c-text-label);
 }
+/* 외부 링크 줄: 유형 / 표시 이름 / URL / 삭제 */
+.item-row-header.link-cols,
+.item-row.link-cols {
+    --cols: 1fr 1.2fr 2.5fr 32px;
+}
 
 .item-row {
     margin-bottom: 10px;

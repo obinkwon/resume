@@ -19,4 +19,6 @@ public class ResumeRequestDto {
     private List<EducationDto> educations;
     private List<ProjectDto> projects;
     private List<SkillDto> skills;
+    private List<LinkDto> links;
+    private List<CertificateDto> certificates;
 }

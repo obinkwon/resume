@@ -9,7 +9,33 @@ function isAllEmpty(obj) {
     return Object.values(obj).every(v => !v || v.trim() === '');
 }
 
+// 저장 중복 클릭 방지 (핸들러 밖에 있어야 클릭 간에 값이 유지됨)
+let isSaving = false;
+
 $(function(){
+    // 링크 추가
+    $('#addLink').on('click', function() {
+        $('#linkHeader').removeClass('d-none');
+        const linkHtml = `
+            <div class="item-row link-cols">
+                <select name="linkType">
+                    <option value="">유형 선택</option>
+                    <option value="github">GitHub</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="blog">블로그</option>
+                    <option value="portfolio">포트폴리오</option>
+                    <option value="website">웹사이트</option>
+                    <option value="etc">기타</option>
+                </select>
+                <input type="text" name="displayName" placeholder="예: 기술 블로그">
+                <input type="url" name="url" placeholder="https://">
+                <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                    <i class="icon icon-close"></i>
+                </button>
+            </div>
+        `;
+        $('#linkList').append(linkHtml);
+    });
     // 기술 추가
     $('#addSkill').on('click', function() {
         $('#skillHeader').removeClass('d-none');
@@ -68,6 +94,35 @@ $(function(){
             </div>
         `;
         $('#educationList').append(educationHtml);
+    });
+    // 자격증 추가
+    $('#addCertificate').on('click', function() {
+        const certificateHtml = `
+            <div class="item-card">
+                <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                    <i class="icon icon-close"></i>
+                </button>
+                <label class="field">
+                    <span class="label">자격증명</span>
+                    <input type="text" name="certificateName" placeholder="예: 정보처리기사">
+                </label>
+                <div class="date-row">
+                    <label class="field">
+                        <span class="label">발급 기관</span>
+                        <input type="text" name="issuer" placeholder="예: 한국산업인력공단">
+                    </label>
+                    <label class="field">
+                        <span class="label">취득일</span>
+                        <input type="date" name="issuedDate">
+                    </label>
+                </div>
+                <label class="field">
+                    <span class="label">자격증 설명</span>
+                    <textarea name="description" placeholder="자격증 설명" rows="3"></textarea>
+                </label>
+            </div>
+        `;
+        $('#certificateList').append(certificateHtml);
     });
     $('#addExperience').on('click', function(){
         const experienceHtml = `
@@ -146,7 +201,6 @@ $(function(){
         $('#projectList').append(projectHtml);
     });
     $('#btnResumeSave').on('click', async function(){
-        let isSaving = false;
         if (isSaving) return; // 중복 클릭 방지
         const $doc = $(document);
         const errors = [];
@@ -162,11 +216,31 @@ $(function(){
                 address: getVal($doc, 'address'),
                 introduction: getVal($doc, 'introduction')
             },
+            links: [],
             experiences: [],
             educations: [],
+            certificates: [],
             projects: [],
             skills: []
         };
+
+        // 외부 링크 (url이 비어 있으면 건너뜀 / 화면 순서대로 sortOrder 부여)
+        $('#linkList .item-row').each(function () {
+            const $item = $(this);
+            const url = getVal($item, 'url');
+            if (url === null) return;
+            const linkType = getVal($item, 'linkType');
+            if (linkType === null) {
+                errors.push(`링크 [${url}] 유형을 선택해주세요.`);
+            }
+            data.links.push({
+                linkId: getVal($item, 'linkId'),
+                linkType: linkType,
+                displayName: getVal($item, 'displayName'),
+                url: url,
+                sortOrder: data.links.length
+            });
+        });
 
         // 기술 스택
         $('#skillList .item-row').each(function () {
@@ -199,6 +273,21 @@ $(function(){
                 startDate: startDate,
                 endDate: endDate,
                 description: getVal($item, 'description')
+            });
+        });
+
+        // 자격증 (자격증명이 비어 있으면 건너뜀)
+        $('#certificateList .item-card').each(function () {
+            const $item = $(this);
+            const certificateName = getVal($item, 'certificateName');
+            if (certificateName === null) return;
+            data.certificates.push({
+                certificateId: getVal($item, 'certificateId'),
+                certificateName: certificateName,
+                issuer: getVal($item, 'issuer'),
+                issuedDate: getVal($item, 'issuedDate'),
+                description: getVal($item, 'description'),
+                sortOrder: data.certificates.length
             });
         });
 
@@ -252,6 +341,7 @@ $(function(){
         }
 
         isSaving = true;
+        const $btn = $(this).prop('disabled', true);
         try {
             const response = await fetch('/api/resume/save', {
                 method: 'POST',
@@ -275,13 +365,21 @@ $(function(){
             }
 
             alert('저장 완료');
-            // location.href = '/web/resume/main';
+            location.href = '/web/resume/list';
         } catch (e) {
             console.error('이력서 저장 실패', e);
             alert('저장 중 오류가 발생했습니다.\n' + e.message);
         } finally {
             isSaving = false;
+            $btn.prop('disabled', false);
         }
+    });
+    // 링크 제거
+    $('#linkList').on('click', '.removeBtn', function() {
+        $(this).closest('.item-row').remove();
+
+        // 남은 항목이 없으면 헤더 숨김
+        $('#linkHeader').toggleClass('d-none', $('#linkList .item-row').length === 0);
     });
     // 기술 제거
     $('#skillList').on('click', '.removeBtn', function() {
@@ -292,6 +390,10 @@ $(function(){
     });
     // 학력 제거
     $('#educationList').on('click', '.removeBtn', function() {
+        $(this).closest('.item-card').remove();
+    });
+    // 자격증 제거
+    $('#certificateList').on('click', '.removeBtn', function() {
         $(this).closest('.item-card').remove();
     });
     // 경력 제거
@@ -315,7 +417,7 @@ $(function(){
         if (document.referrer && history.length > 1) {
             history.back();
         } else {
-            location.href = '/web/resume/main';
+            location.href = '/web/resume/list';
         }
     });
 });

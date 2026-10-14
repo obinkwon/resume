@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.w3.org/1999/xhtml">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>이력서 작성</title>
@@ -48,6 +48,41 @@
                 </label>
             </div>
 
+            <!-- 외부 링크 -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>외부 링크</h2>
+                    <button type="button" class="btn outline sm addBtn" id="addLink">
+                        <i class="icon icon-plus sm"></i> 링크 추가
+                    </button>
+                </div>
+                <div id="linkHeader" class="item-row-header link-cols" th:classappend="${#lists.isEmpty(resumeDetail?.links)} ? 'd-none'">
+                    <span>유형</span>
+                    <span>표시 이름</span>
+                    <span>URL</span>
+                    <span></span>
+                </div>
+                <div id="linkList">
+                    <div class="item-row link-cols" th:each="link : ${resumeDetail?.links}">
+                        <input type="hidden" name="linkId" th:value="${link.linkId}">
+                        <select name="linkType">
+                            <option value="">유형 선택</option>
+                            <option value="github"    th:selected="${link.linkType == 'github'}">GitHub</option>
+                            <option value="linkedin"  th:selected="${link.linkType == 'linkedin'}">LinkedIn</option>
+                            <option value="blog"      th:selected="${link.linkType == 'blog'}">블로그</option>
+                            <option value="portfolio" th:selected="${link.linkType == 'portfolio'}">포트폴리오</option>
+                            <option value="website"   th:selected="${link.linkType == 'website'}">웹사이트</option>
+                            <option value="etc"       th:selected="${link.linkType == 'etc'}">기타</option>
+                        </select>
+                        <input type="text" name="displayName" placeholder="예: 기술 블로그" th:value="${link.displayName}">
+                        <input type="url" name="url" placeholder="https://" th:value="${link.url}">
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                            <i class="icon icon-close"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="section">
                 <h2>자기소개</h2>
                 <label class="field">
@@ -62,7 +97,7 @@
                         <i class="icon icon-plus sm"></i> 기술 추가
                     </button>
                 </div>
-                <div id="skillHeader" class="item-row-header" th:classappend="${resumeDetail?.skills == null} ? 'd-none'">
+                <div id="skillHeader" class="item-row-header" th:classappend="${#lists.isEmpty(resumeDetail?.skills)} ? 'd-none'">
                     <span>기술명</span>
                     <span>카테고리</span>
                     <span>숙련도</span>
@@ -126,6 +161,42 @@
                         <label class="field">
                             <span class="label">학력 설명</span>
                             <textarea name="description" placeholder="학력 설명" rows="3" th:text="${education.description}"></textarea>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 자격증 -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>자격증</h2>
+                    <button type="button" class="btn outline sm addBtn" id="addCertificate">
+                        <i class="icon icon-plus sm"></i> 자격증 추가
+                    </button>
+                </div>
+                <div id="certificateList">
+                    <div class="item-card" th:each="certificate : ${resumeDetail?.certificates}">
+                        <input type="hidden" name="certificateId" th:value="${certificate.certificateId}">
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                            <i class="icon icon-close"></i>
+                        </button>
+                        <label class="field">
+                            <span class="label">자격증명</span>
+                            <input type="text" name="certificateName" placeholder="예: 정보처리기사" th:value="${certificate.certificateName}">
+                        </label>
+                        <div class="date-row">
+                            <label class="field">
+                                <span class="label">발급 기관</span>
+                                <input type="text" name="issuer" placeholder="예: 한국산업인력공단" th:value="${certificate.issuer}">
+                            </label>
+                            <label class="field">
+                                <span class="label">취득일</span>
+                                <input type="date" name="issuedDate" th:value="${certificate.issuedDate}">
+                            </label>
+                        </div>
+                        <label class="field">
+                            <span class="label">자격증 설명</span>
+                            <textarea name="description" placeholder="자격증 설명" rows="3" th:text="${certificate.description}"></textarea>
                         </label>
                     </div>
                 </div>
