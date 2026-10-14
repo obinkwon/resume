@@ -61,7 +61,7 @@ public class LoginWebController {
                 response
         );
 
-        return "redirect:/web/resume/main";
+        return "redirect:/web/resume/list";
     }
 
     /**

@@ -9,6 +9,6 @@ public class IndexWebController {
 
     @GetMapping("/")
     public String indexPage(Model model) {
-        return "redirect:/web/resume/main";
+        return "redirect:/web/resume/list";
     }
 }

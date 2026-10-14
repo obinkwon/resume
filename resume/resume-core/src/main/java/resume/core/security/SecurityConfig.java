@@ -29,7 +29,7 @@ public class SecurityConfig {
         UserKeyAuthenticationFilter authenticationFilter = new UserKeyAuthenticationFilter(authenticationManager);
 
         authenticationFilter.setAuthenticationSuccessHandler(
-            new SimpleUrlAuthenticationSuccessHandler("/web/resume/main")
+            new SimpleUrlAuthenticationSuccessHandler("/web/resume/list")
         );
         authenticationFilter.setAuthenticationFailureHandler(
             new SimpleUrlAuthenticationFailureHandler("/web/login?error=true")
