@@ -29,11 +29,7 @@
     <script th:src="@{/js/resume-template.js}" defer></script>
 </head>
 <body>
-    <div class="builder"
-         th:attr="data-resume-id=${resumeId},
-                      data-save-url=@{/api/resumes/{id}/template(id=${resumeId})}">
-
-        <!-- ===== 상단 바 ===== -->
+    <div class="builder">
         <header class="builder-header">
             <div class="builder-header__left">
                 <a class="btn secondary sm" th:href="@{/web/resume/list}">
@@ -55,21 +51,14 @@
                 </button>
             </div>
         </header>
-
         <div class="builder-layout">
-            <!-- ===== 왼쪽: 선택 · CSS 수정 ===== -->
             <aside class="sidebar">
-
-                <!-- ① 템플릿 선택 -->
                 <section class="panel">
                     <h2 class="panel-title">
                         <span><span class="step">1</span>템플릿 선택</span>
                     </h2>
-                    <!-- resume-template.js 가 window.TEMPLATES 로 그림 (기본 템플릿 / 내 템플릿) -->
                     <div id="templateGroups"></div>
                 </section>
-
-                <!-- ② 섹션 표시 : 끄면 CSS 맨 아래에 숨김 규칙이 자동으로 들어감 -->
                 <details class="panel panel-collapsible">
                     <summary class="panel-title">
                         <span><span class="step">2</span>섹션 표시</span>
@@ -77,27 +66,19 @@
                     </summary>
                     <ul class="section-toggles" id="sectionToggles"></ul>
                 </details>
-
-                <!-- ③ CSS 수정 -->
                 <section class="panel">
                     <h2 class="panel-title">
                         <span><span class="step">3</span>CSS 수정</span>
                         <span class="hint" id="cssCount">0 / 20,000</span>
                     </h2>
-
                     <div class="css-toolbar">
                         <select id="snippetSelect" aria-label="자주 쓰는 스타일 추가">
                             <option value="">+ 자주 쓰는 스타일 추가</option>
                         </select>
-                        <button type="button" class="btn ghost sm" id="cssResetBtn"
-                                title="선택한 템플릿의 원래 CSS로 되돌리기">초기화</button>
+                        <button type="button" class="btn ghost sm" id="cssResetBtn" title="선택한 템플릿의 원래 CSS로 되돌리기">초기화</button>
                     </div>
-
-                    <textarea id="cssEditor" class="css-editor" spellcheck="false"
-                              autocapitalize="off" autocomplete="off"
-                              aria-label="템플릿 CSS"></textarea>
+                    <textarea id="cssEditor" class="css-editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="템플릿 CSS"></textarea>
                     <p class="css-warning" id="cssWarning" role="alert" hidden></p>
-
                     <details class="class-guide">
                         <summary>사용할 수 있는 클래스</summary>
                         <dl>
@@ -120,7 +101,6 @@
                     </details>
                 </section>
             </aside>
-
             <!-- ===== 오른쪽: 미리보기 (실제 이력서 내용) ===== -->
             <main class="preview-panel">
                 <div class="preview-toolbar">
@@ -130,9 +110,7 @@
                 <div class="preview-stage" id="previewStage">
                     <div class="preview-page" id="previewPage">
                         <!-- 선택한 템플릿의 HTML 틀 + CSS 는 postMessage 로 넘김 -->
-                        <iframe id="previewFrame"
-                                th:src="@{/web/resume/preview/{id}(id=${resumeId})}"
-                                title="이력서 미리보기"></iframe>
+                        <iframe id="previewFrame" th:src="@{/web/resume/preview/{id}(id=${resumeId})}" title="이력서 미리보기"></iframe>
                     </div>
                 </div>
             </main>
