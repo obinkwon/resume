@@ -32,22 +32,48 @@ public class ResumeService {
 
     @Transactional
     public Long saveResume(ResumeRequestDto requestDto) {
-        // 이력서 추가
         Long resumeId = requestDto.getResumeId();
-        // 기존에 있으면 수정 / 없으면 등록
-        if(requestDto.getResumeId() != null){
+
+        // 이력서: 기존에 있으면 수정 / 없으면 등록 (resume_id 유지)
+        if (resumeId != null) {
             resumeMapper.updateResume(requestDto);
+
+            // 기존 하위 항목 전부 삭제 처리 (use_yn = 'N')
+            ProfileDto profileCond = new ProfileDto();
+            profileCond.setResumeId(resumeId);
+            resumeMapper.deleteProfile(profileCond);
+
+            SkillDto skillCond = new SkillDto();
+            skillCond.setResumeId(resumeId);
+            resumeMapper.deleteSkill(skillCond);
+
+            EducationDto eduCond = new EducationDto();
+            eduCond.setResumeId(resumeId);
+            resumeMapper.deleteEducation(eduCond);
+
+            ExperienceDto expCond = new ExperienceDto();
+            expCond.setResumeId(resumeId);
+            resumeMapper.deleteExperience(expCond);
+
+            ProjectDto projCond = new ProjectDto();
+            projCond.setResumeId(resumeId);
+            resumeMapper.deleteProject(projCond);
+
+            LinkDto linkCond = new LinkDto();
+            linkCond.setResumeId(resumeId);
+            resumeMapper.deleteLink(linkCond);
+
+            CertificateDto certCond = new CertificateDto();
+            certCond.setResumeId(resumeId);
+            resumeMapper.deleteCertificate(certCond);
         } else {
             resumeMapper.insertResume(requestDto);
             resumeId = requestDto.getResumeId();
         }
 
         // 프로필 추가
-        requestDto.getProfile().setResumeId(resumeId);
-        // 기존에 있으면 수정 / 없으면 등록
-        if(requestDto.getProfile().getProfileId() != null){
-            resumeMapper.updateProfile(requestDto.getProfile());
-        } else {
+        if (requestDto.getProfile() != null) {
+            requestDto.getProfile().setResumeId(resumeId);
             resumeMapper.insertProfile(requestDto.getProfile());
         }
 
@@ -57,27 +83,17 @@ public class ResumeService {
             for (SkillDto skillDto : requestDto.getSkills()) {
                 skillDto.setResumeId(resumeId);
                 skillDto.setSortOrder(order++);
-                // 기존에 있으면 수정 / 없으면 등록
-                if(skillDto.getSkillId() != null){
-                    resumeMapper.updateSkill(skillDto);
-                } else {
-                    resumeMapper.insertSkill(skillDto);
-                }
+                resumeMapper.insertSkill(skillDto);
             }
         }
 
-        // 교육 추가
+        // 학력 추가
         order = 0;
         if (requestDto.getEducations() != null) {
             for (EducationDto eduDto : requestDto.getEducations()) {
                 eduDto.setResumeId(resumeId);
                 eduDto.setSortOrder(order++);
-                // 기존에 있으면 수정 / 없으면 등록
-                if(eduDto.getEducationId() != null){
-                    resumeMapper.updateEducation(eduDto);
-                } else {
-                    resumeMapper.insertEducation(eduDto);
-                }
+                resumeMapper.insertEducation(eduDto);
             }
         }
 
@@ -87,12 +103,7 @@ public class ResumeService {
             for (ExperienceDto expDto : requestDto.getExperiences()) {
                 expDto.setResumeId(resumeId);
                 expDto.setSortOrder(order++);
-                // 기존에 있으면 수정 / 없으면 등록
-                if(expDto.getExperienceId() != null){
-                    resumeMapper.updateExperience(expDto);
-                } else {
-                    resumeMapper.insertExperience(expDto);
-                }
+                resumeMapper.insertExperience(expDto);
             }
         }
 
@@ -102,27 +113,17 @@ public class ResumeService {
             for (ProjectDto projDto : requestDto.getProjects()) {
                 projDto.setResumeId(resumeId);
                 projDto.setSortOrder(order++);
-                // 기존에 있으면 수정 / 없으면 등록
-                if(projDto.getProjectId() != null){
-                    resumeMapper.updateProject(projDto);
-                } else {
-                    resumeMapper.insertProject(projDto);
-                }
+                resumeMapper.insertProject(projDto);
             }
         }
-        
+
         // 외부링크 추가
         order = 0;
         if (requestDto.getLinks() != null) {
             for (LinkDto linkDto : requestDto.getLinks()) {
                 linkDto.setResumeId(resumeId);
                 linkDto.setSortOrder(order++);
-                // 기존에 있으면 수정 / 없으면 등록
-                if(linkDto.getLinkId() != null){
-                    resumeMapper.updateLink(linkDto);
-                } else {
-                    resumeMapper.insertLink(linkDto);
-                }
+                resumeMapper.insertLink(linkDto);
             }
         }
 
@@ -132,12 +133,7 @@ public class ResumeService {
             for (CertificateDto certDto : requestDto.getCertificates()) {
                 certDto.setResumeId(resumeId);
                 certDto.setSortOrder(order++);
-                // 기존에 있으면 수정 / 없으면 등록
-                if(certDto.getCertificateId() != null){
-                    resumeMapper.updateCertificate(certDto);
-                } else {
-                    resumeMapper.insertCertificate(certDto);
-                }
+                resumeMapper.insertCertificate(certDto);
             }
         }
 

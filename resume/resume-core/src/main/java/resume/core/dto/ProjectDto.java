@@ -18,5 +18,6 @@ public class ProjectDto {
     private String description;
     private String techStack;
     private String demoUrl;
+    private String useYn;
     private int sortOrder;
 }

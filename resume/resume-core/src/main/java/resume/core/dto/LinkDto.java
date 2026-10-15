@@ -12,5 +12,6 @@ public class LinkDto {
     private String linkType;
     private String displayName;
     private String url;
+    private String useYn;
     private int sortOrder;
 }

@@ -18,4 +18,5 @@ public class ProfileDto {
     private String profileImage;
     private Date birthDate;
     private String introduction;
+    private String useYn;
 }

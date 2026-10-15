@@ -15,5 +15,6 @@ public class CertificateDto {
     private String issuer;
     private LocalDate issuedDate;
     private String description;
+    private String useYn;
     private int sortOrder;
 }

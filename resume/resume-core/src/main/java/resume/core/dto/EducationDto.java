@@ -17,5 +17,6 @@ public class EducationDto {
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
+    private String useYn;
     private int sortOrder;
 }

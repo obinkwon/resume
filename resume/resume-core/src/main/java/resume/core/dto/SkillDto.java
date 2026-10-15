@@ -12,5 +12,6 @@ public class SkillDto {
     private String skillName;
     private String category;
     private int proficiency;
+    private String useYn;
     private int sortOrder;
 }

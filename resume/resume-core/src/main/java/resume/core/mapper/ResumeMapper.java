@@ -59,4 +59,21 @@ public interface ResumeMapper {
     void updateLink(LinkDto linkDto);
     // 이력서 자격증 수정
     void updateCertificate(CertificateDto certificateDto);
+
+    // 이력서 삭제
+    void deleteResume(ResumeRequestDto requestDto);
+    // 이력서 프로필 삭제
+    void deleteProfile(ProfileDto profileDto);
+    // 이력서 기술 삭제
+    void deleteSkill(SkillDto skillDto);
+    // 이력서 학력 삭제
+    void deleteEducation(EducationDto educationDto);
+    // 이력서 경력 삭제
+    void deleteExperience(ExperienceDto experienceDto);
+    // 이력서 프로젝트 삭제
+    void deleteProject(ProjectDto projectDto);
+    // 이력서 외부링크 삭제
+    void deleteLink(LinkDto linkDto);
+    // 이력서 자격증 삭제
+    void deleteCertificate(CertificateDto certificateDto);
 }

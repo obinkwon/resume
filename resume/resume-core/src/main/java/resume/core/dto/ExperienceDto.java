@@ -17,5 +17,6 @@ public class ExperienceDto {
     private LocalDate endDate;
     private Boolean isCurrent;
     private String description;
+    private String useYn;
     private int sortOrder;
 }

@@ -1,3 +1,12 @@
+--DROP TABLE users;
+--DROP TABLE resumes;
+--DROP TABLE resume_profile;
+--DROP TABLE resume_experience;
+--DROP TABLE resume_project;
+--DROP TABLE resume_education;
+--DROP TABLE resume_skill;
+--DROP TABLE resume_link;
+--DROP TABLE resume_certificate;
 -- ========================================
 -- 사용자 (소유자 식별용)
 -- ========================================
