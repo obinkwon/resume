@@ -8,7 +8,6 @@
 --DROP TABLE resume_link;
 --DROP TABLE resume_certificate;
 --DROP TABLE templates;
---DROP TABLE template_section;
 -- ========================================
 -- 사용자 (소유자 식별용)
 -- ========================================

@@ -48,5 +48,11 @@ public class ResumeWebController {
 
         return "thymeleaf/resume/resume-template";
     }
+
+    @GetMapping("/preview/{resumeId}")
+    public String resumePreviewPage(@PathVariable Long resumeId, Model model) {
+
+        return "thymeleaf/resume/resume-preview";
+    }
 }
 
