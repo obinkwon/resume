@@ -19,7 +19,7 @@ public class ResumeWebController {
 	private final ResumeService resumeService;
 
 	@GetMapping("/list")
-	public String resumeMainPage(Authentication authentication, Model model, ResumeRequestDto requestDto) {
+	public String resumeListPage(Authentication authentication, Model model, ResumeRequestDto requestDto) {
 
 		UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 		requestDto.setUserId(principal.getUserId());

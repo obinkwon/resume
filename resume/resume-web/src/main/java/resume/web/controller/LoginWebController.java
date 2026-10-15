@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import resume.core.dto.UserDto;
-import resume.core.service.LoginService;
 import resume.core.security.UserPrincipal;
+import resume.core.service.LoginService;
 
 @Controller
 @RequiredArgsConstructor
@@ -42,24 +42,14 @@ public class LoginWebController {
 
         UserPrincipal principal = new UserPrincipal(user);
 
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(
-                        principal,
-                        null,
-                        principal.getAuthorities()
-                );
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
 
-        // 중요
         // SecurityContext를 HTTP Session에 저장
-        securityContextRepository.saveContext(
-                context,
-                request,
-                response
-        );
+        securityContextRepository.saveContext(context, request, response);
 
         return "redirect:/web/resume/list";
     }

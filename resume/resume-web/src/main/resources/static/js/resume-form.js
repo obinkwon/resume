@@ -208,14 +208,7 @@ $(function(){
         const data = {
             resumeId: getVal($doc, 'resumeId'),
             title: getVal($doc, 'title'),
-            profile: {
-                profileId: getVal($doc, 'profileId'),
-                name: getVal($doc, 'name'),
-                email: getVal($doc, 'email'),
-                phone: getVal($doc, 'phone'),
-                address: getVal($doc, 'address'),
-                introduction: getVal($doc, 'introduction')
-            },
+            profile: null,
             links: [],
             experiences: [],
             educations: [],
@@ -224,7 +217,19 @@ $(function(){
             skills: []
         };
 
-        // 외부 링크 (url이 비어 있으면 건너뜀 / 화면 순서대로 sortOrder 부여)
+        // 프로필
+        if (getVal($doc, 'name') != null) {
+            data.profile = {
+                profileId: getVal($doc, 'profileId'),
+                name: getVal($doc, 'name'),
+                email: getVal($doc, 'email'),
+                phone: getVal($doc, 'phone'),
+                address: getVal($doc, 'address'),
+                introduction: getVal($doc, 'introduction')
+            };
+        }
+
+        // 외부 링크
         $('#linkList .item-row').each(function () {
             const $item = $(this);
             const url = getVal($item, 'url');
@@ -237,8 +242,7 @@ $(function(){
                 linkId: getVal($item, 'linkId'),
                 linkType: linkType,
                 displayName: getVal($item, 'displayName'),
-                url: url,
-                sortOrder: data.links.length
+                url: url
             });
         });
 
@@ -286,8 +290,7 @@ $(function(){
                 certificateName: certificateName,
                 issuer: getVal($item, 'issuer'),
                 issuedDate: getVal($item, 'issuedDate'),
-                description: getVal($item, 'description'),
-                sortOrder: data.certificates.length
+                description: getVal($item, 'description')
             });
         });
 
