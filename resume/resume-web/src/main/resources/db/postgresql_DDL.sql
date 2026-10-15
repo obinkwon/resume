@@ -269,9 +269,14 @@ CREATE TABLE templates (
     template_name VARCHAR(100) NOT NULL,
     description TEXT,
     thumbnail_url VARCHAR(255),
-    html_content TEXT NOT NULL,
+    base_template VARCHAR(20) NOT NULL DEFAULT 'minimal',
+    layout_type VARCHAR(20) NOT NULL DEFAULT 'single',
+    primary_color VARCHAR(7) NOT NULL DEFAULT '#2D3748',
+    font_family VARCHAR(50) NOT NULL DEFAULT 'Pretendard',
+    font_scale INTEGER NOT NULL DEFAULT 100,
+    html_content TEXT,
     css_content TEXT,
-    is_public BOOLEAN DEFAULT TRUE,
+    is_public BOOLEAN NOT NULL DEFAULT FALSE,
     created_by BIGINT DEFAULT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -282,12 +287,18 @@ COMMENT ON COLUMN templates.template_id IS '템플릿 PK';
 COMMENT ON COLUMN templates.template_name IS '템플릿 이름';
 COMMENT ON COLUMN templates.description IS '템플릿 설명';
 COMMENT ON COLUMN templates.thumbnail_url IS '썸네일 이미지 URL';
+COMMENT ON COLUMN templates.base_template IS '기본 디자인';
+COMMENT ON COLUMN templates.layout_type IS '레이아웃';
+COMMENT ON COLUMN templates.primary_color IS '대표 색상';
+COMMENT ON COLUMN templates.font_family IS '폰트';
+COMMENT ON COLUMN templates.font_scale IS '글자 크기 비율';
 COMMENT ON COLUMN templates.html_content IS 'HTML 템플릿 내용';
 COMMENT ON COLUMN templates.css_content IS 'CSS 스타일 내용';
 COMMENT ON COLUMN templates.is_public IS '공개 여부';
-COMMENT ON COLUMN templates.created_by IS '생성 사용자 ID';
+COMMENT ON COLUMN templates.created_by IS '생성 사용자 ID(NULL이면 시스템 기본 템플릿)';
 COMMENT ON COLUMN templates.created_at IS '생성일시';
 COMMENT ON COLUMN templates.updated_at IS '수정일시';
+
 -- ========================================
 -- 템플릿 섹션 배치
 -- ========================================
@@ -296,20 +307,20 @@ CREATE TABLE template_section (
     template_id BIGINT NOT NULL,
     section_type VARCHAR(50) NOT NULL,
     display_name VARCHAR(100),
-    position_x INTEGER DEFAULT 0,
-    position_y INTEGER DEFAULT 0,
-    width INTEGER DEFAULT 12,
-    height INTEGER DEFAULT 1,
-    sort_order INTEGER DEFAULT 0,
-    visible BOOLEAN DEFAULT TRUE,
+    position_x INTEGER NOT NULL DEFAULT 0,
+    position_y INTEGER NOT NULL DEFAULT 0,
+    width INTEGER NOT NULL DEFAULT 12,
+    height INTEGER NOT NULL DEFAULT 1,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    visible BOOLEAN NOT NULL DEFAULT TRUE,
     style_json JSONB,
     CONSTRAINT pk_template_section PRIMARY KEY (section_id)
 );
 COMMENT ON TABLE template_section IS '템플릿 섹션 배치 정보';
 COMMENT ON COLUMN template_section.section_id IS '섹션 PK';
 COMMENT ON COLUMN template_section.template_id IS '템플릿 ID';
-COMMENT ON COLUMN template_section.section_type IS '섹션 유형(profile, project, experience 등)';
-COMMENT ON COLUMN template_section.display_name IS '화면 표시 이름';
+COMMENT ON COLUMN template_section.section_type IS '섹션 유형';
+COMMENT ON COLUMN template_section.display_name IS '화면 표시 이름(NULL이면 기본 이름)';
 COMMENT ON COLUMN template_section.position_x IS 'X 좌표';
 COMMENT ON COLUMN template_section.position_y IS 'Y 좌표';
 COMMENT ON COLUMN template_section.width IS '너비';
