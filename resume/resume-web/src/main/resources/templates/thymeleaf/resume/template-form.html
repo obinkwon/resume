@@ -1,46 +1,147 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Spring Security 사용 시 CSRF 토큰 (없으면 자동으로 생략됨) -->
+    <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}">
     <title>템플릿 구성</title>
     <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/template-form.css}">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script th:src="@{/js/common.js}"></script>
     <script th:src="@{/js/template-form.js}"></script>
+    <script th:inline="javascript">
+        window.TEMPLATE_SETTING = /*[[${setting}]]*/ null;
+    </script>
 </head>
 <body>
-    <div class="container builder-layout">
-        <div class="sidebar">
-            <h2>템플릿 설정</h2>
-            <label>템플릿</label>
-            <select name="templateCode">
-                <option value="minimal">Minimal</option>
-                <option value="modern">Modern</option>
-                <option value="ats">ATS Friendly</option>
-            </select>
-            <label>레이아웃</label>
-            <select name="layoutType">
-                <option value="single">한 컬럼</option>
-                <option value="sidebar">사이드바</option>
-                <option value="split">좌우 분할</option>
-            </select>
-            <label>대표 색상</label>
-            <input type="color" name="primaryColor" value="#2D3748">
-            <label>폰트</label>
-            <select name="fontFamily">
-                <option value="Pretendard">Pretendard</option>
-                <option value="Noto Sans KR">Noto Sans KR</option>
-                <option value="Roboto">Roboto</option>
-            </select>
-            <h3>섹션 표시</h3>
-            <label><input type="checkbox" checked> 자기소개</label>
-            <label><input type="checkbox" checked> 경력</label>
-            <label><input type="checkbox" checked> 학력</label>
-            <label><input type="checkbox" checked> 프로젝트</label>
-            <label><input type="checkbox" checked> 기술스택</label>
-            <button class="btn primary">설정 저장</button>
-        </div>
-        <div class="preview-panel">
-            <iframe th:src="@{/preview/{id}(id=${resumeId})}"></iframe>
+    <div class="builder" th:attr="data-resume-id=${resumeId},data-save-url=@{/resumes/{id}/template(id=${resumeId})}">
+        <!-- ===== 상단 바 ===== -->
+        <header class="builder-header">
+            <div class="builder-header__left">
+                <a class="btn secondary sm" th:href="@{/web/resume/list}">
+                    <i class="icon icon-arrow-left sm"></i>목록
+                </a>
+                <div>
+                    <h1 class="builder-title">템플릿 구성</h1>
+                    <p class="text-sm text-muted" th:text="${resumeTitle}">이력서 제목</p>
+                </div>
+            </div>
+            <div class="btn-group">
+                <span class="save-status text-sm" id="saveStatus" aria-live="polite"></span>
+                <button type="button" class="btn ghost sm" id="resetBtn" disabled>되돌리기</button>
+                <button type="button" class="btn secondary sm" id="printBtn">
+                    <i class="icon icon-printer sm"></i>PDF 저장
+                </button>
+                <button type="button" class="btn primary sm" id="saveBtn">
+                    <i class="icon icon-save sm"></i>설정 저장
+                </button>
+            </div>
+        </header>
+
+        <div class="builder-layout">
+            <!-- ===== 설정 패널 ===== -->
+            <aside class="sidebar" id="sidebar">
+
+                <section class="panel">
+                    <h2 class="panel-title">템플릿</h2>
+                    <div class="choice-grid" role="radiogroup" aria-label="템플릿">
+                        <label class="choice-card">
+                            <input type="radio" name="templateCode" value="minimal">
+                            <span class="choice-thumb thumb-minimal"></span>
+                            <span class="choice-name">Minimal</span>
+                        </label>
+                        <label class="choice-card">
+                            <input type="radio" name="templateCode" value="modern">
+                            <span class="choice-thumb thumb-modern"></span>
+                            <span class="choice-name">Modern</span>
+                        </label>
+                        <label class="choice-card">
+                            <input type="radio" name="templateCode" value="ats">
+                            <span class="choice-thumb thumb-ats"></span>
+                            <span class="choice-name">ATS Friendly</span>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <h2 class="panel-title">레이아웃</h2>
+                    <div class="segmented" role="radiogroup" aria-label="레이아웃">
+                        <label>
+                            <input type="radio" name="layoutType" value="single">
+                            <span><i class="layout-icon layout-icon--single"></i>한 컬럼</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="layoutType" value="sidebar">
+                            <span><i class="layout-icon layout-icon--sidebar"></i>사이드바</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="layoutType" value="split">
+                            <span><i class="layout-icon layout-icon--split"></i>좌우 분할</span>
+                        </label>
+                    </div>
+                    <p class="panel-hint" data-ats-hint hidden>ATS 템플릿은 서류 판독기 호환을 위해 한 컬럼으로 고정돼요.</p>
+                </section>
+
+                <section class="panel">
+                    <h2 class="panel-title">
+                        대표 색상
+                        <span class="color-value" id="colorValue">#2D3748</span>
+                    </h2>
+                    <div class="swatches" id="swatches">
+                        <button type="button" class="swatch" data-color="#2D3748" style="--swatch:#2D3748" aria-label="차콜"></button>
+                        <button type="button" class="swatch" data-color="#2563EB" style="--swatch:#2563EB" aria-label="블루"></button>
+                        <button type="button" class="swatch" data-color="#0F766E" style="--swatch:#0F766E" aria-label="틸"></button>
+                        <button type="button" class="swatch" data-color="#7C3AED" style="--swatch:#7C3AED" aria-label="퍼플"></button>
+                        <button type="button" class="swatch" data-color="#B91C1C" style="--swatch:#B91C1C" aria-label="레드"></button>
+                        <button type="button" class="swatch" data-color="#C2410C" style="--swatch:#C2410C" aria-label="오렌지"></button>
+                        <label class="swatch swatch-custom" title="직접 선택">
+                            <input type="color" name="primaryColor" id="primaryColor" value="#2D3748" aria-label="색상 직접 선택">
+                        </label>
+                    </div>
+                    <p class="panel-hint" data-ats-hint hidden>ATS 템플릿은 흑백으로 출력돼요.</p>
+                </section>
+
+                <section class="panel">
+                    <h2 class="panel-title">글꼴</h2>
+                    <label class="form-label" for="fontFamily">폰트</label>
+                    <select name="fontFamily" id="fontFamily">
+                        <option value="Pretendard">Pretendard</option>
+                        <option value="Noto Sans KR">Noto Sans KR</option>
+                        <option value="Roboto">Roboto</option>
+                    </select>
+                    <label class="form-label range-label" for="fontScale">
+                        글자 크기 <span class="text-primary" id="fontScaleValue">100%</span>
+                    </label>
+                    <input type="range" name="fontScale" id="fontScale" min="85" max="115" step="5" value="100">
+                </section>
+
+                <section class="panel">
+                    <h2 class="panel-title">
+                        섹션
+                        <span class="hint">드래그해서 순서 변경</span>
+                    </h2>
+                    <!-- template-form.js 가 설정값으로 렌더링 -->
+                    <ul class="section-list" id="sectionList"></ul>
+                </section>
+            </aside>
+
+            <!-- ===== 미리보기 ===== -->
+            <main class="preview-panel">
+                <div class="preview-toolbar">
+                    <span><i class="icon icon-eye sm"></i> 미리보기 · A4</span>
+                    <span id="zoomLabel">100%</span>
+                </div>
+                <div class="preview-stage" id="previewStage">
+                    <div class="preview-page" id="previewPage">
+                        <iframe id="previewFrame"
+                                th:src="@{/preview/{id}(id=${resumeId})}"
+                                title="이력서 미리보기"></iframe>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 </body>

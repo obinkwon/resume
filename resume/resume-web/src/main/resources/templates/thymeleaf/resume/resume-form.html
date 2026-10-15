@@ -2,6 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Spring Security 사용 시 CSRF 토큰 (없으면 자동으로 생략됨) -->
+    <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}">
     <title>이력서 작성</title>
     <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/resume-form.css}">

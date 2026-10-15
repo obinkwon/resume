@@ -7,6 +7,8 @@
 --DROP TABLE resume_skill;
 --DROP TABLE resume_link;
 --DROP TABLE resume_certificate;
+--DROP TABLE templates;
+--DROP TABLE template_section;
 -- ========================================
 -- 사용자 (소유자 식별용)
 -- ========================================
@@ -298,7 +300,6 @@ COMMENT ON COLUMN templates.is_public IS '공개 여부';
 COMMENT ON COLUMN templates.created_by IS '생성 사용자 ID(NULL이면 시스템 기본 템플릿)';
 COMMENT ON COLUMN templates.created_at IS '생성일시';
 COMMENT ON COLUMN templates.updated_at IS '수정일시';
-
 -- ========================================
 -- 템플릿 섹션 배치
 -- ========================================
