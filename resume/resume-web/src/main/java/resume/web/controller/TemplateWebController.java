@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import resume.core.dto.TemplateSettingDto;
 import resume.core.service.ResumeService;
 import resume.core.service.TemplateService;
@@ -30,29 +31,17 @@ public class TemplateWebController {
     private final TemplateService templateService;
     private final ResumeService resumeService;
 
-    /** 새 템플릿 구성 */
     @GetMapping("/regist")
     public String templateRegistPage(Model model) {
         model.addAttribute("setting", new TemplateSettingDto());
         return "thymeleaf/resume/template-form";
     }
 
-//    @GetMapping("/preview")
-//    public String preview(@RequestParam(required = false) Long templateId,
-//                          @RequestParam(required = false) Long resumeId,
-//                          Model model) {
-//        TemplateSettingDto setting = templateId != null
-//                ? templateService.getTemplate(templateId)
-//                : new TemplateSettingDto();
-//
-//        boolean sample = (resumeId == null);
-//        model.addAttribute("setting", setting);
-//        model.addAttribute("sample", sample);
-//        model.addAttribute("resumeDetail", sample
-//                ? sampleResume()
-//                : resumeService.getResumeDetail(resumeId));   // resume-form 과 같은 ResumeDetailDto
-//        return "thymeleaf/resume/template-preview";
-//    }
+    @GetMapping("/preview")
+    public String preview(@RequestParam(required = false) Long templateId, Model model) {
+        model.addAttribute("setting", new TemplateSettingDto());
+        return "thymeleaf/resume/template-preview";
+    }
 
 //    @GetMapping("/modify/{templateId}")
 //    public String templateModifyPage(@PathVariable Long templateId,

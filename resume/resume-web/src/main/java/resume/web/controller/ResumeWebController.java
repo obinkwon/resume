@@ -12,8 +12,8 @@ import resume.core.security.UserPrincipal;
 import resume.core.service.ResumeService;
 
 @Controller
-@RequestMapping("/web/resume")
 @RequiredArgsConstructor
+@RequestMapping("/web/resume")
 public class ResumeWebController {
 
 	private final ResumeService resumeService;

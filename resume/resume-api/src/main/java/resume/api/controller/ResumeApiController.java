@@ -1,4 +1,4 @@
-package resume.api;
+package resume.api.controller;
 
 
 import lombok.RequiredArgsConstructor;
@@ -12,8 +12,8 @@ import resume.core.service.ResumeService;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/resume")
 @RequiredArgsConstructor
+@RequestMapping("/api/resume")
 public class ResumeApiController {
 
     private final ResumeService resumeService;

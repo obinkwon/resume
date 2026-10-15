@@ -2,20 +2,26 @@
    template-form.js  (템플릿 빌더)
    - 설정 변경 → iframe(미리보기)에 postMessage 로 즉시 반영
    - 섹션 표시/숨김 + 드래그(또는 ▲▼)로 순서 변경
-   - [설정 저장] → PUT /resumes/{id}/template (JSON)
+   - [설정 저장] → 새 템플릿이면 POST /api/templates, 이후 PUT /api/templates/{id}
+   - 이력서 데이터는 쓰지 않음 (미리보기는 자리표시 문구 + 현재 설정)
    ========================================================= */
 (() => {
     'use strict';
 
+    // template_section.section_type 과 동일 (profile 은 헤더라 항상 표시 → 목록에서 제외)
     const SECTION_LABELS = {
         intro: '자기소개',
-        career: '경력',
-        education: '학력',
+        experience: '경력',
         project: '프로젝트',
-        skill: '기술스택'
+        education: '학력',
+        certificate: '자격증',
+        skill: '기술 스택',
+        link: '외부 링크'
     };
 
     const DEFAULT_SETTING = {
+        templateId: null,
+        templateName: '새 템플릿',
         templateCode: 'minimal',
         layoutType: 'single',
         primaryColor: '#2D3748',
@@ -43,6 +49,11 @@
     const resetBtn      = document.getElementById('resetBtn');
     const printBtn      = document.getElementById('printBtn');
     const statusEl      = document.getElementById('saveStatus');
+    const nameInput     = document.getElementById('templateName');   // 없으면 이름 입력 생략
+
+    // 새 템플릿이면 비어 있음 → 첫 저장 시 POST 후 받은 id 로 이후 PUT
+    let templateId = root.dataset.templateId || null;
+    const apiUrl   = root.dataset.apiUrl || '/api/templates';
 
     // ---------- 상태 ----------
     let saved = normalize(window.TEMPLATE_SETTING);
@@ -83,6 +94,7 @@
 
     // ---------- 폼 ← state ----------
     function renderForm() {
+        if (nameInput) nameInput.value = state.templateName;
         sidebar.querySelectorAll('input[name="templateCode"]').forEach(r => {
             r.checked = r.value === state.templateCode;
         });
@@ -163,6 +175,9 @@
             case 'fontFamily':   update({ fontFamily: el.value }); break;
         }
     });
+
+    // 템플릿 이름
+    nameInput?.addEventListener('input', () => update({ templateName: nameInput.value }));
 
     // 색상: 드래그 중에도 실시간 반영
     colorInput.addEventListener('input', () => update({ primaryColor: colorInput.value }));
@@ -253,15 +268,32 @@
 
     // ---------- 저장 / 되돌리기 / 인쇄 ----------
     saveBtn.addEventListener('click', async () => {
+        const name = (state.templateName || '').trim();
+        if (!name) {
+            nameInput?.focus();
+            setStatus('템플릿 이름을 입력해 주세요', 'error');
+            return;
+        }
+
         saveBtn.disabled = true;
         setStatus('저장 중…');
         try {
-            const res = await fetch(root.dataset.saveUrl, {
-                method: 'PUT',
+            const isNew = !templateId;
+            const res = await fetch(isNew ? apiUrl : `${apiUrl}/${templateId}`, {
+                method: isNew ? 'POST' : 'PUT',
                 headers: Object.assign({ 'Content-Type': 'application/json' }, csrfHeaders()),
-                body: JSON.stringify(state)
+                body: JSON.stringify(Object.assign({}, state, { templateName: name }))
             });
             if (!res.ok) throw new Error(res.status);
+
+            if (isNew) {
+                const data = await res.json();              // { templateId: 5 }
+                templateId = String(data.templateId);
+                state.templateId = data.templateId;
+                root.dataset.templateId = templateId;
+                // 새로고침하면 수정 화면으로 열리도록 주소만 교체
+                history.replaceState(null, '', `/templates/${templateId}/edit`);
+            }
             saved = clone(state);
             resetBtn.disabled = true;
             setStatus('저장됨', 'saved');

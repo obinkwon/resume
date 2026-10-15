@@ -36,6 +36,10 @@ public class SecurityConfig {
         );
 
         http.securityMatcher("/web/**", "/api/**", "/login", "/error", "/favicon.ico", "/css/**", "/js/**")
+            // iframe 허용 (같은 사이트 안에서만)
+            .headers(headers -> headers
+                    .frameOptions(frame -> frame.sameOrigin())
+            )
             .csrf(csrf -> csrf
                     .ignoringRequestMatchers("/api/**", "/web/login")  // API 경로만 CSRF 검증 제외
             )

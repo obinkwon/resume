@@ -11,7 +11,7 @@
     <link rel="stylesheet" th:href="@{/css/template-form.css}">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script th:src="@{/js/common.js}"></script>
-    <script th:src="@{/js/template-form.js}"></script>
+    <script th:src="@{/js/template-form.js}" defer></script>
     <script th:inline="javascript">
         window.TEMPLATE_SETTING = /*[[${setting}]]*/ null;
     </script>
@@ -136,9 +136,7 @@
                 </div>
                 <div class="preview-stage" id="previewStage">
                     <div class="preview-page" id="previewPage">
-                        <iframe id="previewFrame"
-                                th:src="@{/preview/{id}(id=${resumeId})}"
-                                title="이력서 미리보기"></iframe>
+                        <iframe id="previewFrame" th:src="@{/web/template/preview}" title="템플릿 미리보기"></iframe>
                     </div>
                 </div>
             </main>
