@@ -52,6 +52,24 @@ subprojects {
 	}
 }
 
+// Playwright 브라우저(Chromium) 설치
+// resume-web 의 application.properties 에 있는 playwright.browsers-path 경로에 설치
+tasks.register('installPlaywright', JavaExec) {
+    group = 'playwright'
+    description = 'resume-web 의 application.properties 경로에 Chromium 설치'
+
+    def web = project(':resume-web')
+    def appProps = new Properties()
+    web.file('src/main/resources/application.properties').withInputStream { appProps.load(it) }
+    def browsersPath = project.findProperty('browsersPath')
+            ?: appProps.getProperty('playwright.browsers-path')
+
+    classpath = web.sourceSets.main.runtimeClasspath   // 루트에는 playwright 의존성이 없어서 web 모듈 것을 사용
+    mainClass = 'com.microsoft.playwright.CLI'
+    args 'install', 'chromium'
+    environment 'PLAYWRIGHT_BROWSERS_PATH', browsersPath
+}
+
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

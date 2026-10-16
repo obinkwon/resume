@@ -8,13 +8,18 @@ import com.microsoft.playwright.options.WaitUntilState;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import resume.core.dto.TemplateDetailResponseDto;
 import resume.core.dto.TemplateRequestDto;
 import resume.core.dto.TemplateResponseDto;
 import resume.core.mapper.TemplateMapper;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 @Slf4j
@@ -27,6 +32,10 @@ public class TemplateService {
     private static final double PAGE_TIMEOUT_MS = 30_000;
     /** 요청 하나가 기다리는 최대 시간 (앞 요청 대기 시간 포함) */
     private static final long REQUEST_TIMEOUT_SEC = 60;
+    @Value("${playwright.browsers-path}")
+    private String browsersPath;
+    @Value("${playwright.auto-install:false}")
+    private boolean autoInstall;
 
     private final ExecutorService worker = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "resume-pdf");
@@ -101,11 +110,17 @@ public class TemplateService {
         if (browser != null && browser.isConnected()) return;
 
         closeQuietly();
-        log.info("PDF 용 Chromium 시작");
-        playwright = Playwright.create();
+        Path path = Paths.get(browsersPath).toAbsolutePath();
+        log.info("PDF 용 Chromium 시작 (브라우저 경로: {})", path);
+
+        Map<String, String> env = new HashMap<>();
+        env.put("PLAYWRIGHT_BROWSERS_PATH", path.toString());
+        if (!autoInstall) {
+            env.put("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD", "1");   // 운영 : 다운로드 금지
+        }
+        playwright = Playwright.create(new Playwright.CreateOptions().setEnv(env));
         browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
                 .setHeadless(true)
-                // Docker·리눅스 서버에서 권한 문제로 안 뜰 때 필요
                 .setArgs(List.of("--no-sandbox", "--disable-dev-shm-usage")));
     }
 
