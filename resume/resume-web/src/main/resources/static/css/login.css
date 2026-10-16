@@ -1,8 +1,4 @@
-/* login css
-   - 배경, 폰트, 입력창 기본/포커스, 버튼, 색상은 common.css 사용
-*/
-
-/* 화면 가운데 정렬 (body에 class="login-page") */
+/* login css */
 .login-page {
     min-height: 100vh;
     display: flex;
@@ -20,7 +16,6 @@
     box-sizing: border-box;
 }
 
-/* 제목 */
 .login-title {
     text-align: center;
     margin-bottom: 30px;
@@ -35,7 +30,6 @@
     margin: 0;
 }
 
-/* 입력 */
 .form-group {
     margin-bottom: 20px;
 }
@@ -55,14 +49,12 @@
     font-size: 15px;
 }
 
-/* 로그인 버튼: 입력창과 높이 맞춤 */
 .login-container .btn.block {
     height: 46px;
     padding-top: 0;
     padding-bottom: 0;
 }
 
-/* 로그인 실패 메시지 */
 .login-error {
     margin-bottom: 16px;
     padding: 10px 14px;
@@ -73,7 +65,6 @@
     font-weight: 500;
 }
 
-/* 하단 안내 문구 */
 .notice {
     margin-top: 20px;
     text-align: center;

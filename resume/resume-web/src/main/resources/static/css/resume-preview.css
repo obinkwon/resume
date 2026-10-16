@@ -1,10 +1,4 @@
-/* =========================================================
-   resume-preview.css  (이력서 미리보기 / 인쇄 공통 뼈대)
-   - 여기에는 모든 템플릿이 함께 쓰는 기본 모양만 둠
-   - 색상·헤더·칸 배치 같은 디자인은 각 템플릿의 css_content 에서 덮어씀
-     예) :root { --primary: #E11D48; --font: 'Noto Sans KR'; --scale: 1.05; }
-   ========================================================= */
-
+/* resume-preview css */
 :root {
     --primary: #2D3748;          /* 대표 색상 */
     --font: 'Pretendard';        /* 폰트 */
@@ -121,7 +115,6 @@ body {
 .r-links li + li { margin-top: 4px; }
 .r-link__name { flex-shrink: 0; min-width: 64px; font-weight: 600; color: var(--ink); }
 .r-link__url  { word-break: break-all; }
-/* 좁은 옆 칸에서는 이름 아래에 주소 */
 .r-aside .r-links li { flex-direction: column; gap: 0; }
 .r-aside .r-links li + li { margin-top: 8px; }
 
