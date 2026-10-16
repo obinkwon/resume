@@ -10,6 +10,12 @@
             , template_name
             , description
             , thumbnail_url
+            , CASE WHEN position('r-aside' IN html_content) = 0 THEN 'single'
+                WHEN position('r-aside' IN html_content) <![CDATA[ < ]]> position('r-main' IN html_content) THEN 'sidebar'
+                ELSE 'split'
+                END AS layout_type
+            , substring(css_content FROM '--primary\s*:\s*(#[0-9A-Fa-f]{3,8})') AS primary_color
+            , css_content ~* '\.r-header\s*\{[^}]*background\s*:'            AS has_banner
             , is_public
             , created_by
             , use_yn

@@ -3,11 +3,15 @@
    왼쪽 : ① 템플릿 선택  ② 섹션 표시  ③ CSS 수정
    오른쪽: 미리보기(iframe, 실제 이력서 내용)
 
+   API 호출은 common.js 의 callApi 사용
+
    이력서 상세 : WebController model (resumeDetail) → window.CURRENT_TEMPLATE_ID
    이력서 ID   : window.RESUME_ID
-   템플릿 목록 : 화면이 열릴 때 GET /api/resume/template
+   템플릿 목록 : 화면이 열릴 때 GET /api/template/list   (개수 제한 없음)
                  응답 [{ templateId, templateName, description?, thumbnailUrl?, createdBy }]
-   템플릿 내용 : 카드를 선택할 때 GET /api/resume/template/{templateId}
+                 - 카드 영역은 높이 제한 + 안에서 스크롤
+                 - SEARCH_MIN 개를 넘으면 이름 검색창 표시 (받은 목록 안에서 화면 필터)
+   템플릿 내용 : 카드를 선택할 때 GET /api/template/{templateId}
                  응답 { templateId, templateName, htmlContent, cssContent, ... }
                  한 번 불러온 템플릿은 캐시해서 다시 요청하지 않음
 
@@ -33,6 +37,10 @@
 
     const CSS_MAX = 20000;
     const A4_WIDTH = 794;
+    /** 템플릿이 이 개수보다 많으면 검색창 표시 */
+    const SEARCH_MIN = 8;
+    /** 카드 영역의 고정된 그룹 제목 높이 (선택 카드가 그 아래로 보이게) */
+    const STICKY_OFFSET = 32;
 
     // 서버에서도 같은 규칙으로 거부해야 함 (화면 검사는 안내용)
     const CSS_BLOCKED = [
@@ -60,8 +68,10 @@
     const HIDE_END   = '/* ===== 섹션 숨김 끝 ===== */';
 
     // ---------- DOM ----------
-    const root          = document.querySelector('.builder');
     const groupsEl      = document.getElementById('templateGroups');
+    const countEl       = document.getElementById('templateCount');
+    const searchWrap    = document.getElementById('templateSearchWrap');
+    const searchInput   = document.getElementById('templateSearch');
     const togglesEl     = document.getElementById('sectionToggles');
     const editor        = document.getElementById('cssEditor');
     const snippetSelect = document.getElementById('snippetSelect');
@@ -99,6 +109,8 @@
     let saved = { templateId: null, cssContent: '' };
     /** 지금 내용을 불러오는 중인 템플릿 ID (없으면 null) */
     let loadingId = null;
+    /** 템플릿 검색어 */
+    let keyword = '';
     let frameHeight = 1123;
 
     // ---------- 유틸 ----------
@@ -126,48 +138,17 @@
         statusEl.className = 'save-status text-sm' + (type ? ' is-' + type : '');
     }
 
-    function csrfHeaders() {
-        const token  = document.querySelector('meta[name="_csrf"]')?.content;
-        const header = document.querySelector('meta[name="_csrf_header"]')?.content;
-        return token && header ? { [header]: token } : {};
-    }
-
     function escapeHtml(str) {
         return String(str ?? '').replace(/[&<>"']/g, c => (
             { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
         ));
     }
 
-    // ---------- API : 템플릿 내용 불러오기 ----------
-    function loadTemplate(id) {
-        const key = String(id);
-        if (details.has(key)) return Promise.resolve(details.get(key));
-        if (pending.has(key)) return pending.get(key);
-
-        const req = fetch(API.templateDetail(key), {
-            headers: { Accept: 'application/json' }
-        })
-            .then(res => {
-                if (!res.ok) throw new Error(res.status);
-                return res.json();
-            })
-            .then(data => {
-                const detail = Object.assign({}, data, {
-                    htmlContent: data.htmlContent || '',
-                    cssContent: data.cssContent || ''
-                });
-                details.set(key, detail);
-                return detail;
-            })
-            .finally(() => pending.delete(key));
-
-        pending.set(key, req);
-        return req;
-    }
-
-    // ---------- API : 템플릿 목록 불러오기 ----------
+    // ---------- API : 템플릿 목록 ----------
+    /** 성공하면 true, 실패하면 false 로 끝나는 Promise */
     function loadTemplateList() {
         groupsEl.innerHTML = '<p class="panel-hint">템플릿 목록을 불러오는 중…</p>';
+        countEl.textContent = '';
         setStatus('');
 
         return callApi({
@@ -238,26 +219,22 @@
         return `${base}${base ? '\n\n' : ''}${HIDE_START}\n${selectors} {\n  display: none !important;\n}\n${HIDE_END}\n`;
     }
 
-    // ---------- 렌더링 ----------
-    function renderAll() {
-        renderTemplates();
-        editor.value = state.cssContent;
-        renderToggles();
-        renderCssInfo();
-    }
-
+    // ---------- 렌더링 : ① 템플릿 카드 ----------
     /**
      * 미니 썸네일
      *  - thumbnailUrl 이 있으면 이미지
-     *  - 내용을 이미 불러온 템플릿이면 HTML 틀·CSS 를 보고 대략 그림
-     *  - 아직 안 불러왔으면 기본 모양
+     *  - 목록 API 의 layoutType·primaryColor·hasBanner 로 처음부터 그림
+     *  - 상세를 불러온 뒤에는 HTML 틀·CSS 를 보고 다시 계산 (CSS 직접 수정 반영)
      */
     function thumbHtml(t) {
         if (t.thumbnailUrl) {
             return `<img src="${escapeHtml(t.thumbnailUrl)}" alt="" loading="lazy">`;
         }
+        let layout = t.layoutType   || 'single';
+        let banner = t.hasBanner    ?? false;
+        let color  = t.primaryColor || '#2D3748';
+
         const d = details.get(String(t.templateId));
-        let layout = 'single', banner = false, color = '#2D3748';
         if (d) {
             const asideAt = d.htmlContent.indexOf('r-aside');
             const mainAt  = d.htmlContent.indexOf('r-main');
@@ -266,7 +243,7 @@
             color  = /--primary\s*:\s*(#[0-9a-f]{3,8})/i.exec(d.cssContent)?.[1] || color;
         }
         return `
-            <span class="mini" data-layout="${layout}" data-banner="${banner}" style="--t-color:${color}">
+            <span class="mini" data-layout="${escapeHtml(layout)}" data-banner="${banner}" style="--t-color:${escapeHtml(color)}">
                 <span class="mini__head"></span>
                 <span class="mini__body">
                     <span class="mini__col"></span>
@@ -289,34 +266,79 @@
             </button>`;
     }
 
+    /** 검색어로 거른 템플릿 (이름·설명에서 찾음, 대소문자 무시) */
+    function visibleTemplates() {
+        const q = keyword.trim().toLowerCase();
+        if (!q) return templates;
+        return templates.filter(t =>
+            String(t.templateName ?? '').toLowerCase().includes(q)
+            || String(t.description ?? '').toLowerCase().includes(q));
+    }
+
+    /** 개수 표시 + 검색창 보이기 (많을 때만, 검색 중이면 계속 보임) */
+    function renderTemplateMeta(shown) {
+        const total = templates.length;
+        countEl.textContent = !total ? '' : (keyword.trim() ? `${shown} / ${total}개` : `${total}개`);
+        searchWrap.hidden = total <= SEARCH_MIN && !keyword;
+    }
+
     function renderTemplates() {
+        const items = visibleTemplates();
+        renderTemplateMeta(items.length);
+
         if (!templates.length) {
             groupsEl.innerHTML = '<p class="panel-hint">사용할 수 있는 템플릿이 없어요.</p>';
             return;
         }
-        // 다시 그려도 포커스(방향키 이동) 유지
+        if (!items.length) {
+            groupsEl.innerHTML = '<p class="panel-hint">검색 결과가 없어요.</p>';
+            return;
+        }
+
+        // 다시 그려도 스크롤 위치·포커스(방향키 이동) 유지
+        const scrollTop = groupsEl.scrollTop;
         const focusedId = groupsEl.contains(document.activeElement)
             ? document.activeElement.dataset.id : null;
 
         const groups = [
-            { title: '기본 템플릿', items: templates.filter(t => t.createdBy == null) },
-            { title: '내 템플릿',   items: templates.filter(t => t.createdBy != null) }
+            { title: '기본 템플릿', items: items.filter(t => t.createdBy == null) },
+            { title: '내 템플릿',   items: items.filter(t => t.createdBy != null) }
         ].filter(g => g.items.length);
 
         groupsEl.innerHTML = groups.map(g => `
             <div class="template-group">
-                ${groups.length > 1 ? `<h3 class="template-group__title">${g.title}</h3>` : ''}
+                ${groups.length > 1 ? `<h3 class="template-group__title">${g.title} <span>${g.items.length}</span></h3>` : ''}
                 <div class="template-grid" role="radiogroup" aria-label="${g.title}">
                     ${g.items.map(cardHtml).join('')}
                 </div>
             </div>`).join('');
 
+        groupsEl.scrollTop = scrollTop;
         if (focusedId != null) {
-            [...groupsEl.querySelectorAll('.template-card')]
-                .find(el => el.dataset.id === focusedId)?.focus();
+            findCard(focusedId)?.focus({ preventScroll: true });
         }
     }
 
+    function findCard(id) {
+        return [...groupsEl.querySelectorAll('.template-card')].find(el => el.dataset.id === String(id)) || null;
+    }
+
+    /** 카드 영역 안에서만 스크롤해서 카드를 보이게 (페이지 전체는 움직이지 않음) */
+    function revealCard(card) {
+        if (!card) return;
+        const box = groupsEl.getBoundingClientRect();
+        const rect = card.getBoundingClientRect();
+        const hasSticky = !!groupsEl.querySelector('.template-group__title');
+        const top = box.top + (hasSticky ? STICKY_OFFSET : 0);
+        if (rect.top < top) groupsEl.scrollTop -= top - rect.top;
+        else if (rect.bottom > box.bottom) groupsEl.scrollTop += rect.bottom - box.bottom;
+    }
+
+    function revealSelected() {
+        revealCard(findCard(loadingId ?? state.templateId));
+    }
+
+    // ---------- 렌더링 : ② 섹션 / ③ CSS ----------
     function renderToggles() {
         const { hidden } = splitHidden(state.cssContent);
         togglesEl.innerHTML = Object.entries(SECTION_LABELS).map(([key, label]) => `
@@ -397,6 +419,7 @@
         loadingId = tid;
         setBusy(true);
         renderTemplates();
+        if (initial) revealSelected();
         if (!details.has(key)) setStatus('템플릿 불러오는 중…');
 
         let detail;
@@ -434,7 +457,7 @@
         if (card) selectTemplate(card.dataset.id);
     });
 
-    // 방향키로 카드 이동
+    // 방향키로 카드 이동 (보이는 카드 안에서만)
     groupsEl.addEventListener('keydown', e => {
         if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
         const cards = [...groupsEl.querySelectorAll('.template-card')];
@@ -443,8 +466,35 @@
         e.preventDefault();
         const step = e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 1;
         const next = cards[(i + step + cards.length) % cards.length];
-        next.focus();
+        next.focus({ preventScroll: true });
+        revealCard(next);
         next.click();
+    });
+
+    // ---------- 이벤트: 템플릿 검색 ----------
+    searchInput.addEventListener('input', () => {
+        keyword = searchInput.value;
+        renderTemplates();
+        groupsEl.scrollTop = 0;
+    });
+
+    searchInput.addEventListener('keydown', e => {
+        // Esc : 검색어 지우기
+        if (e.key === 'Escape' && searchInput.value) {
+            e.preventDefault();
+            searchInput.value = '';
+            keyword = '';
+            renderTemplates();
+            revealSelected();
+        }
+        // ↓ : 첫 번째 카드로 (선택된 카드가 보이면 그 카드로)
+        if (e.key === 'ArrowDown') {
+            const target = findCard(state.templateId) || groupsEl.querySelector('.template-card');
+            if (!target) return;
+            e.preventDefault();
+            target.focus({ preventScroll: true });
+            revealCard(target);
+        }
     });
 
     // ---------- 이벤트: ② 섹션 표시 ----------
@@ -498,7 +548,38 @@
     });
 
     // ---------- 저장 / 되돌리기 / 인쇄 ----------
-    saveBtn.addEventListener('click', async () => {
+    /** 저장 성공 후 처리 (응답 data 는 204 면 null) */
+    function onSaved(data) {
+        // 서버가 CSS 를 반영한 새 템플릿을 만들었으면 그 ID 로 교체 (내 템플릿에 추가)
+        if (data?.templateId && String(data.templateId) !== String(state.templateId)) {
+            const baseSummary = findTemplate(state.templateId);
+            const baseDetail  = current();
+            templates.push({
+                templateId: data.templateId,
+                templateName: data.templateName || `${baseSummary.templateName} (내 디자인)`,
+                description: '',
+                thumbnailUrl: null,
+                createdBy: data.createdBy ?? -1
+            });
+            // 새 템플릿 내용은 이미 알고 있으므로 캐시에 바로 넣음
+            details.set(String(data.templateId), Object.assign({}, baseDetail, {
+                templateId: data.templateId,
+                cssContent: state.cssContent
+            }));
+            state.templateId = data.templateId;
+        } else if (findTemplate(state.templateId)?.createdBy != null && current()) {
+            current().cssContent = state.cssContent;   // 내 템플릿을 고친 경우
+        }
+
+        saved = clone(state);
+        renderTemplates();
+        revealSelected();
+        renderCssInfo();
+        resetBtn.disabled = true;
+        setStatus('저장됨', 'saved');
+    }
+
+    saveBtn.addEventListener('click', () => {
         clearTimeout(cssTimer);
         state.cssContent = editor.value;
 
@@ -515,47 +596,18 @@
 
         saveBtn.disabled = true;
         setStatus('저장 중…');
-        try {
-            const res = await fetch(API.save(RESUME_ID), {
-                method: 'PUT',
-                headers: Object.assign({ 'Content-Type': 'application/json' }, csrfHeaders()),
-                body: JSON.stringify({ templateId: state.templateId, cssContent: state.cssContent })
-            });
-            if (!res.ok) throw new Error(res.status);
 
-            // 서버가 CSS 를 반영한 새 템플릿을 만들었으면 그 ID 로 교체 (내 템플릿에 추가)
-            const data = res.status === 204 ? null : await res.json().catch(() => null);
-            if (data?.templateId && String(data.templateId) !== String(state.templateId)) {
-                const baseSummary = findTemplate(state.templateId);
-                const baseDetail  = current();
-                templates.push({
-                    templateId: data.templateId,
-                    templateName: data.templateName || `${baseSummary.templateName} (내 디자인)`,
-                    description: '',
-                    thumbnailUrl: null,
-                    createdBy: data.createdBy ?? -1
-                });
-                // 새 템플릿 내용은 이미 알고 있으므로 캐시에 바로 넣음
-                details.set(String(data.templateId), Object.assign({}, baseDetail, {
-                    templateId: data.templateId,
-                    cssContent: state.cssContent
-                }));
-                state.templateId = data.templateId;
-            } else if (findTemplate(state.templateId)?.createdBy != null && current()) {
-                current().cssContent = state.cssContent;   // 내 템플릿을 고친 경우
-            }
-
-            saved = clone(state);
-            renderTemplates();
-            renderCssInfo();
-            resetBtn.disabled = true;
-            setStatus('저장됨', 'saved');
-        } catch (err) {
-            console.error('템플릿 저장 실패', err);
-            setStatus('저장 실패', 'error');
-        } finally {
-            saveBtn.disabled = loadingId != null;
-        }
+        callApi({
+            url: API.save(RESUME_ID),
+            method: 'PUT',
+            data: { templateId: state.templateId, cssContent: state.cssContent },
+            success: onSaved,
+            error: err => {
+                console.error('템플릿 저장 실패', err);
+                setStatus('저장 실패', 'error');
+            },
+            complete: () => { saveBtn.disabled = loadingId != null; }
+        });
     });
 
     resetBtn.addEventListener('click', () => {
@@ -564,6 +616,7 @@
         setBusy(false);
         state.templateId = saved.templateId;   // 저장된 템플릿은 이미 캐시에 있음
         renderTemplates();
+        revealSelected();
         setCss(saved.cssContent);
     });
 

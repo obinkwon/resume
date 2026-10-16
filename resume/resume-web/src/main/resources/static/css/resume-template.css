@@ -107,12 +107,46 @@
 .panel-collapsible[open] summary::after { transform: rotate(-135deg); }
 
 /* ----- ① 템플릿 카드 ----- */
+/* 검색창 (템플릿이 많을 때만 JS 가 표시) */
+.template-search { margin-bottom: 10px; }
+.template-search input {
+    width: 100%;
+    margin: 0;
+    padding: 7px 10px;
+    font-size: 13px;
+}
+
+/* 카드 목록 — 개수와 상관없이 높이를 제한하고 안에서만 스크롤
+   (카드 2줄 반 정도 → 다음 줄이 살짝 보여서 더 있다는 걸 알 수 있음) */
+.template-scroll {
+    max-height: min(440px, 52vh);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;   /* 끝까지 스크롤해도 사이드바가 같이 밀리지 않게 */
+    scrollbar-gutter: stable;
+    margin: 0 -6px;                 /* 선택 테두리(box-shadow)가 잘리지 않게 여유 */
+    padding: 2px 6px 6px;
+}
+
 .template-group + .template-group { margin-top: 16px; }
+/* 그룹 제목은 스크롤해도 위에 고정 */
 .template-group__title {
+    position: sticky;
+    top: -2px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     margin: 0 0 8px;
+    padding: 6px 0;
+    background: var(--c-surface);
     font-size: 12px;
     font-weight: 600;
     color: var(--c-text-muted);
+}
+.template-group__title span {
+    font-weight: 400;
+    color: var(--c-text-faint);
 }
 .template-grid {
     display: grid;
@@ -167,6 +201,7 @@
     line-height: 1.4;
 }
 .template-card[aria-checked="true"] .template-card__name { color: var(--c-primary); }
+.template-card[aria-busy="true"] .template-card__thumb { opacity: .6; }
 
 /* 썸네일 안의 미니 이력서 */
 .mini {
@@ -376,5 +411,6 @@
     .builder-layout { grid-template-columns: 1fr; }
     .sidebar { position: static; max-height: none; }
     .template-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .template-scroll { max-height: 360px; }
     .preview-stage { padding: 16px; }
 }

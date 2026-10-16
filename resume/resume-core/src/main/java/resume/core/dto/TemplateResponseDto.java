@@ -15,4 +15,8 @@ public class TemplateResponseDto {
     private Long templateId;
     private String templateName;
     private String description;
+    private String thumbnailUrl;
+    private String layoutType;
+    private String primaryColor;
+    private Boolean hasBanner;
 }
