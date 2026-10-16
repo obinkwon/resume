@@ -38,4 +38,4 @@ out/
 
 application-dev.properties
 application-sup.properties
-.playwright/
+**/playwright

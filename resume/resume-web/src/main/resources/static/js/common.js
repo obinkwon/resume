@@ -59,11 +59,13 @@ async function readResponseBody(res) {
     return text;
 }
 
-function callApi({ url, method = 'GET', data, headers = {}, success, error, complete } = {}) {
+function callApi({ url, method = 'GET', data, headers = {}, responseType = 'auto', success, error, complete } = {}) {
     method = method.toUpperCase();
+    const isBlob = responseType === 'blob';
     const options = {
         method,
-        headers: Object.assign({ Accept: 'application/json' }, headers)
+        // 파일을 받을 때는 Accept 를 넓게 (JSON 으로 두면 서버가 406 을 줄 수 있음)
+        headers: Object.assign({ Accept: isBlob ? '*/*' : 'application/json' }, headers)
     };
 
     if (data != null) {

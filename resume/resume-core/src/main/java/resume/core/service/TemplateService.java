@@ -75,11 +75,12 @@ public class TemplateService {
     }
 
     private byte[] doRender(String url, List<Cookie> cookies) {
+        long t0 = System.currentTimeMillis();
         ensureBrowser();
+        long t1 = System.currentTimeMillis();
 
-        // 요청마다 새 컨텍스트 = 쿠키·캐시가 다른 사용자와 섞이지 않음
         try (BrowserContext context = browser.newContext(new Browser.NewContextOptions()
-                .setViewportSize(794, 1123)          // A4 @96dpi (미리보기와 같은 폭)
+                .setViewportSize(794, 1123)
                 .setLocale("ko-KR"))) {
 
             if (cookies != null && !cookies.isEmpty()) {
@@ -89,20 +90,32 @@ public class TemplateService {
             Page page = context.newPage();
             page.setDefaultTimeout(PAGE_TIMEOUT_MS);
 
-            page.navigate(url, new Page.NavigateOptions().setWaitUntil(WaitUntilState.NETWORKIDLE));
+            // 느린 요청 찾기용 (1초 넘게 걸린 요청만 출력)
+            page.onRequestFinished(req -> {
+                double ms = req.timing().responseEnd;
+                if (ms > 1000) log.info("느린 요청 {}ms : {}", (long) ms, req.url());
+            });
 
-            // resume-preview.js 가 템플릿을 다 그리면 body[data-rendered="true"]
+            page.navigate(url, new Page.NavigateOptions().setWaitUntil(WaitUntilState.LOAD));
+            long t2 = System.currentTimeMillis();
+
             page.waitForSelector("body[data-rendered='true']");
-            // 웹폰트(Pretendard, Noto Sans KR)까지 다 받은 뒤에 출력
+            long t3 = System.currentTimeMillis();
+
             page.evaluate("() => document.fonts.ready.then(() => true)");
+            long t4 = System.currentTimeMillis();
 
             page.emulateMedia(new Page.EmulateMediaOptions().setMedia(Media.PRINT));
-
-            return page.pdf(new Page.PdfOptions()
+            byte[] pdf = page.pdf(new Page.PdfOptions()
                     .setFormat("A4")
-                    .setPrintBackground(true)        // 색 헤더 등 배경색 포함
-                    .setPreferCSSPageSize(true)      // resume-preview.css 의 @page 설정 사용
+                    .setPrintBackground(true)
+                    .setPreferCSSPageSize(true)
                     .setMargin(new Margin().setTop("0").setRight("0").setBottom("0").setLeft("0")));
+            long t5 = System.currentTimeMillis();
+
+            log.info("PDF 시간 — 브라우저 {}ms / 페이지 로딩 {}ms / 렌더 대기 {}ms / 폰트 {}ms / PDF {}ms / 합계 {}ms",
+                    t1 - t0, t2 - t1, t3 - t2, t4 - t3, t5 - t4, t5 - t0);
+            return pdf;
         }
     }
 
