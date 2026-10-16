@@ -8,6 +8,7 @@
        /web/resume/preview/{resumeId}?templateId={id} → 지정한 템플릿
        (컨트롤러 model 의 resumeTemplate, 없으면 한 컬럼 기본 틀)
    - 빌더 iframe 안에서는 postMessage 로 받은 값으로 다시 그림
+   - 다 그리면 body[data-rendered="true"] — 서버 PDF(헤드리스 크롬)가 이걸 기다렸다가 출력
    ========================================================= */
 (() => {
     'use strict';
@@ -68,6 +69,7 @@
         });
 
         resume.replaceChildren(fragment);
+        body.dataset.rendered = 'true';
         reportHeight();
     }
 

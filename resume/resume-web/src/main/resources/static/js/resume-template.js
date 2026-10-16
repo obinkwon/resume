@@ -60,7 +60,8 @@
     const API = {
         templateList: '/api/template/list',
         templateDetail: id => `/api/template/${encodeURIComponent(id)}`,
-        templateSave: '/api/resume/template'
+        templateSave: '/api/resume/template',
+        templatePdf: id => `/web/resume/${encodeURIComponent(id)}/pdf`
     };
 
     // ---------- 데이터 ----------
@@ -190,18 +191,15 @@
     /**
      * 미니 썸네일
      *  - thumbnailUrl 이 있으면 이미지
-     *  - 목록 API 의 layoutType·primaryColor·hasBanner 로 처음부터 그림
-     *  - 상세를 불러온 뒤에는 HTML 틀·CSS 를 보고 다시 계산 (CSS 직접 수정 반영)
+     *  - 내용을 이미 불러온 템플릿이면 HTML 틀·CSS 를 보고 대략 그림
+     *  - 아직 안 불러왔으면 기본 모양
      */
     function thumbHtml(t) {
         if (t.thumbnailUrl) {
             return `<img src="${escapeHtml(t.thumbnailUrl)}" alt="" loading="lazy">`;
         }
-        let layout = t.layoutType   || 'single';
-        let banner = t.hasBanner    ?? false;
-        let color  = t.primaryColor || '#2D3748';
-
         const d = details.get(String(t.templateId));
+        let layout = 'single', banner = false, color = '#2D3748';
         if (d) {
             const asideAt = d.htmlContent.indexOf('r-aside');
             const mainAt  = d.htmlContent.indexOf('r-main');
@@ -210,7 +208,7 @@
             color  = /--primary\s*:\s*(#[0-9a-f]{3,8})/i.exec(d.cssContent)?.[1] || color;
         }
         return `
-            <span class="mini" data-layout="${escapeHtml(layout)}" data-banner="${banner}" style="--t-color:${escapeHtml(color)}">
+            <span class="mini" data-layout="${layout}" data-banner="${banner}" style="--t-color:${color}">
                 <span class="mini__head"></span>
                 <span class="mini__body">
                     <span class="mini__col"></span>
@@ -557,10 +555,49 @@
         setCss(saved.cssContent);
     });
 
-    printBtn.addEventListener('click', () => {
-        // 브라우저 인쇄창 → "PDF로 저장"
-        frame.contentWindow?.focus();
-        frame.contentWindow?.print();
+    // ---------- PDF 다운로드 (서버에서 미리보기와 똑같이 만듦) ----------
+    /** Content-Disposition 에서 파일 이름 꺼내기 (filename*=UTF-8'' 우선) */
+    function fileNameFrom(disposition) {
+        if (!disposition) return null;
+        const utf8 = /filename\*\s*=\s*UTF-8''([^;]+)/i.exec(disposition);
+        if (utf8) {
+            try { return decodeURIComponent(utf8[1].replace(/"/g, '')); } catch (e) { /* 아래로 */ }
+        }
+        return /filename\s*=\s*"?([^";]+)"?/i.exec(disposition)?.[1] || null;
+    }
+
+    printBtn.addEventListener('click', async () => {
+        // PDF 는 서버에 저장된 템플릿으로 만들어짐
+        if (!saved.templateId) {
+            setStatus('템플릿을 먼저 저장해 주세요', 'error');
+            return;
+        }
+        if (isDirty() && !confirm('저장하지 않은 변경은 PDF에 반영되지 않아요.\n저장된 상태로 PDF를 받을까요?')) return;
+
+        printBtn.disabled = true;
+        const prevStatus = statusEl.textContent;
+        setStatus('PDF 만드는 중…');
+        try {
+            // 파일(blob)을 받아야 해서 callApi 대신 fetch 사용 (callApi 는 JSON·텍스트용)
+            const res = await fetch(API.templatePdf(RESUME_ID));
+            if (!res.ok) throw new Error(res.status);
+
+            const blob = await res.blob();
+            const name = fileNameFrom(res.headers.get('Content-Disposition')) || '이력서.pdf';
+            const url = URL.createObjectURL(blob);
+            const a = Object.assign(document.createElement('a'), { href: url, download: name });
+            document.body.append(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+            setStatus(isDirty() ? '저장 안 됨' : prevStatus, isDirty() ? 'dirty' : '');
+        } catch (err) {
+            console.error('PDF 다운로드 실패', err);
+            setStatus('PDF를 만들지 못했어요', 'error');
+        } finally {
+            printBtn.disabled = false;
+        }
     });
 
     window.addEventListener('beforeunload', e => {
