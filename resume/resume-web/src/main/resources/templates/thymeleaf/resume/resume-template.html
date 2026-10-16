@@ -14,30 +14,36 @@
     <!--
         이력서 목록 → [템플릿] → GET /web/resume/{resumeId}/template
 
-        필요한 model
-          resumeId          : Long
-          resumeTitle       : String
-          currentTemplateId : Long   (resumes.template_id, 없으면 null → 첫 번째 기본 템플릿으로 시작)
-          templates         : List   (선택할 수 있는 템플릿 = 기본 템플릿 + 내 템플릿)
-                              각 항목 { templateId, templateName, description, thumbnailUrl,
-                                       htmlContent, cssContent, createdBy }
+        필요한 model (WebController)
+          resumeDetail : { resumeId, title, templateId }
+                         templateId = resumes.template_id, 없으면 null → 첫 번째 기본 템플릿으로 시작
+
+        템플릿은 화면이 열릴 때 API 로 가져옴
+          GET  /api/resume/template                    ← 목록 (화면 열릴 때)
+               → [{ templateId, templateName, description, thumbnailUrl, createdBy }]
+                 (기본 템플릿 + 로그인 사용자의 템플릿, htmlContent / cssContent 는 넣지 않음)
+          GET  /api/resume/template/{templateId}       ← 내용 (선택할 때)
+               → { templateId, templateName, htmlContent, cssContent }
+                 (기본 템플릿 또는 로그인 사용자가 만든 템플릿만 허용)
     -->
     <script th:inline="javascript">
-        window.CURRENT_TEMPLATE_ID = /*[[${currentTemplateId}]]*/ null;
-        window.TEMPLATES = /*[[${templates}]]*/ [];
+        window.CURRENT_TEMPLATE_ID = /*[[${resumeDetail?.templateId}]]*/ null;
     </script>
     <script th:src="@{/js/resume-template.js}" defer></script>
 </head>
 <body>
-    <div class="builder">
+    <div class="builder"
+         th:data-template-list-url="@{/api/resume/template}"
+         th:data-template-url="@{/api/resume/template/}"
+         th:data-save-url="@{/web/resume/{id}/template(id=${resumeDetail.resumeId})}">
         <header class="builder-header">
             <div class="builder-header__left">
                 <a class="btn secondary sm" th:href="@{/web/resume/list}">
                     <i class="icon icon-arrow-left sm"></i>목록
                 </a>
                 <div>
-                    <h1 class="builder-title">템플릿 꾸미기</h1>
-                    <p class="text-sm text-muted" th:text="${resumeTitle}">이력서 제목</p>
+                    <h1 class="builder-title">템플릿 선택</h1>
+                    <p class="text-sm text-muted" th:text="${resumeDetail?.title}">이력서 제목</p>
                 </div>
             </div>
             <div class="btn-group">
@@ -110,7 +116,7 @@
                 <div class="preview-stage" id="previewStage">
                     <div class="preview-page" id="previewPage">
                         <!-- 선택한 템플릿의 HTML 틀 + CSS 는 postMessage 로 넘김 -->
-                        <iframe id="previewFrame" th:src="@{/web/resume/preview/{id}(id=${resumeId})}" title="이력서 미리보기"></iframe>
+                        <iframe id="previewFrame" th:src="@{/web/resume/preview/{id}(id=${resumeDetail.resumeId})}" title="이력서 미리보기"></iframe>
                     </div>
                 </div>
             </main>

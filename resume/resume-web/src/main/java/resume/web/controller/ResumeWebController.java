@@ -44,8 +44,10 @@ public class ResumeWebController {
 	}
 
     @GetMapping("/template/{resumeId}")
-    public String resumeTemplatePage(@PathVariable Long resumeId, Model model) {
+    public String resumeTemplatePage(@PathVariable Long resumeId, Model model, ResumeRequestDto requestDto) {
 
+        requestDto.setResumeId(resumeId);
+        model.addAttribute("resumeDetail", resumeService.getResumeDetail(requestDto));
         return "thymeleaf/resume/resume-template";
     }
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="resume.core.mapper.TemplateMapper">
+
+    <!-- 이력서 템플릿 목록 조회 -->
+    <select id="selectTemplateList" parameterType="resume.core.dto.TemplateRequestDto" resultType="resume.core.dto.TemplateResponseDto">
+        SELECT
+            template_id
+            , template_name
+            , description
+            , thumbnail_url
+            , html_content
+            , css_content
+            , is_public
+            , created_by
+            , use_yn
+            , created_at
+            , updated_at
+        FROM templates
+        WHERE use_yn = 'Y'
+    </select>
+</mapper>

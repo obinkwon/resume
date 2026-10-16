@@ -19,14 +19,14 @@ public class ResumeApiController {
     private final ResumeService resumeService;
 
     @PostMapping("/save")
-    public ResponseEntity<Long> save(@RequestBody ResumeRequestDto request,
+    public ResponseEntity<Long> procResumeSave(@RequestBody ResumeRequestDto request,
                                      @AuthenticationPrincipal UserPrincipal principal) {
         request.setUserId(principal.getUserId());
         return ResponseEntity.ok(resumeService.saveResume(request));
     }
 
     @GetMapping("/{id}/export/pdf")
-    public ResponseEntity<byte[]> pdf(@PathVariable UUID id, @RequestParam String template) {
+    public ResponseEntity<byte[]> procResumeExportPDf(@PathVariable UUID id, @RequestParam String template) {
         return null;
     }
 }

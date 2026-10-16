@@ -2,25 +2,18 @@ package resume.api.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import resume.core.dto.TemplateRequestDto;
+import resume.core.dto.TemplateResponseDto;
 import resume.core.dto.TemplateSettingDto;
 import resume.core.service.TemplateService;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-/**
- * 템플릿 REST API (JSON)
- *  POST   /api/templates                                 : 템플릿 생성 (이력서 없이)
- *  GET    /api/templates                                 : 내 템플릿 목록
- *  GET    /api/templates/{templateId}                    : 템플릿 조회
- *  PUT    /api/templates/{templateId}                    : 템플릿 수정
- *  DELETE /api/templates/{templateId}                    : 템플릿 삭제 (연결된 이력서의 template_id 는 NULL 로)
- *  PUT    /api/templates/{templateId}/resumes/{resumeId} : 이력서에 템플릿 적용 (나중에 연결)
- *  DELETE /api/templates/{templateId}/resumes/{resumeId} : 이력서 템플릿 해제
- */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/templates")
@@ -33,6 +26,11 @@ public class TemplateApiController {
             Set.of("intro", "skill", "education", "certificate", "experience", "project", "link");
 
     private final TemplateService templateService;
+
+    @GetMapping("/list")
+    public ResponseEntity<List<TemplateResponseDto>> getTemplateList(@RequestBody TemplateRequestDto requestDto) {
+        return ResponseEntity.ok(templateService.getTemplateList(requestDto));
+    }
 
 //    @PostMapping
 //    public ResponseEntity<Map<String, Long>> create(@RequestBody TemplateSettingDto dto,
@@ -50,10 +48,7 @@ public class TemplateApiController {
 //                .body(Map.of("templateId", templateId));
 //    }
 //
-//    @GetMapping
-//    public List<TemplateSettingDto> list() {
-//        return templateService.getMyTemplates();
-//    }
+
 //
 //    @GetMapping("/{templateId}")
 //    public TemplateSettingDto get(@PathVariable Long templateId) {
