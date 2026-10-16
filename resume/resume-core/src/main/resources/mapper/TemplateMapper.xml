@@ -10,6 +10,22 @@
             , template_name
             , description
             , thumbnail_url
+            , is_public
+            , created_by
+            , use_yn
+            , created_at
+            , updated_at
+        FROM templates
+        WHERE use_yn = 'Y'
+    </select>
+
+    <!-- 이력서 템플릿 상세 조회 -->
+    <select id="selectTemplateDetail" parameterType="resume.core.dto.TemplateRequestDto" resultType="resume.core.dto.TemplateDetailResponseDto">
+        SELECT
+            template_id
+            , template_name
+            , description
+            , thumbnail_url
             , html_content
             , css_content
             , is_public
@@ -18,6 +34,6 @@
             , created_at
             , updated_at
         FROM templates
-        WHERE use_yn = 'Y'
+        WHERE template_id = #{templateId}
     </select>
 </mapper>

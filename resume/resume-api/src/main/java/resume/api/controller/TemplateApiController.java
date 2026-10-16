@@ -2,13 +2,10 @@ package resume.api.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import resume.core.dto.TemplateDetailResponseDto;
 import resume.core.dto.TemplateRequestDto;
 import resume.core.dto.TemplateResponseDto;
-import resume.core.dto.TemplateSettingDto;
 import resume.core.service.TemplateService;
 
 import java.util.List;
@@ -16,7 +13,7 @@ import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/templates")
+@RequestMapping("/api/template")
 public class TemplateApiController {
 
     private static final Set<String> TEMPLATES = Set.of("minimal", "modern", "ats");
@@ -28,8 +25,15 @@ public class TemplateApiController {
     private final TemplateService templateService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<TemplateResponseDto>> getTemplateList(@RequestBody TemplateRequestDto requestDto) {
+    public ResponseEntity<List<TemplateResponseDto>> getTemplateList(TemplateRequestDto requestDto) {
         return ResponseEntity.ok(templateService.getTemplateList(requestDto));
+    }
+
+    @GetMapping("/{templateId}")
+    public ResponseEntity<TemplateDetailResponseDto> getTemplateDetail(@PathVariable Long templateId, TemplateRequestDto requestDto) {
+
+        requestDto.setTemplateId(templateId);
+        return ResponseEntity.ok(templateService.getTemplateDetail(requestDto));
     }
 
 //    @PostMapping
@@ -46,13 +50,6 @@ public class TemplateApiController {
 //        return ResponseEntity
 //                .created(URI.create("/api/templates/" + templateId))
 //                .body(Map.of("templateId", templateId));
-//    }
-//
-
-//
-//    @GetMapping("/{templateId}")
-//    public TemplateSettingDto get(@PathVariable Long templateId) {
-//        return templateService.getTemplate(templateId);
 //    }
 //
 //    @PutMapping("/{templateId}")
@@ -81,18 +78,4 @@ public class TemplateApiController {
 //        templateService.detachFromResume(templateId, resumeId);
 //        return ResponseEntity.noContent().build();
 //    }
-
-    // ---------- 검증 ----------
-    private boolean isValid(TemplateSettingDto dto) {
-        if (dto == null) return false;
-        if (dto.getTemplateName() == null || dto.getTemplateName().isBlank()
-                || dto.getTemplateName().length() > 50) return false;
-        if (!TEMPLATES.contains(dto.getTemplateCode())
-                || !LAYOUTS.contains(dto.getLayoutType())
-                || !FONTS.contains(dto.getFontFamily())) return false;
-        if (dto.getPrimaryColor() == null || !dto.getPrimaryColor().matches("^#[0-9A-Fa-f]{6}$")) return false;
-        if (dto.getFontScale() < 85 || dto.getFontScale() > 115) return false;
-        return dto.getSections() != null && dto.getSections().stream()
-                .allMatch(s -> SECTIONS.contains(s.getKey()));
-    }
 }

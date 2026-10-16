@@ -4,9 +4,10 @@
    오른쪽: 미리보기(iframe, 실제 이력서 내용)
 
    이력서 상세 : WebController model (resumeDetail) → window.CURRENT_TEMPLATE_ID
-   템플릿 목록 : 화면이 열릴 때 GET {data-template-list-url}
+   이력서 ID   : window.RESUME_ID
+   템플릿 목록 : 화면이 열릴 때 GET /api/resume/template
                  응답 [{ templateId, templateName, description?, thumbnailUrl?, createdBy }]
-   템플릿 내용 : 카드를 선택할 때 GET {data-template-url}{templateId}
+   템플릿 내용 : 카드를 선택할 때 GET /api/resume/template/{templateId}
                  응답 { templateId, templateName, htmlContent, cssContent, ... }
                  한 번 불러온 템플릿은 캐시해서 다시 요청하지 않음
 
@@ -14,7 +15,7 @@
      빌더 → 미리보기 : { type: 'template:apply', template: { htmlContent, cssContent } }
      미리보기 → 빌더 : { type: 'preview:ready' }, { type: 'preview:height', height }
 
-   저장 : PUT {data-save-url}  body { templateId, cssContent }
+   저장 : PUT /web/resume/{resumeId}/template  body { templateId, cssContent }
           응답 { templateId } — 서버가 새 템플릿 행을 만들었으면 그 ID
    ========================================================= */
 (() => {
@@ -76,9 +77,13 @@
     const printBtn      = document.getElementById('printBtn');
     const statusEl      = document.getElementById('saveStatus');
 
-    const saveUrl         = root.dataset.saveUrl;
-    const templateListUrl = root.dataset.templateListUrl || '/api/resume/template';
-    const templateUrl     = (root.dataset.templateUrl || '/api/resume/template/').replace(/\/?$/, '/');
+    // ---------- API 경로 ----------
+    const RESUME_ID = window.RESUME_ID;
+    const API = {
+        templateList:   '/api/template/list',
+        templateDetail: id => `/api/template/${encodeURIComponent(id)}`,
+        save:           id => `/web/resume/${encodeURIComponent(id)}/template`
+    };
 
     // ---------- 데이터 ----------
     /** 템플릿 목록 (ID·이름 등 가벼운 정보만, API 로 채움) */
@@ -139,7 +144,7 @@
         if (details.has(key)) return Promise.resolve(details.get(key));
         if (pending.has(key)) return pending.get(key);
 
-        const req = fetch(templateUrl + encodeURIComponent(key), {
+        const req = fetch(API.templateDetail(key), {
             headers: { Accept: 'application/json' }
         })
             .then(res => {
@@ -161,23 +166,49 @@
     }
 
     // ---------- API : 템플릿 목록 불러오기 ----------
-    async function loadTemplateList() {
+    function loadTemplateList() {
         groupsEl.innerHTML = '<p class="panel-hint">템플릿 목록을 불러오는 중…</p>';
         setStatus('');
-        try {
-            const res = await fetch(templateListUrl, { headers: { Accept: 'application/json' } });
-            if (!res.ok) throw new Error(res.status);
-            const list = await res.json();
-            templates.splice(0, templates.length, ...(Array.isArray(list) ? list : []));
-            return true;
-        } catch (err) {
-            console.error('템플릿 목록 불러오기 실패', err);
-            groupsEl.innerHTML = `
-                <p class="panel-hint">템플릿 목록을 불러오지 못했어요.</p>
-                <button type="button" class="btn ghost sm" id="templateRetryBtn">다시 시도</button>`;
-            setStatus('템플릿 목록을 불러오지 못했어요', 'error');
-            return false;
-        }
+
+        return callApi({
+            url: API.templateList,
+            success: list => {
+                templates.splice(0, templates.length, ...(Array.isArray(list) ? list : []));
+                return true;
+            },
+            error: err => {
+                console.error('템플릿 목록 불러오기 실패', err);
+                groupsEl.innerHTML = `
+                    <p class="panel-hint">템플릿 목록을 불러오지 못했어요.</p>
+                    <button type="button" class="btn ghost sm" id="templateRetryBtn">다시 시도</button>`;
+                setStatus('템플릿 목록을 불러오지 못했어요', 'error');
+                return false;
+            }
+        });
+    }
+
+    // ---------- API : 템플릿 내용 ----------
+    /** 실패하면 reject — selectTemplate 에서 처리 */
+    function loadTemplate(id) {
+        const key = String(id);
+        if (details.has(key)) return Promise.resolve(details.get(key));
+        if (pending.has(key)) return pending.get(key);
+
+        const req = callApi({
+            url: API.templateDetail(key),
+            success: data => {
+                const detail = Object.assign({}, data, {
+                    htmlContent: data?.htmlContent || '',
+                    cssContent: data?.cssContent || ''
+                });
+                details.set(key, detail);
+                return detail;
+            },
+            error: err => { throw err; }
+        }).finally(() => pending.delete(key));
+
+        pending.set(key, req);
+        return req;
     }
 
     /** 불러오는 동안 편집·저장 막기 */
@@ -485,7 +516,7 @@
         saveBtn.disabled = true;
         setStatus('저장 중…');
         try {
-            const res = await fetch(saveUrl, {
+            const res = await fetch(API.save(RESUME_ID), {
                 method: 'PUT',
                 headers: Object.assign({ 'Content-Type': 'application/json' }, csrfHeaders()),
                 body: JSON.stringify({ templateId: state.templateId, cssContent: state.cssContent })

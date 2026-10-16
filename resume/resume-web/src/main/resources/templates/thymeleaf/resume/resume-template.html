@@ -27,15 +27,13 @@
                  (기본 템플릿 또는 로그인 사용자가 만든 템플릿만 허용)
     -->
     <script th:inline="javascript">
+        window.RESUME_ID = /*[[${resumeDetail?.resumeId}]]*/ null;
         window.CURRENT_TEMPLATE_ID = /*[[${resumeDetail?.templateId}]]*/ null;
     </script>
     <script th:src="@{/js/resume-template.js}" defer></script>
 </head>
 <body>
-    <div class="builder"
-         th:data-template-list-url="@{/api/resume/template}"
-         th:data-template-url="@{/api/resume/template/}"
-         th:data-save-url="@{/web/resume/{id}/template(id=${resumeDetail.resumeId})}">
+    <div class="builder">
         <header class="builder-header">
             <div class="builder-header__left">
                 <a class="btn secondary sm" th:href="@{/web/resume/list}">
