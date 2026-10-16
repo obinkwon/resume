@@ -2,25 +2,6 @@
    resume-template.js  (이력서 템플릿 선택)
    왼쪽 : ① 템플릿 선택  ② 섹션 표시  ③ CSS 수정
    오른쪽: 미리보기(iframe, 실제 이력서 내용)
-
-   API 호출은 common.js 의 callApi 사용
-
-   이력서 상세 : WebController model (resumeDetail) → window.CURRENT_TEMPLATE_ID
-   이력서 ID   : window.RESUME_ID
-   템플릿 목록 : 화면이 열릴 때 GET /api/template/list   (개수 제한 없음)
-                 응답 [{ templateId, templateName, description?, thumbnailUrl?, createdBy }]
-                 - 카드 영역은 높이 제한 + 안에서 스크롤
-                 - SEARCH_MIN 개를 넘으면 이름 검색창 표시 (받은 목록 안에서 화면 필터)
-   템플릿 내용 : 카드를 선택할 때 GET /api/template/{templateId}
-                 응답 { templateId, templateName, htmlContent, cssContent, ... }
-                 한 번 불러온 템플릿은 캐시해서 다시 요청하지 않음
-
-   미리보기와 통신 (postMessage)
-     빌더 → 미리보기 : { type: 'template:apply', template: { htmlContent, cssContent } }
-     미리보기 → 빌더 : { type: 'preview:ready' }, { type: 'preview:height', height }
-
-   저장 : PUT /web/resume/{resumeId}/template  body { templateId, cssContent }
-          응답 { templateId } — 서버가 새 템플릿 행을 만들었으면 그 ID
    ========================================================= */
 (() => {
     'use strict';
@@ -51,18 +32,6 @@
         { re: /javascript\s*:/i,  msg: 'javascript: 는 사용할 수 없어요.' }
     ];
 
-    // ③ 자주 쓰는 스타일 (선택하면 CSS 맨 아래에 추가)
-    const SNIPPETS = [
-        { label: '대표 색상 바꾸기',       css: ':root {\n  --primary: #E11D48;\n}' },
-        { label: '폰트 바꾸기',           css: ":root {\n  --font: 'Noto Sans KR'; /* Pretendard, Noto Sans KR, Roboto */\n}" },
-        { label: '글자 크기 키우기',       css: ':root {\n  --scale: 1.06;\n}' },
-        { label: '이름을 가운데로',        css: '.r-header {\n  flex-direction: column;\n  align-items: center;\n  text-align: center;\n}\n.r-contact {\n  text-align: center;\n}' },
-        { label: '섹션 제목을 색 박스로',   css: '.r-section__title {\n  padding: 4px 10px;\n  border: none;\n  border-radius: 4px;\n  background: var(--primary);\n  color: #fff;\n}' },
-        { label: '경력을 타임라인으로',     css: '.r-section[data-section="experience"] .r-item {\n  position: relative;\n  padding-left: 18px;\n  border-left: 2px solid var(--line);\n}\n.r-section[data-section="experience"] .r-item::before {\n  content: "";\n  position: absolute;\n  left: -6px;\n  top: 6px;\n  width: 10px;\n  height: 10px;\n  border-radius: 50%;\n  background: var(--primary);\n}' },
-        { label: '기술 태그를 테두리형으로', css: '.r-tags li {\n  border-radius: 4px;\n  border: 1px solid var(--primary);\n  background: transparent;\n}' },
-        { label: '기간을 강조색으로',       css: '.r-period {\n  color: var(--primary);\n  font-weight: 600;\n}' }
-    ];
-
     // ② 섹션 숨김 규칙은 CSS 맨 아래 이 표시 사이에 자동으로 관리
     const HIDE_START = '/* ===== 섹션 숨김 (섹션 표시 메뉴에서 자동 관리) ===== */';
     const HIDE_END   = '/* ===== 섹션 숨김 끝 ===== */';
@@ -74,7 +43,6 @@
     const searchInput   = document.getElementById('templateSearch');
     const togglesEl     = document.getElementById('sectionToggles');
     const editor        = document.getElementById('cssEditor');
-    const snippetSelect = document.getElementById('snippetSelect');
     const cssResetBtn   = document.getElementById('cssResetBtn');
     const cssCountEl    = document.getElementById('cssCount');
     const cssWarningEl  = document.getElementById('cssWarning');
@@ -90,9 +58,9 @@
     // ---------- API 경로 ----------
     const RESUME_ID = window.RESUME_ID;
     const API = {
-        templateList:   '/api/template/list',
+        templateList: '/api/template/list',
         templateDetail: id => `/api/template/${encodeURIComponent(id)}`,
-        save:           id => `/web/resume/${encodeURIComponent(id)}/template`
+        templateSave: '/api/resume/template'
     };
 
     // ---------- 데이터 ----------
@@ -195,7 +163,6 @@
     /** 불러오는 동안 편집·저장 막기 */
     function setBusy(on) {
         editor.disabled = on;
-        snippetSelect.disabled = on;
         saveBtn.disabled = on;
         groupsEl.setAttribute('aria-busy', String(on));
         renderCssInfo();
@@ -528,19 +495,6 @@
         editor.dispatchEvent(new Event('input'));
     });
 
-    SNIPPETS.forEach((sn, i) => snippetSelect.add(new Option(sn.label, String(i))));
-    snippetSelect.addEventListener('change', () => {
-        const sn = SNIPPETS[Number(snippetSelect.value)];
-        snippetSelect.value = '';
-        if (!sn) return;
-        // 섹션 숨김 블록보다 위에 추가
-        const { body, hidden } = splitHidden(editor.value);
-        const next = (body ? body + '\n\n' : '') + `/* ${sn.label} */\n${sn.css}`;
-        setCss(joinHidden(next, hidden));
-        editor.focus();
-        editor.scrollTop = editor.scrollHeight;
-    });
-
     cssResetBtn.addEventListener('click', () => {
         const t = current();
         if (!t || !confirm('수정한 CSS를 지우고 템플릿의 원래 CSS로 되돌릴까요?')) return;
@@ -548,35 +502,14 @@
     });
 
     // ---------- 저장 / 되돌리기 / 인쇄 ----------
-    /** 저장 성공 후 처리 (응답 data 는 204 면 null) */
-    function onSaved(data) {
-        // 서버가 CSS 를 반영한 새 템플릿을 만들었으면 그 ID 로 교체 (내 템플릿에 추가)
-        if (data?.templateId && String(data.templateId) !== String(state.templateId)) {
-            const baseSummary = findTemplate(state.templateId);
-            const baseDetail  = current();
-            templates.push({
-                templateId: data.templateId,
-                templateName: data.templateName || `${baseSummary.templateName} (내 디자인)`,
-                description: '',
-                thumbnailUrl: null,
-                createdBy: data.createdBy ?? -1
-            });
-            // 새 템플릿 내용은 이미 알고 있으므로 캐시에 바로 넣음
-            details.set(String(data.templateId), Object.assign({}, baseDetail, {
-                templateId: data.templateId,
-                cssContent: state.cssContent
-            }));
-            state.templateId = data.templateId;
-        } else if (findTemplate(state.templateId)?.createdBy != null && current()) {
-            current().cssContent = state.cssContent;   // 내 템플릿을 고친 경우
-        }
-
+    // 저장 성공 후 처리
+    function onSaved() {
+        // 이동하기 전에 '저장된 상태'로 맞춰야 beforeunload 의 "나가시겠어요?" 창이 안 뜸
         saved = clone(state);
-        renderTemplates();
-        revealSelected();
-        renderCssInfo();
-        resetBtn.disabled = true;
         setStatus('저장됨', 'saved');
+
+        alert('템플릿 저장 완료');
+        location.href = '/web/resume/list';
     }
 
     saveBtn.addEventListener('click', () => {
@@ -598,9 +531,13 @@
         setStatus('저장 중…');
 
         callApi({
-            url: API.save(RESUME_ID),
-            method: 'PUT',
-            data: { templateId: state.templateId, cssContent: state.cssContent },
+            url: API.templateSave,
+            method: 'POST',
+            data: {
+                resumeId: state.resumeId,
+                templateId: state.templateId,
+                cssContent: state.cssContent
+            },
             success: onSaved,
             error: err => {
                 console.error('템플릿 저장 실패', err);

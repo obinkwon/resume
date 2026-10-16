@@ -345,37 +345,25 @@ $(function(){
 
         isSaving = true;
         const $btn = $(this).prop('disabled', true);
-        try {
-            const response = await fetch('/api/resume/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-
-            // 4xx/5xx도 fetch는 성공으로 처리하므로 직접 확인
-            if (!response.ok) {
-                const msg = await response.text();
-                throw new Error(msg || `HTTP ${response.status}`);
+        callApi({
+            url: '/api/resume/save',
+            method: 'POST',
+            data: data,
+            success: result => {
+                alert('저장 완료');
+                location.href = '/web/resume/list';
+            },
+            error: err => {
+                console.error('이력서 저장 실패', err);
+                // 서버가 텍스트로 에러를 보내면 err.data, JSON 이면 err.message(서버 message 우선)
+                const msg = typeof err.data === 'string' && err.data ? err.data : err.message;
+                alert('저장 중 오류가 발생했습니다.\n' + msg);
+            },
+            complete: () => {
+                isSaving = false;
+                $btn.prop('disabled', false);
             }
-
-            // 응답 본문이 비어 있어도 JSON 파싱 에러가 나지 않도록
-            const text = await response.text();
-            const result = text ? JSON.parse(text) : null;
-
-            // 신규 저장 후 다시 저장할 때 insert가 중복되지 않도록 발급된 ID 반영 (응답에 resumeId가 있을 경우)
-            if (result && result.resumeId) {
-                $('[name=resumeId]').val(result.resumeId);
-            }
-
-            alert('저장 완료');
-            location.href = '/web/resume/list';
-        } catch (e) {
-            console.error('이력서 저장 실패', e);
-            alert('저장 중 오류가 발생했습니다.\n' + e.message);
-        } finally {
-            isSaving = false;
-            $btn.prop('disabled', false);
-        }
+        });
     });
     // 링크 제거
     $('#linkList').on('click', '.removeBtn', function() {

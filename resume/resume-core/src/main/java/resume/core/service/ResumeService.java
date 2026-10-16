@@ -139,4 +139,11 @@ public class ResumeService {
 
         return resumeId;
     }
+
+    @Transactional
+    public Long saveResumeTemplate(ResumeRequestDto requestDto) {
+        resumeMapper.updateResume(requestDto);
+        return requestDto.getResumeId();
+    }
+
 }

@@ -384,9 +384,13 @@
     <!-- 이력서 수정 -->
     <update id="updateResume" parameterType="resume.core.dto.ResumeRequestDto">
         UPDATE resumes
-        SET title = #{title}
+        SET updated_at = CURRENT_TIMESTAMP
+        <if test="title != null">
+            , title = #{title}
+        </if>
+        <if test="templateId != null">
             , template_id = #{templateId}
-            , updated_at = CURRENT_TIMESTAMP
+        </if>
         WHERE resume_id = #{resumeId}
             AND use_yn = 'Y'
     </update>

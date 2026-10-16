@@ -25,6 +25,13 @@ public class ResumeApiController {
         return ResponseEntity.ok(resumeService.saveResume(request));
     }
 
+    @PostMapping("/template")
+    public ResponseEntity<Long> procResumeTemplate(@RequestBody ResumeRequestDto request,
+                                               @AuthenticationPrincipal UserPrincipal principal) {
+        request.setUserId(principal.getUserId());
+        return ResponseEntity.ok(resumeService.saveResumeTemplate(request));
+    }
+
     @GetMapping("/{id}/export/pdf")
     public ResponseEntity<byte[]> procResumeExportPDf(@PathVariable UUID id, @RequestParam String template) {
         return null;
