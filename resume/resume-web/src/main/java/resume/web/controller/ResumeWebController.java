@@ -7,9 +7,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import resume.core.dto.ResumeDetailResponseDto;
 import resume.core.dto.ResumeRequestDto;
+import resume.core.dto.TemplateRequestDto;
 import resume.core.security.UserPrincipal;
 import resume.core.service.ResumeService;
+import resume.core.service.TemplateService;
 
 @Controller
 @RequiredArgsConstructor
@@ -17,6 +20,7 @@ import resume.core.service.ResumeService;
 public class ResumeWebController {
 
 	private final ResumeService resumeService;
+	private final TemplateService templateService;
 
 	@GetMapping("/list")
 	public String resumeListPage(Authentication authentication, Model model, ResumeRequestDto requestDto) {
@@ -52,8 +56,20 @@ public class ResumeWebController {
     }
 
     @GetMapping("/preview/{resumeId}")
-    public String resumePreviewPage(@PathVariable Long resumeId, Model model) {
+    public String resumePreviewPage(@PathVariable Long resumeId, Model model, ResumeRequestDto requestDto) {
 
+        requestDto.setResumeId(resumeId);
+        ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetail(requestDto);
+
+        TemplateRequestDto templateRequestDto = new TemplateRequestDto();
+        if(requestDto.getTemplateId() != null){
+            templateRequestDto.setTemplateId(requestDto.getTemplateId());
+        } else {
+            templateRequestDto.setTemplateId(resumeDetail.getTemplateId());
+        }
+
+        model.addAttribute("resumeDetail", resumeDetail);
+        model.addAttribute("resumeTemplate", templateService.getTemplateDetail(templateRequestDto));
         return "thymeleaf/resume/resume-preview";
     }
 }

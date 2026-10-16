@@ -51,7 +51,8 @@
     gap: 8px;
 }
 
-.resume-card .actions a {
+.resume-card .actions a,
+.resume-card .actions .is-disabled {
     flex: 1;
     display: inline-flex;
     align-items: center;
@@ -73,6 +74,13 @@
 
 .resume-card .actions a.template {
     color: var(--c-primary);
+}
+
+/* 템플릿이 없는 이력서의 미리보기 (링크 대신 span 이라 클릭되지 않음) */
+.resume-card .actions .is-disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    user-select: none;
 }
 
 /* ===== 목록 비었을 때 ===== */

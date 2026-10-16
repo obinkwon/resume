@@ -3,8 +3,11 @@
    - 템플릿 HTML 의 치환자 {{profile}} {{intro}} {{experience}} {{project}}
      {{education}} {{certificate}} {{skill}} {{link}} 자리에 #sectionPool 의 섹션을 넣음
    - 템플릿 CSS 는 <style id="templateCss"> 에 textContent 로 넣음
-   - 처음엔 body 의 data-template-html / data-template-css (저장된 템플릿)로 그리고,
-     빌더 iframe 안에서는 postMessage 로 받은 값으로 다시 그림
+   - 처음엔 body 의 data-template-html / data-template-css 로 그림
+       /web/resume/preview/{resumeId}                 → 이력서에 저장된 템플릿
+       /web/resume/preview/{resumeId}?templateId={id} → 지정한 템플릿
+       (컨트롤러 model 의 resumeTemplate, 없으면 한 컬럼 기본 틀)
+   - 빌더 iframe 안에서는 postMessage 로 받은 값으로 다시 그림
    ========================================================= */
 (() => {
     'use strict';

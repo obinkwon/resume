@@ -40,6 +40,10 @@ body {
     padding: 48px 52px;
 }
 
+/* ===== 칸 (템플릿의 .r-columns 그리드 안) =====
+   긴 URL·단어가 있어도 칸이 A4 밖으로 밀려나지 않게 */
+.r-main, .r-aside { min-width: 0; }
+
 /* ===== 인적사항 {{profile}} ===== */
 .r-header {
     display: flex;
