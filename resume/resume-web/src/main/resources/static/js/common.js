@@ -80,8 +80,8 @@ function callApi({ url, method = 'GET', data, headers = {}, success, error, comp
     const request = fetch(url, options)
         .catch(err => { throw new ApiError(0, null, err); })        // 네트워크 오류
         .then(async res => {
-            const body = await readResponseBody(res);
-            if (!res.ok) throw new ApiError(res.status, body);
+            if (!res.ok) throw new ApiError(res.status, await readResponseBody(res));
+            const body = isBlob ? await res.blob() : await readResponseBody(res);
             return { body, res };
         });
 

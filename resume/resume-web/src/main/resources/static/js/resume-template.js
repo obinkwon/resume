@@ -61,7 +61,7 @@
         templateList: '/api/template/list',
         templateDetail: id => `/api/template/${encodeURIComponent(id)}`,
         templateSave: '/api/resume/template',
-        templatePdf: id => `/web/resume/${encodeURIComponent(id)}/pdf`
+        templatePdf: id => `/api/resume/${encodeURIComponent(id)}/pdf`
     };
 
     // ---------- 데이터 ----------
@@ -532,7 +532,7 @@
             url: API.templateSave,
             method: 'POST',
             data: {
-                resumeId: state.resumeId,
+                resumeId: RESUME_ID,
                 templateId: state.templateId,
                 cssContent: state.cssContent
             },
@@ -566,7 +566,17 @@
         return /filename\s*=\s*"?([^";]+)"?/i.exec(disposition)?.[1] || null;
     }
 
-    printBtn.addEventListener('click', async () => {
+    /** blob 을 파일로 내려받기 */
+    function downloadBlob(blob, name) {
+        const url = URL.createObjectURL(blob);
+        const a = Object.assign(document.createElement('a'), { href: url, download: name });
+        document.body.append(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    printBtn.addEventListener('click', () => {
         // PDF 는 서버에 저장된 템플릿으로 만들어짐
         if (!saved.templateId) {
             setStatus('템플릿을 먼저 저장해 주세요', 'error');
@@ -577,27 +587,21 @@
         printBtn.disabled = true;
         const prevStatus = statusEl.textContent;
         setStatus('PDF 만드는 중…');
-        try {
-            // 파일(blob)을 받아야 해서 callApi 대신 fetch 사용 (callApi 는 JSON·텍스트용)
-            const res = await fetch(API.templatePdf(RESUME_ID));
-            if (!res.ok) throw new Error(res.status);
 
-            const blob = await res.blob();
-            const name = fileNameFrom(res.headers.get('Content-Disposition')) || '이력서.pdf';
-            const url = URL.createObjectURL(blob);
-            const a = Object.assign(document.createElement('a'), { href: url, download: name });
-            document.body.append(a);
-            a.click();
-            a.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-            setStatus(isDirty() ? '저장 안 됨' : prevStatus, isDirty() ? 'dirty' : '');
-        } catch (err) {
-            console.error('PDF 다운로드 실패', err);
-            setStatus('PDF를 만들지 못했어요', 'error');
-        } finally {
-            printBtn.disabled = false;
-        }
+        callApi({
+            url: API.templatePdf(RESUME_ID),
+            responseType: 'blob',
+            success: (blob, res) => {
+                const name = fileNameFrom(res.headers.get('Content-Disposition')) || '이력서.pdf';
+                downloadBlob(blob, name);
+                setStatus(isDirty() ? '저장 안 됨' : prevStatus, isDirty() ? 'dirty' : '');
+            },
+            error: err => {
+                console.error('PDF 다운로드 실패', err);
+                setStatus('PDF를 만들지 못했어요', 'error');
+            },
+            complete: () => { printBtn.disabled = false; }
+        });
     });
 
     window.addEventListener('beforeunload', e => {
