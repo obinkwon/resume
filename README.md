@@ -1,10 +1,5 @@
-<div>
-  <img src="src/main/resources/static/img/header.svg" width="100%" alt="Project Banner">
-</div>
+<img src="https://raw.githubusercontent.com/obinkwon/resume/main/resume/resume-web/src/main/resources/static/img/header.svg" width="100%" alt="Project Banner">
 <blockquote data-ke-style="style2">
-<p data-ke-size="size16">이력서 템플릿 만들어서 출력하는 프로그램</p>
-</blockquote>
-<br/><br/><br/>
 
 ## 개발환경
 - IntelliJ 2025.1.3
