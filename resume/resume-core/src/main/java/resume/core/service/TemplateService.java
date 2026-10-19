@@ -9,6 +9,8 @@ import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import resume.core.dto.TemplateDetailResponseDto;
 import resume.core.dto.TemplateRequestDto;
@@ -153,5 +155,18 @@ public class TemplateService {
         } finally {
             worker.shutdownNow();
         }
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void warmUp() {
+        worker.submit(() -> {
+            try {
+                long start = System.currentTimeMillis();
+                ensureBrowser();
+                log.info("PDF 브라우저 준비 완료 ({}ms)", System.currentTimeMillis() - start);
+            } catch (Exception e) {
+                log.warn("PDF 브라우저 미리 실행 실패 (첫 요청 때 다시 시도)", e);
+            }
+        });
     }
 }
