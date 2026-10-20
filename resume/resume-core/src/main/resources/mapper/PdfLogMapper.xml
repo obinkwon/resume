@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="resume.core.mapper.PdfLogMapper">
+
+    <!-- PDF 다운로드 이력 로그 추가 -->
+    <insert id="insertPdfLog" parameterType="resume.core.dto.PdfLogDto" useGeneratedKeys="true" keyProperty="pdfId" keyColumn="pdf_log_id">
+        INSERT INTO pdf_log (
+            resume_id
+            , template_id
+            , file_path
+            , file_name
+            , created_at
+        ) VALUES (
+            #{resumeId}
+            , #{templateId}
+            , #{filePath}
+            , #{fileName}
+            , CURRENT_TIMESTAMP
+        )
+    </insert>
+</mapper>

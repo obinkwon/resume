@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import resume.core.dto.*;
+import resume.core.mapper.PdfLogMapper;
 import resume.core.mapper.ResumeMapper;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 public class ResumeService {
 
     private final ResumeMapper resumeMapper;
+    private final PdfLogMapper pdfLogMapper;
 
     public List<ResumeResponseDto> getResumeList(ResumeRequestDto requestDto) {
         return resumeMapper.selectResumeList(requestDto);
@@ -144,6 +146,16 @@ public class ResumeService {
     public Long saveResumeTemplate(ResumeRequestDto requestDto) {
         resumeMapper.updateResume(requestDto);
         return requestDto.getResumeId();
+    }
+
+    @Transactional
+    public void savePdfLog(PdfLogDto pdfLogDto) {
+        // 로그 저장 - 실패해도 다운로드는 진행
+        try {
+            pdfLogMapper.insertPdfLog(pdfLogDto);
+        } catch (Exception e) {
+            log.warn("PDF 로그 저장 실패 resumeId={}, templateId={}", pdfLogDto.getResumeId(), pdfLogDto.getTemplateId(), e);
+        }
     }
 
 }
