@@ -2,6 +2,12 @@
    resume-template.js  (이력서 템플릿 선택)
    왼쪽 : ① 템플릿 선택  ② 섹션 표시  ③ CSS 수정
    오른쪽: 미리보기(iframe, 실제 이력서 내용)
+
+   CSS 수정 방식
+    - 편집기는 처음엔 잠겨 있고 [수정] 버튼을 눌러야 편집 가능
+    - 저장할 때 CSS 가 선택한 템플릿의 원래 CSS 와 다르면
+      서버가 그 템플릿을 복사한 새 템플릿(내 템플릿)을 만들어 이력서에 연결
+      (원래 템플릿은 그대로 둠)
    ========================================================= */
 (() => {
     'use strict';
@@ -22,6 +28,9 @@
     const SEARCH_MIN = 8;
     /** 카드 영역의 고정된 그룹 제목 높이 (선택 카드가 그 아래로 보이게) */
     const STICKY_OFFSET = 32;
+    /** templates.template_name 길이 */
+    const NAME_MAX = 100;
+    const CUSTOM_SUFFIX = ' (수정)';
 
     // 서버에서도 같은 규칙으로 거부해야 함 (화면 검사는 안내용)
     const CSS_BLOCKED = [
@@ -43,8 +52,9 @@
     const searchInput   = document.getElementById('templateSearch');
     const togglesEl     = document.getElementById('sectionToggles');
     const editor        = document.getElementById('cssEditor');
-    const cssResetBtn   = document.getElementById('cssResetBtn');
+    const cssEditBtn    = document.getElementById('cssEditBtn');
     const cssCountEl    = document.getElementById('cssCount');
+    const cssNoteEl     = document.getElementById('cssNote');
     const cssWarningEl  = document.getElementById('cssWarning');
     const frame         = document.getElementById('previewFrame');
     const page          = document.getElementById('previewPage');
@@ -81,6 +91,10 @@
     /** 템플릿 검색어 */
     let keyword = '';
     let frameHeight = 1123;
+    /** CSS 편집기 잠금 해제 여부 ([수정] 버튼) */
+    let cssUnlocked = false;
+    /** [수정] 을 누르기 직전의 CSS ([취소] 하면 이 내용으로 되돌림) */
+    let cssBeforeEdit = null;
 
     // ---------- 유틸 ----------
     function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
@@ -100,6 +114,19 @@
 
     function isDirty() {
         return String(state.templateId) !== String(saved.templateId) || state.cssContent !== saved.cssContent;
+    }
+
+    /** CSS 가 선택한 템플릿의 원래 CSS 와 다른가 → 저장하면 새 템플릿이 만들어짐 */
+    function isCustom() {
+        const t = current();
+        return !!t && !sameCss(state.cssContent, t.cssContent);
+    }
+
+    /** 새로 만들 템플릿 이름 : '원래 이름 (수정)' (이미 붙어 있으면 한 번만) */
+    function customName() {
+        const base = String(findTemplate(state.templateId)?.templateName || '템플릿')
+            .replace(/\s*\(수정\)$/, '');
+        return base.slice(0, NAME_MAX - CUSTOM_SUFFIX.length) + CUSTOM_SUFFIX;
     }
 
     function setStatus(text, type) {
@@ -164,9 +191,48 @@
     /** 불러오는 동안 편집·저장 막기 */
     function setBusy(on) {
         editor.disabled = on;
+        cssEditBtn.disabled = on;
         saveBtn.disabled = on;
         groupsEl.setAttribute('aria-busy', String(on));
         renderCssInfo();
+    }
+
+    /** CSS 편집기 잠금 / 해제 — 버튼은 [수정] ↔ [취소] 로 바뀜 */
+    function setCssLock(locked) {
+        cssUnlocked = !locked;
+        if (locked) cssBeforeEdit = null;
+        editor.readOnly = locked;
+        editor.classList.toggle('is-locked', locked);
+        cssEditBtn.innerHTML = locked
+            ? '<i class="icon icon-edit sm"></i>수정'
+            : '<i class="icon icon-close sm"></i>취소';
+        cssEditBtn.title = locked ? 'CSS 직접 수정하기' : '수정을 취소하고 수정 전 CSS로 되돌리기';
+        cssEditBtn.setAttribute('aria-pressed', String(!locked));
+        renderCssInfo();
+    }
+
+    /** [수정] : 지금 CSS 를 기억해 두고 편집 시작 */
+    function startCssEdit() {
+        if (!current() || loadingId != null) return;
+        cssBeforeEdit = state.cssContent;
+        setCssLock(false);
+        editor.focus();
+    }
+
+    /** [취소] : 수정 전 CSS 로 되돌리고 다시 잠금 (섹션 표시 설정은 지금 상태 유지) */
+    function cancelCssEdit() {
+        clearTimeout(cssTimer);
+        state.cssContent = editor.value;
+
+        const before = splitHidden(cssBeforeEdit ?? '').body;
+        const edited = !sameCss(splitHidden(state.cssContent).body, before);
+        if (edited && !confirm('수정한 CSS를 취소하고 수정 전으로 되돌릴까요?')) return;
+
+        if (edited) {
+            const { hidden } = splitHidden(state.cssContent);
+            setCss(joinHidden(before, hidden));
+        }
+        setCssLock(true);
     }
 
     // ---------- 섹션 숨김 블록 ----------
@@ -191,15 +257,18 @@
     /**
      * 미니 썸네일
      *  - thumbnailUrl 이 있으면 이미지
-     *  - 내용을 이미 불러온 템플릿이면 HTML 틀·CSS 를 보고 대략 그림
-     *  - 아직 안 불러왔으면 기본 모양
+     *  - 목록 API 의 layoutType·primaryColor·hasBanner 로 처음부터 그림
+     *  - 상세를 불러온 뒤에는 HTML 틀·CSS 를 보고 다시 계산
      */
     function thumbHtml(t) {
         if (t.thumbnailUrl) {
             return `<img src="${escapeHtml(t.thumbnailUrl)}" alt="" loading="lazy">`;
         }
+        let layout = t.layoutType   || 'single';
+        let banner = t.hasBanner    ?? false;
+        let color  = t.primaryColor || '#2D3748';
+
         const d = details.get(String(t.templateId));
-        let layout = 'single', banner = false, color = '#2D3748';
         if (d) {
             const asideAt = d.htmlContent.indexOf('r-aside');
             const mainAt  = d.htmlContent.indexOf('r-main');
@@ -208,7 +277,7 @@
             color  = /--primary\s*:\s*(#[0-9a-f]{3,8})/i.exec(d.cssContent)?.[1] || color;
         }
         return `
-            <span class="mini" data-layout="${layout}" data-banner="${banner}" style="--t-color:${color}">
+            <span class="mini" data-layout="${escapeHtml(layout)}" data-banner="${banner}" style="--t-color:${escapeHtml(color)}">
                 <span class="mini__head"></span>
                 <span class="mini__body">
                     <span class="mini__col"></span>
@@ -317,7 +386,7 @@
             </li>`).join('');
     }
 
-    /** 글자 수 + 금지 문구 안내. 문제가 있으면 메시지 반환 */
+    /** 글자 수 + 금지 문구 + 새 템플릿 안내. 문제가 있으면 메시지 반환 */
     function renderCssInfo() {
         const css = state.cssContent;
         cssCountEl.textContent = `${css.length.toLocaleString()} / ${CSS_MAX.toLocaleString()}`;
@@ -328,7 +397,13 @@
 
         cssWarningEl.hidden = !problem;
         cssWarningEl.textContent = problem;
-        cssResetBtn.disabled = loadingId != null || !current() || sameCss(css, current().cssContent);
+
+        // 원래 CSS 와 달라졌으면 '새 템플릿으로 저장' 안내
+        const custom = loadingId == null && isCustom();
+        cssNoteEl.hidden = !custom;
+        if (custom) {
+            cssNoteEl.textContent = `저장하면 원래 템플릿은 그대로 두고 '${customName()}' 이름의 새 템플릿(내 템플릿)으로 만들어져요.`;
+        }
         return problem;
     }
 
@@ -414,6 +489,9 @@
         // 섹션 표시 설정은 그대로 유지
         const { hidden } = splitHidden(state.cssContent);
         setCss(initial ? detail.cssContent : joinHidden(detail.cssContent, hidden));
+
+        // 템플릿을 바꾸면 편집기는 다시 잠금
+        setCssLock(true);
     }
 
     groupsEl.addEventListener('click', e => {
@@ -472,31 +550,33 @@
     });
 
     // ---------- 이벤트: ③ CSS 수정 ----------
+    // [수정] ↔ [취소]
+    cssEditBtn.addEventListener('click', () => {
+        if (cssUnlocked) cancelCssEdit();
+        else startCssEdit();
+    });
+
     let cssTimer = null;
     editor.addEventListener('input', () => {
+        if (editor.readOnly) return;
         state.cssContent = editor.value;          // 글자 수·경고는 바로
         renderCssInfo();
         clearTimeout(cssTimer);                   // 미리보기·토글은 입력이 멈추면
         cssTimer = setTimeout(() => {
             renderToggles();
             update({ cssContent: editor.value });
+            renderCssInfo();                      // isDirty·새 템플릿 안내 갱신
         }, 250);
     });
 
-    // Tab → 공백 2칸 (Shift+Tab 은 기본 동작 = 포커스 이동)
+    // Tab → 공백 2칸 (Shift+Tab 은 기본 동작 = 포커스 이동, 잠겨 있으면 그냥 포커스 이동)
     editor.addEventListener('keydown', e => {
-        if (e.key !== 'Tab' || e.shiftKey) return;
+        if (e.key !== 'Tab' || e.shiftKey || editor.readOnly) return;
         e.preventDefault();
         const { selectionStart: s, selectionEnd: en, value } = editor;
         editor.value = value.slice(0, s) + '  ' + value.slice(en);
         editor.selectionStart = editor.selectionEnd = s + 2;
         editor.dispatchEvent(new Event('input'));
-    });
-
-    cssResetBtn.addEventListener('click', () => {
-        const t = current();
-        if (!t || !confirm('수정한 CSS를 지우고 템플릿의 원래 CSS로 되돌릴까요?')) return;
-        setCss(t.cssContent);
     });
 
     // ---------- 저장 / 되돌리기 / 인쇄 ----------
@@ -525,16 +605,21 @@
             return;
         }
 
+        // 원래 CSS 와 다르면 새 템플릿으로 저장
+        const customize = isCustom();
+
         saveBtn.disabled = true;
-        setStatus('저장 중…');
+        setStatus(customize ? '새 템플릿 만드는 중…' : '저장 중…');
 
         callApi({
             url: API.templateSave,
             method: 'POST',
             data: {
                 resumeId: RESUME_ID,
-                templateId: state.templateId,
-                cssContent: state.cssContent
+                templateId: state.templateId,      // customize 면 '복사할 원본' 템플릿 ID
+                cssContent: state.cssContent,
+                customize,
+                templateName: customize ? customName() : null
             },
             success: onSaved,
             error: err => {
@@ -553,6 +638,7 @@
         renderTemplates();
         revealSelected();
         setCss(saved.cssContent);
+        setCssLock(true);
     });
 
     // ---------- PDF 다운로드 (서버에서 미리보기와 똑같이 만듦) ----------
@@ -649,6 +735,7 @@
         }
     }
 
+    setCssLock(true);
     renderToggles();
     renderCssInfo();
     fitPreview();

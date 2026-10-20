@@ -13,6 +13,11 @@ public class ResumeRequestDto {
     private Long userId;
     private Long templateId;
     private String title;
+    // 템플릿 수정시
+    private Boolean customize;
+    private String templateName;
+    private String cssContent;
+    private String loginId;
 
     private ProfileDto profile;
     private List<ExperienceDto> experiences;

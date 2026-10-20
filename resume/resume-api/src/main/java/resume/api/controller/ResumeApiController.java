@@ -39,7 +39,7 @@ public class ResumeApiController {
     @PostMapping("/template")
     public ResponseEntity<Long> procResumeTemplate(@RequestBody ResumeRequestDto request,
                                                @AuthenticationPrincipal UserPrincipal principal) {
-        request.setUserId(principal.getUserId());
+        request.setLoginId(principal.getUsername());
         return ResponseEntity.ok(resumeService.saveResumeTemplate(request));
     }
 

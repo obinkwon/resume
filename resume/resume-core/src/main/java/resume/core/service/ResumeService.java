@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import resume.core.dto.*;
 import resume.core.mapper.PdfLogMapper;
 import resume.core.mapper.ResumeMapper;
+import resume.core.mapper.TemplateMapper;
 
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class ResumeService {
 
     private final ResumeMapper resumeMapper;
     private final PdfLogMapper pdfLogMapper;
+    private final TemplateMapper templateMapper;
 
     public List<ResumeResponseDto> getResumeList(ResumeRequestDto requestDto) {
         return resumeMapper.selectResumeList(requestDto);
@@ -144,6 +147,28 @@ public class ResumeService {
 
     @Transactional
     public Long saveResumeTemplate(ResumeRequestDto requestDto) {
+        // CSS 를 고쳤으면 원본 템플릿을 복사한 새 템플릿을 만들고, 이력서는 새 템플릿에 연결
+        if (Boolean.TRUE.equals(requestDto.getCustomize())) {
+            TemplateDetailResponseDto responseDto = templateMapper.selectTemplateDetail(TemplateRequestDto.builder().templateId(requestDto.getTemplateId()).build());
+            if (responseDto == null) {
+                throw new IllegalArgumentException("원본 템플릿이 없습니다. templateId=" + requestDto.getTemplateId());
+            }
+
+            // 이름 : 화면에서 보낸 값, 없으면 '원본이름 (수정)' (최대 100자)
+            String name = StringUtils.hasText(requestDto.getTemplateName()) ? requestDto.getTemplateName() : responseDto.getTemplateName() + " (수정)";
+            if (name.length() > 100) name = name.substring(0, 100);
+
+            TemplateDto templateDto = TemplateDto.builder()
+                    .templateName(name)
+                    .description(responseDto.getTemplateName() + " 템플릿을 수정한 템플릿")
+                    .htmlContent(responseDto.getHtmlContent())
+                    .cssContent(requestDto.getCssContent())
+                    .isPublic(false)
+                    .build();
+            templateMapper.insertTemplate(templateDto);
+            requestDto.setTemplateId(templateDto.getTemplateId());
+        }
+
         resumeMapper.updateResume(requestDto);
         return requestDto.getResumeId();
     }

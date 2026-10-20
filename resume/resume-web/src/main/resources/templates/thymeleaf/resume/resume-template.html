@@ -11,21 +11,6 @@
     <link rel="stylesheet" th:href="@{/css/resume-template.css}">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script th:src="@{/js/common.js}"></script>
-    <!--
-        이력서 목록 → [템플릿] → GET /web/resume/{resumeId}/template
-
-        필요한 model (WebController)
-          resumeDetail : { resumeId, title, templateId }
-                         templateId = resumes.template_id, 없으면 null → 첫 번째 기본 템플릿으로 시작
-
-        템플릿은 화면이 열릴 때 API 로 가져옴 (개수 제한 없음)
-          GET  /api/template/list              ← 목록 (화면 열릴 때)
-               → [{ templateId, templateName, description, thumbnailUrl, createdBy }]
-                 (기본 템플릿 + 로그인 사용자의 템플릿, htmlContent / cssContent 는 넣지 않음)
-          GET  /api/template/{templateId}      ← 내용 (선택할 때)
-               → { templateId, templateName, htmlContent, cssContent }
-                 (기본 템플릿 또는 로그인 사용자가 만든 템플릿만 허용)
-    -->
     <script th:inline="javascript">
         window.RESUME_ID = /*[[${resumeDetail?.resumeId}]]*/ null;
         window.CURRENT_TEMPLATE_ID = /*[[${resumeDetail?.templateId}]]*/ null;
@@ -80,12 +65,15 @@
                 <section class="panel">
                     <h2 class="panel-title">
                         <span><span class="step">3</span>CSS 수정</span>
-                        <span class="hint" id="cssCount">0 / 20,000</span>
+                        <!-- 처음엔 편집기가 잠겨 있고, 누르면 편집 가능 ([수정] ↔ [취소]) -->
+                        <button type="button" class="btn ghost sm" id="cssEditBtn">
+                            <i class="icon icon-edit sm"></i>수정
+                        </button>
                     </h2>
-                    <div class="css-toolbar">
-                        <button type="button" class="btn ghost sm" id="cssResetBtn" title="선택한 템플릿의 원래 CSS로 되돌리기">초기화</button>
-                    </div>
-                    <textarea id="cssEditor" class="css-editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="템플릿 CSS"></textarea>
+                    <!-- CSS 가 원본과 달라지면 '새 템플릿으로 저장된다'는 안내 -->
+                    <p class="css-note" id="cssNote" hidden></p>
+                    <textarea id="cssEditor" class="css-editor is-locked" readonly spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="템플릿 CSS"></textarea>
+                    <p class="css-count" id="cssCount">0 / 20,000</p>
                     <p class="css-warning" id="cssWarning" role="alert" hidden></p>
                     <details class="class-guide">
                         <summary>사용할 수 있는 클래스</summary>

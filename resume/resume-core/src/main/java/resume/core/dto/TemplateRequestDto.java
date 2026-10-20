@@ -1,10 +1,12 @@
 package resume.core.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TemplateRequestDto {
 
     private Long resumeId;

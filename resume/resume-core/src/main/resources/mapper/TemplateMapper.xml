@@ -42,4 +42,31 @@
         FROM templates
         WHERE template_id = #{templateId}
     </select>
+
+    <!-- 이력서 템플릿 추가 -->
+    <insert id="insertTemplate" parameterType="resume.core.dto.TemplateDto" useGeneratedKeys="true" keyProperty="templateId" keyColumn="template_id">
+        INSERT INTO templates (
+            template_name
+            , description
+            , thumbnail_url
+            , html_content
+            , css_content
+            , is_public
+            , created_by
+            , use_yn
+            , created_at
+            , updated_at
+        ) VALUES (
+            #{templateName}
+            , #{description}
+            , #{thumbnailUrl}
+            , #{htmlContent}
+            , #{cssContent}
+            , #{isPublic}
+            , #{createdBy}
+            , 'Y'
+            , CURRENT_TIMESTAMP
+            , CURRENT_TIMESTAMP
+        )
+    </insert>
 </mapper>

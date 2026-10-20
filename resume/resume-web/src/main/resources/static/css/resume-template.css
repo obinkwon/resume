@@ -324,6 +324,23 @@
 }
 .css-editor::placeholder { color: #475569; }
 .css-editor:focus { border-color: var(--c-primary); }
+/* ③ CSS 편집 — 잠금 상태 */
+.css-editor.is-locked {
+    opacity: .75;
+    cursor: default;
+}
+.css-editor.is-locked:focus { border-color: #1e293b; }
+
+/* 새 템플릿으로 저장된다는 안내 */
+.css-note {
+    margin: 0 0 8px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--c-primary-soft);
+    color: var(--c-primary);
+    font-size: 12px;
+    line-height: 1.5;
+}
 
 .css-warning {
     margin: 8px 0 0;
