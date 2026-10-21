@@ -103,10 +103,51 @@
             </div>
 
             <div class="section">
-                <h2>자기소개</h2>
+                <h2>간단 소개</h2>
                 <label class="field">
-                    <textarea name="introduction" rows="6" th:text="${resumeDetail?.profile?.introduction}"></textarea>
+                    <textarea name="introduction" rows="4" placeholder="핵심 역량과 경력을 3~5문장으로 요약해 주세요" th:text="${resumeDetail?.profile?.introduction}"></textarea>
                 </label>
+            </div>
+
+            <!-- 자기소개서 (항목: 제목 + 내용) -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>자기소개서</h2>
+                    <button type="button" class="btn outline sm addBtn" id="addCoverLetter">
+                        <i class="icon icon-plus sm"></i> 항목 추가
+                    </button>
+                </div>
+                <div class="preset-row">
+                    <span class="preset-row__label">빠른 추가</span>
+                    <button type="button" class="btn ghost sm coverPresetBtn" data-title="성장과정">성장과정</button>
+                    <button type="button" class="btn ghost sm coverPresetBtn" data-title="성격의 장단점">성격의 장단점</button>
+                    <button type="button" class="btn ghost sm coverPresetBtn" data-title="지원동기">지원동기</button>
+                    <button type="button" class="btn ghost sm coverPresetBtn" data-title="직무 역량 및 경험">직무 역량</button>
+                    <button type="button" class="btn ghost sm coverPresetBtn" data-title="입사 후 포부">입사 후 포부</button>
+                </div>
+                <div id="coverLetterList">
+                    <div class="item-card" th:each="cover : ${resumeDetail?.coverLetters}">
+                        <input type="hidden" name="coverLetterId" th:value="${cover.coverLetterId}">
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
+                            <i class="icon icon-close"></i>
+                        </button>
+                        <div class="cover-head">
+                            <label class="field">
+                                <span class="label">항목 제목</span>
+                                <input type="text" name="coverTitle" maxlength="200" placeholder="예: 지원동기" th:value="${cover.title}">
+                            </label>
+                            <label class="field">
+                                <span class="label">최대 글자 수</span>
+                                <input type="number" name="coverMaxLength" min="1" placeholder="제한 없음" th:value="${cover.maxLength}">
+                            </label>
+                        </div>
+                        <label class="field">
+                            <span class="label">내용</span>
+                            <textarea name="coverContent" rows="8" placeholder="내용을 입력해 주세요" th:text="${cover.content}"></textarea>
+                        </label>
+                        <div class="char-count"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="section">

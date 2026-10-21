@@ -15,6 +15,7 @@
         <collection property="projects" ofType="resume.core.dto.ProjectDto" select="selectResumeProjects" column="resume_id"/>
         <collection property="links" ofType="resume.core.dto.LinkDto" select="selectResumeLinks" column="resume_id"/>
         <collection property="certificates" ofType="resume.core.dto.CertificateDto" select="selectResumeCertificates" column="resume_id"/>
+        <collection property="coverLetters" ofType="resume.core.dto.CoverLetterDto" select="selectResumeCoverLetters" column="resume_id"/>
     </resultMap>
 
     <!-- 이력서 목록 조회 -->
@@ -171,6 +172,23 @@
             , created_at
             , updated_at
         FROM resume_certificate
+        WHERE resume_id = #{resumeId}
+            AND use_yn = 'Y'
+        ORDER BY sort_order
+    </select>
+
+    <!-- 이력서 자기소개서 목록 조회 -->
+    <select id="selectResumeCoverLetters" parameterType="long" resultType="resume.core.dto.CoverLetterDto">
+        SELECT
+            cover_letter_id
+            , resume_id
+            , title
+            , content
+            , max_length
+            , sort_order
+            , created_at
+            , updated_at
+        FROM resume_cover_letter
         WHERE resume_id = #{resumeId}
             AND use_yn = 'Y'
         ORDER BY sort_order
@@ -384,6 +402,29 @@
         )
     </insert>
 
+    <!-- 이력서 자기소개서 추가 -->
+    <insert id="insertCoverLetter" parameterType="resume.core.dto.CoverLetterDto">
+        INSERT INTO resume_cover_letter (
+            resume_id
+            , title
+            , content
+            , max_length
+            , sort_order
+            , use_yn
+            , created_at
+            , updated_at
+        ) VALUES (
+            #{resumeId}
+            , #{title}
+            , #{content}
+            , #{maxLength}
+            , #{sortOrder}
+            , 'Y'
+            , CURRENT_TIMESTAMP
+            , CURRENT_TIMESTAMP
+        )
+    </insert>
+
     <!-- 이력서 수정 -->
     <update id="updateResume" parameterType="resume.core.dto.ResumeRequestDto">
         UPDATE resumes
@@ -530,6 +571,23 @@
             AND resume_id = #{resumeId}
         </if>
         <if test='certificateId == null and resumeId == null'>
+            AND 1 = 0
+        </if>
+    </update>
+
+    <!-- 이력서 자기소개서 삭제 -->
+    <update id="deleteCoverLetter" parameterType="resume.core.dto.CoverLetterDto">
+        UPDATE resume_cover_letter
+        SET use_yn = 'N'
+            , updated_at = CURRENT_TIMESTAMP
+        WHERE use_yn = 'Y'
+        <if test='coverLetterId != null'>
+            AND cover_letter_id = #{coverLetterId}
+        </if>
+        <if test='resumeId != null'>
+            AND resume_id = #{resumeId}
+        </if>
+        <if test='coverLetterId == null and resumeId == null'>
             AND 1 = 0
         </if>
     </update>

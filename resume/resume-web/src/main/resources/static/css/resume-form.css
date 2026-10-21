@@ -133,6 +133,44 @@
     outline-offset: 2px;
 }
 /* =========================================================
+   자기소개서
+   ========================================================= */
+
+/* 제목 / 최대 글자 수 나란히 */
+.cover-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 140px;
+    gap: 10px;
+    padding-right: 36px;           /* 오른쪽 위 삭제 버튼 자리 */
+}
+
+/* 빠른 추가 버튼 줄 */
+.preset-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+.preset-row__label {
+    margin-right: 4px;
+    font-size: 13px;
+    color: var(--c-text-muted);
+}
+
+/* 글자 수 표시 */
+.char-count {
+    margin-top: -4px;
+    font-size: 12px;
+    text-align: right;
+    color: var(--c-text-muted);
+}
+.char-count.is-over {
+    font-weight: 600;
+    color: #dc2626;
+}
+
+/* =========================================================
    다른 이력서에서 가져오기
    ========================================================= */
 

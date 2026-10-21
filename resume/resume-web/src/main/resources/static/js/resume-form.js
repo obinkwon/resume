@@ -1,6 +1,6 @@
 /* =========================================================
    resume-form.js  (이력서 작성 폼)
-   항목 추가·삭제 : 외부 링크 / 기술 스택 / 학력 / 자격증 / 경력 / 프로젝트
+   항목 추가·삭제 : 외부 링크 / 기술 스택 / 자기소개서 / 학력 / 자격증 / 경력 / 프로젝트
    가져오기       : 다른 이력서 내용을 골라 이 폼에 채움 (저장해야 반영)
    저장           : 화면 입력값을 모아 검사 후 /api/resume/save 로 전송
    ========================================================= */
@@ -227,6 +227,46 @@
             </div>`;
     }
 
+    function coverLetterCardHtml(item = {}) {
+        return `
+            <div class="item-card">${REMOVE_BTN}
+                <div class="cover-head">
+                    <label class="field">
+                        <span class="label">항목 제목</span>
+                        <input type="text" name="coverTitle" maxlength="200" placeholder="예: 지원동기" value="${esc(item.title)}">
+                    </label>
+                    <label class="field">
+                        <span class="label">최대 글자 수</span>
+                        <input type="number" name="coverMaxLength" min="1" placeholder="제한 없음" value="${esc(item.maxLength)}">
+                    </label>
+                </div>
+                <label class="field">
+                    <span class="label">내용</span>
+                    <textarea name="coverContent" rows="8" placeholder="내용을 입력해 주세요">${esc(item.content)}</textarea>
+                </label>
+                <div class="char-count"></div>
+            </div>`;
+    }
+
+    // ---------- 자기소개서 : 글자 수 ----------
+    /** 글자 수 (이모지 등도 1자로) */
+    function charLength(text, withSpace = true) {
+        const v = withSpace ? text : text.replace(/\s/g, '');
+        return [...v].length;
+    }
+
+    /** 카드의 글자 수 표시 갱신 (공백 포함 / 제외, 최대 글자 수 넘으면 강조) */
+    function updateCharCount($card) {
+        const text = $card.find('[name="coverContent"]').val() || '';
+        const max = parseInt($card.find('[name="coverMaxLength"]').val(), 10);
+        const withSpace = charLength(text);
+        const noSpace = charLength(text, false);
+        const limit = max > 0 ? ` / ${max.toLocaleString()}자` : '';
+        $card.find('.char-count')
+            .text(`공백 포함 ${withSpace.toLocaleString()}자${limit} · 공백 제외 ${noSpace.toLocaleString()}자`)
+            .toggleClass('is-over', max > 0 && withSpace > max);
+    }
+
     // ---------- 여러 개인 섹션 설정 ----------
     /**
      * label  : 화면 표시 이름
@@ -239,6 +279,7 @@
     const LIST_SECTIONS = {
         link:        { label: '외부 링크', list: '#linkList',        header: '#linkHeader',  html: linkRowHtml,         from: d => d.links,        unique: 'url' },
         skill:       { label: '기술 스택', list: '#skillList',       header: '#skillHeader', html: skillRowHtml,        from: d => d.skills,       unique: 'skillName' },
+        coverLetter: { label: '자기소개서', list: '#coverLetterList',                       html: coverLetterCardHtml, from: d => d.coverLetters },
         education:   { label: '학력',     list: '#educationList',                           html: educationCardHtml,   from: d => d.educations },
         certificate: { label: '자격증',   list: '#certificateList',                         html: certificateCardHtml, from: d => d.certificates },
         experience:  { label: '경력',     list: '#experienceList',                          html: experienceCardHtml,  from: d => d.experiences },
@@ -273,6 +314,7 @@
 
         if (s.header) $(s.header).toggleClass('d-none', $list.children('.item-row').length === 0);
         if (key === 'experience') $items.find('input[name="isCurrent"]').trigger('change');
+        if (key === 'coverLetter') $items.each((_, el) => updateCharCount($(el)));
         if (highlight) {
             $items.addClass('is-imported');
             setTimeout(() => $items.removeClass('is-imported'), 2000);
@@ -287,6 +329,15 @@
     $('#addCertificate').on('click', () => addItems('certificate', [{}]));
     $('#addExperience').on('click', () => addItems('experience', [{}]));
     $('#addProject').on('click', () => addItems('project', [{}]));
+    $('#addCoverLetter').on('click', () => {
+        addItems('coverLetter', [{}]);
+        $('#coverLetterList .item-card').last().find('[name="coverTitle"]').trigger('focus');
+    });
+    // 빠른 추가 : 제목이 채워진 항목 추가 후 내용칸으로 이동
+    $('.coverPresetBtn').on('click', function () {
+        addItems('coverLetter', [{ title: this.dataset.title }]);
+        $('#coverLetterList .item-card').last().find('[name="coverContent"]').trigger('focus');
+    });
 
     // ---------- 저장 ----------
     $('#btnResumeSave').on('click', async function () {
@@ -303,7 +354,8 @@
             educations: [],
             certificates: [],
             projects: [],
-            skills: []
+            skills: [],
+            coverLetters: []
         };
 
         // 1) 기본 정보
@@ -345,6 +397,28 @@
                 skillName: skillName,
                 category: getVal($item, 'category'),
                 proficiency: getNumber($item, 'proficiency')
+            });
+        });
+
+        // 3-1) 자기소개서 (제목·내용 모두 비어 있으면 건너뜀)
+        $('#coverLetterList .item-card').each(function (i) {
+            const $item = $(this);
+            const title = getVal($item, 'coverTitle');
+            const content = getVal($item, 'coverContent');
+            if (title === null && content === null) return;
+            const label = title || `${i + 1}번째 항목`;
+            if (title === null) {
+                errors.push(`자기소개서 [${label}] 제목을 입력해주세요.`);
+            }
+            const maxLength = getNumber($item, 'coverMaxLength');
+            if (maxLength != null && content != null && charLength(content) > maxLength) {
+                errors.push(`자기소개서 [${label}] 내용이 최대 글자 수(${maxLength}자)를 넘었습니다.`);
+            }
+            data.coverLetters.push({
+                coverLetterId: getVal($item, 'coverLetterId'),
+                title: title,
+                content: content,
+                maxLength: maxLength
             });
         });
 
@@ -468,6 +542,16 @@
         $('#skillHeader').toggleClass('d-none', $('#skillList .item-row').length === 0);
     });
 
+    // 자기소개서
+    $('#coverLetterList').on('click', '.removeBtn', function () {
+        $(this).closest('.item-card').remove();
+    });
+
+    // 자기소개서 : 입력할 때마다 글자 수 갱신
+    $('#coverLetterList').on('input', '[name="coverContent"], [name="coverMaxLength"]', function () {
+        updateCharCount($(this).closest('.item-card'));
+    });
+
     // 학력
     $('#educationList').on('click', '.removeBtn', function () {
         $(this).closest('.item-card').remove();
@@ -511,11 +595,11 @@
     /** 하나뿐인 섹션 (덮어쓰기만 가능) */
     const SINGLE_SECTIONS = {
         profile: { label: '인적 사항', count: d => PROFILE_FIELDS.some(k => d.profile?.[k]) ? 1 : 0 },
-        intro:   { label: '자기소개', count: d => d.profile?.introduction ? 1 : 0 }
+        intro:   { label: '간단 소개', count: d => d.profile?.introduction ? 1 : 0 }
     };
 
     /** 모달에 보이는 섹션 순서 (폼 순서와 같게) */
-    const IMPORT_ORDER = ['profile', 'link', 'intro', 'skill', 'education', 'certificate', 'experience', 'project'];
+    const IMPORT_ORDER = ['profile', 'link', 'intro', 'coverLetter', 'skill', 'education', 'certificate', 'experience', 'project'];
 
     /** 이력서 목록 (한 번 불러오면 재사용) */
     let resumes = null;
@@ -668,7 +752,7 @@
             changed.push('인적 사항');
         }
         if (keys.includes('intro') && getVal($form, 'introduction') != null) {
-            changed.push('자기소개');
+            changed.push('간단 소개');
         }
         if (mode === 'replace') {
             keys.filter(k => LIST_SECTIONS[k] && $(LIST_SECTIONS[k].list).children().length)
@@ -743,4 +827,6 @@
     // ---------- 시작 ----------
     // 저장돼 있던 '재직중' 경력은 처음부터 퇴사일 칸 막기
     $('#experienceList input[name="isCurrent"]').trigger('change');
+    // 저장돼 있던 자기소개서 글자 수 표시
+    $('#coverLetterList .item-card').each((_, el) => updateCharCount($(el)));
 })();
