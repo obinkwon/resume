@@ -18,7 +18,7 @@
               resumeTemplate (그릴 템플릿 — htmlContent, cssContent / 없으면 null → 한 컬럼 기본 틀)
 
     1) 아래 #sectionPool 에 실제 이력서 내용으로 섹션을 모두 그려 둠 (Thymeleaf, 값은 자동 이스케이프)
-    2) resume-preview.js 가 템플릿 HTML 의 {{profile}}, {{experience}} … 자리에 섹션을 넣음
+    2) resume-preview.js 가 템플릿 HTML 의 {{profile}}, {{cover}}, {{experience}} … 자리에 섹션을 넣음
        - 템플릿 HTML 은 Thymeleaf 로 처리하지 않음 (data 속성으로 문자열만 전달)
     3) 빌더 iframe 안에서는 postMessage 로 받은 HTML·CSS 로 다시 그림
        (빌더에서는 ?templateId 없이 열고, 템플릿 변경은 postMessage 로만 반영)
@@ -52,6 +52,17 @@
     <section class="r-section" data-section="intro" th:if="${!#strings.isEmpty(p?.introduction)}">
         <h2 class="r-section__title">자기소개</h2>
         <p class="r-text" th:text="${p.introduction}">자기소개</p>
+    </section>
+
+    <!-- {{cover}} 자기소개서 (항목마다 제목 + 내용) -->
+    <section class="r-section" data-section="cover" th:if="${!#lists.isEmpty(r?.coverLetters)}">
+        <h2 class="r-section__title">자기소개서</h2>
+        <article class="r-item" th:each="cl : ${r.coverLetters}">
+            <div class="r-item__head">
+                <h3 class="r-item__title" th:text="${cl.title}">지원동기</h3>
+            </div>
+            <p class="r-text" th:if="${!#strings.isEmpty(cl.content)}" th:text="${cl.content}">내용</p>
+        </article>
     </section>
 
     <!-- {{experience}} 경력 -->

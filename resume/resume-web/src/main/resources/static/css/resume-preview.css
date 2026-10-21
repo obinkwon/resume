@@ -118,6 +118,20 @@ body {
 .r-aside .r-links li { flex-direction: column; gap: 0; }
 .r-aside .r-links li + li { margin-top: 8px; }
 
+/* ===== 자기소개서 {{cover}} =====
+   글이 길어서 섹션·항목이 페이지를 넘어가도 잘리지 않고 이어지게 */
+.r-section[data-section="cover"] { break-inside: auto; }
+.r-section[data-section="cover"] .r-item { break-inside: auto; }
+.r-section[data-section="cover"] .r-item + .r-item { margin-top: 18px; }
+.r-section[data-section="cover"] .r-item__title { break-after: avoid; }
+.r-section[data-section="cover"] .r-text {
+    margin-top: 8px;
+    line-height: 1.75;
+    color: var(--ink);
+    orphans: 3;
+    widows: 3;
+}
+
 /* ===== 인쇄 ===== */
 @page { size: A4; margin: 0; }
 @media print {

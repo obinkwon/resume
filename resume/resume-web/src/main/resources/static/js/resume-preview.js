@@ -4,7 +4,7 @@
 (() => {
     'use strict';
 
-    const SECTION_KEYS = ['profile', 'intro', 'experience', 'project', 'education', 'certificate', 'skill', 'link'];
+    const SECTION_KEYS = ['profile', 'intro', 'cover', 'experience', 'project', 'education', 'certificate', 'skill', 'link'];
 
     // 템플릿이 없을 때 쓰는 한 컬럼 기본 틀
     const FALLBACK_HTML = SECTION_KEYS.map(k => `{{${k}}}`).join('\n');
