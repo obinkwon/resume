@@ -235,10 +235,6 @@
                         <span class="label">항목 제목</span>
                         <input type="text" name="coverTitle" maxlength="200" placeholder="예: 지원동기" value="${esc(item.title)}">
                     </label>
-                    <label class="field">
-                        <span class="label">최대 글자 수</span>
-                        <input type="number" name="coverMaxLength" min="1" placeholder="제한 없음" value="${esc(item.maxLength)}">
-                    </label>
                 </div>
                 <label class="field">
                     <span class="label">내용</span>
@@ -258,13 +254,9 @@
     /** 카드의 글자 수 표시 갱신 (공백 포함 / 제외, 최대 글자 수 넘으면 강조) */
     function updateCharCount($card) {
         const text = $card.find('[name="coverContent"]').val() || '';
-        const max = parseInt($card.find('[name="coverMaxLength"]').val(), 10);
         const withSpace = charLength(text);
         const noSpace = charLength(text, false);
-        const limit = max > 0 ? ` / ${max.toLocaleString()}자` : '';
-        $card.find('.char-count')
-            .text(`공백 포함 ${withSpace.toLocaleString()}자${limit} · 공백 제외 ${noSpace.toLocaleString()}자`)
-            .toggleClass('is-over', max > 0 && withSpace > max);
+        $card.find('.char-count').text(`공백 포함 ${withSpace.toLocaleString()}자 · 공백 제외 ${noSpace.toLocaleString()}자`)
     }
 
     // ---------- 여러 개인 섹션 설정 ----------
@@ -410,15 +402,10 @@
             if (title === null) {
                 errors.push(`자기소개서 [${label}] 제목을 입력해주세요.`);
             }
-            const maxLength = getNumber($item, 'coverMaxLength');
-            if (maxLength != null && content != null && charLength(content) > maxLength) {
-                errors.push(`자기소개서 [${label}] 내용이 최대 글자 수(${maxLength}자)를 넘었습니다.`);
-            }
             data.coverLetters.push({
                 coverLetterId: getVal($item, 'coverLetterId'),
                 title: title,
-                content: content,
-                maxLength: maxLength
+                content: content
             });
         });
 
@@ -548,7 +535,7 @@
     });
 
     // 자기소개서 : 입력할 때마다 글자 수 갱신
-    $('#coverLetterList').on('input', '[name="coverContent"], [name="coverMaxLength"]', function () {
+    $('#coverLetterList').on('input', '[name="coverContent"]', function () {
         updateCharCount($(this).closest('.item-card'));
     });
 

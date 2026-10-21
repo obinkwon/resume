@@ -48,6 +48,10 @@ public class ResumeService {
             profileCond.setResumeId(resumeId);
             resumeMapper.deleteProfile(profileCond);
 
+            CoverLetterDto coverCond = new CoverLetterDto();
+            coverCond.setResumeId(resumeId);
+            resumeMapper.deleteCoverLetter(coverCond);
+
             SkillDto skillCond = new SkillDto();
             skillCond.setResumeId(resumeId);
             resumeMapper.deleteSkill(skillCond);
@@ -139,6 +143,16 @@ public class ResumeService {
                 certDto.setResumeId(resumeId);
                 certDto.setSortOrder(order++);
                 resumeMapper.insertCertificate(certDto);
+            }
+        }
+
+        // 자기소개서 추가
+        order = 0;
+        if (requestDto.getCoverLetters() != null) {
+            for (CoverLetterDto coverLetterDto : requestDto.getCoverLetters()) {
+                coverLetterDto.setResumeId(resumeId);
+                coverLetterDto.setSortOrder(order++);
+                resumeMapper.insertCoverLetter(coverLetterDto);
             }
         }
 

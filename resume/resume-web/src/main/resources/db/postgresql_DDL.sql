@@ -94,21 +94,18 @@ CREATE TABLE resume_cover_letter (
     resume_id BIGINT NOT NULL,
     title VARCHAR(200) NOT NULL,
     content TEXT,
-    max_length INTEGER,
     sort_order INTEGER DEFAULT 0,
     use_yn CHAR(1) NOT NULL DEFAULT 'Y',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_resume_cover_letter PRIMARY KEY (cover_letter_id),
     CONSTRAINT ck_resume_cover_letter_use_yn CHECK (use_yn IN ('Y', 'N')),
-    CONSTRAINT ck_resume_cover_letter_max_length CHECK (max_length IS NULL OR max_length > 0)
 );
 COMMENT ON TABLE resume_cover_letter IS '이력서 자기소개서 항목';
 COMMENT ON COLUMN resume_cover_letter.cover_letter_id IS '자기소개서 항목 PK';
 COMMENT ON COLUMN resume_cover_letter.resume_id IS '이력서 ID';
 COMMENT ON COLUMN resume_cover_letter.title IS '항목 제목(질문) 예: 지원동기, 성장과정';
 COMMENT ON COLUMN resume_cover_letter.content IS '항목 내용(답변)';
-COMMENT ON COLUMN resume_cover_letter.max_length IS '최대 글자 수(NULL이면 제한 없음)';
 COMMENT ON COLUMN resume_cover_letter.sort_order IS '출력 순서';
 COMMENT ON COLUMN resume_cover_letter.use_yn IS '사용여부(Y/N)';
 COMMENT ON COLUMN resume_cover_letter.created_at IS '생성일시';

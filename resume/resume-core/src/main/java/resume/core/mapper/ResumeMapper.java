@@ -42,6 +42,8 @@ public interface ResumeMapper {
     void insertLink(LinkDto linkDto);
     // 이력서 자격증 추가
     void insertCertificate(CertificateDto certificateDto);
+    // 이력서 자기소개서 추가
+    void insertCoverLetter(CoverLetterDto coverLetterDto);
 
     // 이력서 수정
     void updateResume(ResumeRequestDto requestDto);
@@ -62,4 +64,6 @@ public interface ResumeMapper {
     void deleteLink(LinkDto linkDto);
     // 이력서 자격증 삭제
     void deleteCertificate(CertificateDto certificateDto);
+    // 이력서 자기소개서 삭제
+    void deleteCoverLetter(CoverLetterDto coverLetterDto);
 }

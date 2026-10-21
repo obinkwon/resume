@@ -18,7 +18,6 @@ public class CoverLetterDto {
     private Long resumeId;
     private String title;
     private String content;
-    private Integer maxLength;
     private Integer sortOrder;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

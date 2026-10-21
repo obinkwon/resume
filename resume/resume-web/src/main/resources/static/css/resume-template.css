@@ -264,7 +264,7 @@
     border-radius: var(--radius-sm);
     font-size: 13px;
 }
-.section-toggle.is-hidden .section-name { color: var(--c-text-faint); text-decoration: line-through; }
+.section-toggle.is-hidden .section-name { color: var(--c-text-faint); }
 
 /* 토글 스위치 */
 .switch { position: relative; display: inline-flex; cursor: pointer; }

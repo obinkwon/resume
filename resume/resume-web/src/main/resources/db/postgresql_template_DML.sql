@@ -1,8 +1,9 @@
 -- ========================================
 -- 시스템 기본 템플릿 (created_by = NULL)
 --  html_content : 칸 구성 + 섹션 치환자
---                 {{profile}} {{intro}} {{experience}} {{project}}
+--                 {{profile}} {{intro}} {{cover}} {{experience}} {{project}}
 --                 {{education}} {{certificate}} {{skill}} {{link}}
+--                 ({{intro}} = 간단 소개, {{cover}} = 자기소개서 항목들)
 --                 (치환자를 빼면 그 섹션은 출력되지 않음)
 --  css_content  : 템플릿 디자인 (공통 뼈대는 template-preview.css)
 --  $$ ... $$ (dollar-quoting) 으로 따옴표 이스케이프 없이 작성
@@ -14,6 +15,7 @@ VALUES
 $$<div class="r-top">{{profile}}</div>
 <main class="r-main">
   {{intro}}
+  {{cover}}
   {{experience}}
   {{project}}
   {{education}}
@@ -50,6 +52,7 @@ $$<div class="r-top">{{profile}}</div>
   </aside>
   <main class="r-main">
     {{intro}}
+    {{cover}}
     {{experience}}
     {{project}}
   </main>
@@ -107,6 +110,7 @@ $$<div class="r-top">{{profile}}</div>
 <div class="r-columns">
   <main class="r-main">
     {{intro}}
+    {{cover}}
     {{experience}}
     {{project}}
   </main>
@@ -155,6 +159,7 @@ $$, TRUE),
 $$<div class="r-top">{{profile}}</div>
 <main class="r-main">
   {{intro}}
+  {{cover}}
   {{experience}}
   {{project}}
   {{education}}
@@ -198,7 +203,7 @@ $$, TRUE);
 -- ========================================
 -- 구직사이트 스타일 템플릿 (created_by = NULL)
 --  기존 시스템 기본 템플릿(1~4)에 이어서 추가
---  치환자 : {{profile}} {{intro}} {{experience}} {{project}}
+--  치환자 : {{profile}} {{intro}} {{cover}} {{experience}} {{project}}
 --           {{education}} {{certificate}} {{skill}} {{link}}
 --  공통 뼈대(template-preview.css)의 클래스/변수만 사용
 --   .resume .r-top .r-header .r-photo .r-contact .r-columns
@@ -218,6 +223,7 @@ $$<div class="r-top">{{profile}}</div>
   {{certificate}}
   {{skill}}
   {{link}}
+  {{cover}}
 </main>$$,
 $$:root {
   --primary: #1B55F5;
@@ -264,6 +270,7 @@ $$<div class="r-top">{{profile}}</div>
   {{skill}}
   {{project}}
   {{link}}
+  {{cover}}
 </main>$$,
 $$:root {
   --primary: #1A3A8F;
@@ -309,6 +316,7 @@ $$, TRUE),
 $$<div class="r-top">{{profile}}</div>
 <main class="r-main">
   {{intro}}
+  {{cover}}
   {{experience}}
   {{project}}
   {{skill}}
@@ -360,6 +368,7 @@ $$, TRUE),
 $$<div class="r-top">{{profile}}</div>
 <main class="r-main">
   {{intro}}
+  {{cover}}
   {{experience}}
   {{project}}
   {{skill}}
@@ -402,6 +411,14 @@ $$:root {
 }
 .r-main .r-item:first-of-type::before { background: var(--primary); }
 
+/* 자기소개서는 타임라인 없이 */
+.r-section[data-section="cover"] .r-item {
+  padding: 0;
+  border-left: none;
+}
+.r-section[data-section="cover"] .r-item::before { display: none; }
+.r-section[data-section="cover"] .r-item + .r-item { margin-top: 18px; }
+
 .r-tags li {
   background: var(--tint);
   color: var(--ink);
@@ -414,6 +431,7 @@ $$<div class="r-top">{{profile}}</div>
 <div class="r-columns">
   <main class="r-main">
     {{intro}}
+    {{cover}}
     {{project}}
     {{experience}}
     {{education}}
@@ -477,6 +495,7 @@ $$, TRUE),
 $$<div class="r-top">{{profile}}</div>
 <main class="r-main">
   {{intro}}
+  {{cover}}
   {{experience}}
   {{project}}
   {{education}}
@@ -530,3 +549,39 @@ $$:root {
   color: var(--ink);
 }
 $$, TRUE);
+
+
+-- ========================================
+-- 이미 등록된 기본 템플릿에 {{cover}} 추가 (기존 DB 용, 위 INSERT 를 새로 실행했다면 필요 없음)
+--  - 사람인·잡코리아 스타일 : 본문 맨 뒤 ({{link}} 다음)
+--  - 나머지                 : {{intro}} 바로 다음
+--  - 이미 {{cover}} 가 있으면 건너뜀
+-- ========================================
+UPDATE templates
+SET html_content = REPLACE(html_content, '{{link}}' || E'\n</main>', '{{link}}' || E'\n  {{cover}}\n</main>')
+    , updated_at = CURRENT_TIMESTAMP
+WHERE created_by IS NULL
+    AND template_name IN ('사람인 스타일', '잡코리아 스타일')
+    AND html_content NOT LIKE '%{{cover}}%';
+
+UPDATE templates
+SET html_content = REGEXP_REPLACE(html_content, '( *)\{\{intro\}\}', '\1{{intro}}' || E'\n' || '\1{{cover}}')
+    , updated_at = CURRENT_TIMESTAMP
+WHERE created_by IS NULL
+    AND template_name NOT IN ('사람인 스타일', '잡코리아 스타일')
+    AND html_content NOT LIKE '%{{cover}}%';
+
+UPDATE templates
+SET css_content = css_content || $$
+/* 자기소개서는 타임라인 없이 */
+.r-section[data-section="cover"] .r-item {
+  padding: 0;
+  border-left: none;
+}
+.r-section[data-section="cover"] .r-item::before { display: none; }
+.r-section[data-section="cover"] .r-item + .r-item { margin-top: 18px; }
+$$
+    , updated_at = CURRENT_TIMESTAMP
+WHERE created_by IS NULL
+    AND template_name = '리멤버 스타일'
+    AND css_content NOT LIKE '%data-section="cover"%';
