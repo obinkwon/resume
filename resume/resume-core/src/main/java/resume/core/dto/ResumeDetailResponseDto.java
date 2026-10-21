@@ -24,4 +24,5 @@ public class ResumeDetailResponseDto {
     private List<SkillDto> skills;
     private List<LinkDto> links;
     private List<CertificateDto> certificates;
+    private List<CoverLetterDto> coverLetters;
 }
