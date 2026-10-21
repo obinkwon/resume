@@ -4,8 +4,10 @@
 (() => {
     'use strict';
 
+    // 키는 영문 소문자만 (splitHidden 의 data-section 정규식과 맞춤)
     const SECTION_LABELS = {
-        intro: '자기소개',
+        intro: '간단 소개',
+        cover: '자기소개서',
         experience: '경력',
         project: '프로젝트',
         education: '학력',
