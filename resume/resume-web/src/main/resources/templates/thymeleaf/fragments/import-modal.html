@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!--
+    다른 이력서에서 가져오기 모달
+    사용: <div th:replace="~{fragments/import-modal :: importModal}"></div>
+    동작: resume-form.js (다른 이력서에서 가져오기 구간)
+    스타일: common.css (모달 틀) + resume-form.css (가져오기 전용)
+-->
+<body>
+    <dialog th:fragment="importModal" class="modal" id="importModal" aria-labelledby="importTitle">
+        <div class="modal__header">
+            <h2 id="importTitle">다른 이력서에서 가져오기</h2>
+            <button type="button" class="btn icon ghost" data-close aria-label="닫기">
+                <i class="icon icon-close"></i>
+            </button>
+        </div>
+
+        <div class="modal__body">
+            <!-- 1. 이력서 선택 -->
+            <section class="import-step">
+                <h3 class="import-step__title">
+                    <span><span class="import-step__num">1</span>이력서 선택</span>
+                </h3>
+                <ul class="import-resumes" id="importResumeList" role="radiogroup" aria-label="가져올 이력서"></ul>
+            </section>
+
+            <!-- 이력서를 고르면 보임 -->
+            <div class="import-options d-none" id="importOptions">
+                <!-- 2. 가져올 항목 -->
+                <section class="import-step">
+                    <h3 class="import-step__title">
+                        <span><span class="import-step__num">2</span>가져올 항목</span>
+                        <label class="check import-all">
+                            <input type="checkbox" id="importAll" checked>
+                            <span>전체 선택</span>
+                        </label>
+                    </h3>
+                    <ul class="import-sections" id="importSections"></ul>
+                </section>
+
+                <!-- 3. 가져오는 방식 -->
+                <section class="import-step">
+                    <h3 class="import-step__title">
+                        <span><span class="import-step__num">3</span>가져오는 방식</span>
+                    </h3>
+                    <div class="import-modes" role="radiogroup" aria-label="가져오는 방식">
+                        <label class="mode-option">
+                            <input type="radio" name="importMode" value="append" checked>
+                            <span>
+                                <strong>추가</strong>
+                                <small>지금 항목 뒤에 붙여요. 같은 기술·링크는 건너뛰어요.</small>
+                            </span>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="importMode" value="replace">
+                            <span>
+                                <strong>바꾸기</strong>
+                                <small>선택한 섹션의 지금 항목을 지우고 채워요.</small>
+                            </span>
+                        </label>
+                    </div>
+                    <p class="import-hint">인적 사항·자기소개는 하나뿐이라 값이 있는 칸만 덮어써요.</p>
+                </section>
+            </div>
+        </div>
+
+        <div class="modal__footer">
+            <span class="text-sm text-muted" id="importSummary" aria-live="polite"></span>
+            <div class="btn-group">
+                <button type="button" class="btn secondary" data-close>취소</button>
+                <button type="button" class="btn primary" id="btnImportApply" disabled>가져오기</button>
+            </div>
+        </div>
+    </dialog>
+</body>
+</html>

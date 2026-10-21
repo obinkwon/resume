@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import resume.core.dto.PdfLogDto;
 import resume.core.dto.ResumeDetailResponseDto;
 import resume.core.dto.ResumeRequestDto;
+import resume.core.dto.ResumeResponseDto;
 import resume.core.security.UserPrincipal;
 import resume.core.service.ResumeService;
 import resume.core.service.TemplateService;
@@ -29,23 +30,39 @@ public class ResumeApiController {
     private final ResumeService resumeService;
     private final TemplateService templateService;
 
+    @GetMapping("/list")
+    public ResponseEntity<List<ResumeResponseDto>> getResumeList(ResumeRequestDto requestDto,
+                                                                 @AuthenticationPrincipal UserPrincipal principal) {
+        requestDto.setUserId(principal.getUserId());
+        return ResponseEntity.ok(resumeService.getResumeList(requestDto));
+    }
+
+    @GetMapping("/{resumeId:\\d+}")
+    public ResponseEntity<ResumeDetailResponseDto> getResumeDetail(ResumeRequestDto requestDto,
+                                                             @PathVariable Long resumeId,
+                                                             @AuthenticationPrincipal UserPrincipal principal) {
+        requestDto.setUserId(principal.getUserId());
+        requestDto.setResumeId(resumeId);
+        return ResponseEntity.ok(resumeService.getResumeDetail(requestDto));
+    }
+
     @PostMapping("/save")
-    public ResponseEntity<Long> procResumeSave(@RequestBody ResumeRequestDto request,
-                                     @AuthenticationPrincipal UserPrincipal principal) {
-        request.setUserId(principal.getUserId());
-        return ResponseEntity.ok(resumeService.saveResume(request));
+    public ResponseEntity<Long> postResumeSave(@RequestBody ResumeRequestDto requestDto,
+                                               @AuthenticationPrincipal UserPrincipal principal) {
+        requestDto.setUserId(principal.getUserId());
+        return ResponseEntity.ok(resumeService.saveResume(requestDto));
     }
 
     @PostMapping("/template")
-    public ResponseEntity<Long> procResumeTemplate(@RequestBody ResumeRequestDto request,
+    public ResponseEntity<Long> postResumeTemplate(@RequestBody ResumeRequestDto request,
                                                @AuthenticationPrincipal UserPrincipal principal) {
         request.setLoginId(principal.getUsername());
         return ResponseEntity.ok(resumeService.saveResumeTemplate(request));
     }
 
     @GetMapping("/{resumeId}/pdf")
-    public ResponseEntity<byte[]> procResumeExportPDf(@PathVariable Long resumeId, HttpServletRequest request) {
-
+    public ResponseEntity<byte[]> getResumeExportPDf(@PathVariable Long resumeId,
+                                                     HttpServletRequest request) {
         // 파일 이름용 제목 (본인 이력서가 아니면 서비스에서 예외가 나도록 되어 있다면 여기서 먼저 막힘)
         ResumeRequestDto requestDto = new ResumeRequestDto();
         requestDto.setResumeId(resumeId);

@@ -132,3 +132,209 @@
     outline: 2px solid #93c5fd;
     outline-offset: 2px;
 }
+/* =========================================================
+   다른 이력서에서 가져오기
+   ========================================================= */
+
+/* ===== 가져온 뒤 안내 ===== */
+.notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-md);
+    background: var(--c-primary-soft);
+    color: var(--c-primary-active);
+    font-size: 14px;
+}
+.notice > span { flex: 1; }
+.notice .btn.ghost { color: var(--c-primary-active); }
+.notice .btn.ghost:hover { background: #dbeafe; }
+
+/* 가져온 항목 잠깐 강조 */
+.item-row.is-imported,
+.item-card.is-imported {
+    animation: imported-flash 2s ease;
+}
+@keyframes imported-flash {
+    from { background: var(--c-primary-soft); }
+    to   { background: transparent; }
+}
+
+/* ===== 단계 제목 ===== */
+.import-options {
+    display: grid;
+    gap: 20px;
+}
+
+.import-step__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--c-text-label);
+}
+
+.import-step__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: var(--c-primary-soft);
+    color: var(--c-primary);
+    font-size: 12px;
+}
+
+.check.import-all {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--c-text-sub);
+}
+
+/* 불러오는 중 / 비었음 / 실패 */
+.import-empty {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 18px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--c-surface-sub);
+    font-size: 13px;
+    color: var(--c-text-muted);
+    text-align: center;
+}
+
+/* ===== 1. 이력서 목록 ===== */
+.import-resumes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+    max-height: 216px;          /* 4개 정도 보이고 나머지는 스크롤 */
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.resume-option {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color var(--transition), background var(--transition);
+}
+.resume-option:hover {
+    border-color: var(--c-border-strong);
+    background: var(--c-surface-sub);
+}
+.resume-option:has(input:checked) {
+    border-color: var(--c-primary);
+    background: var(--c-primary-soft);
+}
+
+.resume-option__title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    font-weight: 600;
+}
+.resume-option__date {
+    font-size: 12px;
+    color: var(--c-text-faint);
+}
+
+/* ===== 2. 섹션 선택 ===== */
+.import-sections {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.section-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color var(--transition);
+}
+.section-option:hover { border-color: var(--c-border-strong); }
+.section-option:has(input:checked) { border-color: var(--c-primary); }
+
+.section-option__name { flex: 1; }
+.section-option__count {
+    font-size: 12px;
+    color: var(--c-text-muted);
+}
+
+/* 가져올 내용이 없는 섹션 */
+.section-option.is-empty {
+    background: var(--c-surface-sub);
+    color: var(--c-text-faint);
+    cursor: default;
+}
+.section-option.is-empty:hover { border-color: var(--c-border); }
+.section-option.is-empty .section-option__count { color: var(--c-text-faint); }
+
+/* ===== 3. 가져오는 방식 ===== */
+.import-modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.mode-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color var(--transition), background var(--transition);
+}
+.mode-option:hover { border-color: var(--c-border-strong); }
+.mode-option:has(input:checked) {
+    border-color: var(--c-primary);
+    background: var(--c-primary-soft);
+}
+.mode-option input[type="radio"] { margin-top: 2px; }
+.mode-option strong {
+    display: block;
+    font-size: 14px;
+}
+.mode-option small {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--c-text-muted);
+}
+
+.import-hint {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--c-text-muted);
+}

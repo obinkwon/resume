@@ -39,6 +39,9 @@
         FROM resumes
         WHERE resume_id = #{resumeId}
             AND use_yn = 'Y'
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
     </select>
 
     <!-- 이력서 프로필 상세 조회 -->

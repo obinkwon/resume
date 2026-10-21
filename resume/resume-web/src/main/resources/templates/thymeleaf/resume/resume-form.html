@@ -17,11 +17,26 @@
     <div class="container">
         <div class="page-header">
             <h1>이력서 작성</h1>
-            <button type="button" class="btn secondary" id="btnBack">
-                <i class="icon icon-arrow-left"></i> 뒤로가기
+            <div class="btn-group">
+                <button type="button" class="btn outline" id="btnImportOpen">
+                    <i class="icon icon-copy"></i> 다른 이력서에서 가져오기
+                </button>
+                <button type="button" class="btn secondary" id="btnBack">
+                    <i class="icon icon-arrow-left"></i> 뒤로가기
+                </button>
+            </div>
+        </div>
+
+        <!-- 가져오기 후 안내 (저장해야 반영된다는 것 알림) -->
+        <div class="notice d-none" id="importNotice" role="status">
+            <i class="icon icon-check"></i>
+            <span id="importNoticeText"></span>
+            <button type="button" class="btn icon sm ghost" id="importNoticeClose" aria-label="안내 닫기">
+                <i class="icon icon-close sm"></i>
             </button>
         </div>
-        <form method="post">
+
+        <form method="post" id="resumeForm">
             <input type="hidden" name="resumeId" th:value="${resumeDetail?.resumeId}">
             <div class="section">
                 <h2>이력서 정보</h2>
@@ -300,5 +315,7 @@
             </div>
         </form>
     </div>
+    <!-- ===== 다른 이력서에서 가져오기 모달 (fragments/import-modal.html) ===== -->
+    <div th:replace="~{thymeleaf/fragments/import-modal :: importModal}"></div>
 </body>
 </html>

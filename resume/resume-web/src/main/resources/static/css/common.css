@@ -281,6 +281,80 @@ h3 { font-size: 16px; font-weight: 600; }
 .icon-printer     { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2'/%3E%3Crect x='6' y='14' width='12' height='8'/%3E%3C/svg%3E"); }
 
 /* =========================================================
+   모달 (<dialog>)
+   사용: <dialog class="modal" id="xxxModal">
+           <div class="modal__header"><h2>제목</h2>
+             <button type="button" class="btn icon ghost" data-close aria-label="닫기"><i class="icon icon-close"></i></button></div>
+           <div class="modal__body">…</div>
+           <div class="modal__footer">…</div>
+         </dialog>
+        열기: dialog.showModal()  /  닫기: dialog.close()
+   ========================================================= */
+.modal {
+    width: min(560px, calc(100vw - 32px));
+    max-height: min(720px, calc(100vh - 48px));
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-lg);
+    background: var(--c-surface);
+    color: var(--c-text);
+    box-shadow: 0 24px 48px rgba(15, 23, 42, .18);
+}
+.modal[open] {
+    display: flex;
+    flex-direction: column;
+}
+.modal::backdrop { background: rgba(15, 23, 42, .45); }
+body:has(.modal[open]) { overflow: hidden; }   /* 모달 열린 동안 뒤 페이지 스크롤 막기 */
+
+.modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--c-border);
+}
+.modal__header h2 { margin: 0; }
+
+.modal__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 20px;
+    display: grid;
+    align-content: start;
+    gap: 20px;
+}
+
+.modal__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--c-border);
+    background: var(--c-surface-sub);
+}
+
+/* common.css 의 input(width:100%, padding) 이 라디오·체크박스에 걸리지 않게 */
+.modal input[type="radio"],
+.modal input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    accent-color: var(--c-primary);
+    cursor: pointer;
+}
+.modal input[type="radio"]:focus,
+.modal input[type="checkbox"]:focus { box-shadow: none; }
+.modal input[type="radio"]:focus-visible,
+.modal input[type="checkbox"]:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: 2px;
+}
+
+/* =========================================================
    resume list page
    ========================================================= */
 .page-header {
