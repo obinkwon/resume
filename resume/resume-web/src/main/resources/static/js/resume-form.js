@@ -1,20 +1,26 @@
-/* 이력서 폼 js */
+/* =========================================================
+   resume-form.js  (이력서 작성 폼)
+   ========================================================= */
+(() => {
+    'use strict';
 
-function addBlock(listId, html) {
-    document.getElementById(listId).insertAdjacentHTML('beforeend', html);
-}
+    // ---------- 유틸 ----------
+    function addBlock(listId, html) {
+        document.getElementById(listId).insertAdjacentHTML('beforeend', html);
+    }
 
-// 객체의 모든 값이 빈 문자열(공백만 있는 경우 포함)인지 체크하는 헬퍼
-function isAllEmpty(obj) {
-    return Object.values(obj).every(v => !v || v.trim() === '');
-}
+    /** 객체의 모든 값이 빈 문자열(공백만 있는 경우 포함)인지 */
+    function isAllEmpty(obj) {
+        return Object.values(obj).every(v => !v || v.trim() === '');
+    }
 
-// 저장 중복 클릭 방지 (핸들러 밖에 있어야 클릭 간에 값이 유지됨)
-let isSaving = false;
+    // ---------- 상태 ----------
+    /** 저장 중복 클릭 방지 (핸들러 밖에 있어야 클릭 간에 값이 유지됨) */
+    let isSaving = false;
 
-$(function(){
-    // 링크 추가
-    $('#addLink').on('click', function() {
+    // ---------- 항목 추가 ----------
+    // 외부 링크
+    $('#addLink').on('click', function () {
         $('#linkHeader').removeClass('d-none');
         const linkHtml = `
             <div class="item-row link-cols">
@@ -36,8 +42,9 @@ $(function(){
         `;
         $('#linkList').append(linkHtml);
     });
-    // 기술 추가
-    $('#addSkill').on('click', function() {
+
+    // 기술 스택
+    $('#addSkill').on('click', function () {
         $('#skillHeader').removeClass('d-none');
         const skillHtml = `
             <div class="item-row">
@@ -58,8 +65,9 @@ $(function(){
         `;
         $('#skillList').append(skillHtml);
     });
-    // 학력 추가
-    $('#addEducation').on('click', function() {
+
+    // 학력
+    $('#addEducation').on('click', function () {
         const educationHtml = `
             <div class="item-card">
                 <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
@@ -95,8 +103,9 @@ $(function(){
         `;
         $('#educationList').append(educationHtml);
     });
-    // 자격증 추가
-    $('#addCertificate').on('click', function() {
+
+    // 자격증
+    $('#addCertificate').on('click', function () {
         const certificateHtml = `
             <div class="item-card">
                 <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
@@ -124,7 +133,9 @@ $(function(){
         `;
         $('#certificateList').append(certificateHtml);
     });
-    $('#addExperience').on('click', function(){
+
+    // 경력
+    $('#addExperience').on('click', function () {
         const experienceHtml = `
             <div class="item-card">
                 <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
@@ -160,7 +171,9 @@ $(function(){
         `;
         $('#experienceList').append(experienceHtml);
     });
-    $('#addProject').on('click', function(){
+
+    // 프로젝트
+    $('#addProject').on('click', function () {
         const projectHtml = `
             <div class="item-card">
                 <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제">
@@ -200,8 +213,11 @@ $(function(){
         `;
         $('#projectList').append(projectHtml);
     });
-    $('#btnResumeSave').on('click', async function(){
-        if (isSaving) return; // 중복 클릭 방지
+
+    // ---------- 저장 ----------
+    $('#btnResumeSave').on('click', async function () {
+        console.log('btnResumeSave')
+        if (isSaving) return;                    // 중복 클릭 방지
         const $doc = $(document);
         const errors = [];
 
@@ -217,7 +233,7 @@ $(function(){
             skills: []
         };
 
-        // 프로필
+        // 1) 기본 정보
         if (getVal($doc, 'name') != null) {
             data.profile = {
                 profileId: getVal($doc, 'profileId'),
@@ -229,7 +245,7 @@ $(function(){
             };
         }
 
-        // 외부 링크
+        // 2) 외부 링크 (URL 이 비어 있으면 건너뜀)
         $('#linkList .item-row').each(function () {
             const $item = $(this);
             const url = getVal($item, 'url');
@@ -246,7 +262,7 @@ $(function(){
             });
         });
 
-        // 기술 스택
+        // 3) 기술 스택 (기술명이 비어 있으면 건너뜀)
         $('#skillList .item-row').each(function () {
             const $item = $(this);
             const skillName = getVal($item, 'skillName');
@@ -259,7 +275,7 @@ $(function(){
             });
         });
 
-        // 학력
+        // 4) 학력 (학교명이 비어 있으면 건너뜀)
         $('#educationList .item-card').each(function () {
             const $item = $(this);
             const schoolName = getVal($item, 'schoolName');
@@ -280,7 +296,7 @@ $(function(){
             });
         });
 
-        // 자격증 (자격증명이 비어 있으면 건너뜀)
+        // 5) 자격증 (자격증명이 비어 있으면 건너뜀)
         $('#certificateList .item-card').each(function () {
             const $item = $(this);
             const certificateName = getVal($item, 'certificateName');
@@ -294,7 +310,7 @@ $(function(){
             });
         });
 
-        // 경력
+        // 6) 경력 (회사명이 비어 있으면 건너뜀, 재직중이면 퇴사일 없음)
         $('#experienceList .item-card').each(function () {
             const $item = $(this);
             const companyName = getVal($item, 'companyName');
@@ -316,7 +332,7 @@ $(function(){
             });
         });
 
-        // 프로젝트
+        // 7) 프로젝트 (프로젝트명이 비어 있으면 건너뜀)
         $('#projectList .item-card').each(function () {
             const $item = $(this);
             const projectName = getVal($item, 'projectName');
@@ -365,32 +381,42 @@ $(function(){
             }
         });
     });
-    // 링크 제거
-    $('#linkList').on('click', '.removeBtn', function() {
-        $(this).closest('.item-row').remove();
 
-        // 남은 항목이 없으면 헤더 숨김
+    // ---------- 항목 삭제 ----------
+    // 외부 링크 (남은 항목이 없으면 헤더 숨김)
+    $('#linkList').on('click', '.removeBtn', function () {
+        $(this).closest('.item-row').remove();
         $('#linkHeader').toggleClass('d-none', $('#linkList .item-row').length === 0);
     });
-    // 기술 제거
-    $('#skillList').on('click', '.removeBtn', function() {
-        $(this).closest('.item-row').remove();
 
-        // 남은 항목이 없으면 헤더 숨김
+    // 기술 스택 (남은 항목이 없으면 헤더 숨김)
+    $('#skillList').on('click', '.removeBtn', function () {
+        $(this).closest('.item-row').remove();
         $('#skillHeader').toggleClass('d-none', $('#skillList .item-row').length === 0);
     });
-    // 학력 제거
-    $('#educationList').on('click', '.removeBtn', function() {
+
+    // 학력
+    $('#educationList').on('click', '.removeBtn', function () {
         $(this).closest('.item-card').remove();
     });
-    // 자격증 제거
-    $('#certificateList').on('click', '.removeBtn', function() {
+
+    // 자격증
+    $('#certificateList').on('click', '.removeBtn', function () {
         $(this).closest('.item-card').remove();
     });
-    // 경력 제거
-    $('#experienceList').on('click', '.removeBtn', function() {
+
+    // 경력
+    $('#experienceList').on('click', '.removeBtn', function () {
         $(this).closest('.item-card').remove();
     });
+
+    // 프로젝트
+    $('#projectList').on('click', '.removeBtn', function () {
+        $(this).closest('.item-card').remove();
+    });
+
+    // ---------- 경력 : 재직중 체크 ----------
+    /** 재직중이면 퇴사일을 비우고 입력 막기 */
     $('#experienceList').on('change', 'input[name="isCurrent"]', function () {
         const $endDate = $(this).closest('.item-card').find('input[name="endDate"]');
         if (this.checked) {
@@ -399,16 +425,14 @@ $(function(){
             $endDate.prop('disabled', false);
         }
     });
-    // 프로젝트 제거
-    $('#projectList').on('click', '.removeBtn', function() {
-        $(this).closest('.item-card').remove();
-    });
+
+    // ---------- 뒤로가기 ----------
+    /** 이전 페이지가 있으면 뒤로, 직접 URL 로 들어온 경우엔 목록으로 */
     $('#btnBack').on('click', function () {
-        // 이전 페이지가 있으면 뒤로, 직접 URL로 들어온 경우엔 목록으로
         if (document.referrer && history.length > 1) {
             history.back();
         } else {
             location.href = '/web/resume/list';
         }
     });
-});
+})();
