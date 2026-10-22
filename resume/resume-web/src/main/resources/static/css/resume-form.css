@@ -376,3 +376,154 @@
     font-size: 12px;
     color: var(--c-text-muted);
 }
+
+/* ===== 1. 가져올 곳 (내 다른 이력서 / 이력서 파일) ===== */
+.import-source {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-bottom: 12px;
+    padding: 4px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-md);
+    background: var(--c-surface-sub);
+}
+
+.import-source__tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--c-text-sub);
+    font-size: 14px;
+    font-weight: 500;
+    transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+}
+.import-source__tab:hover { color: var(--c-text); }
+.import-source__tab[aria-selected="true"] {
+    background: var(--c-surface);
+    color: var(--c-primary);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .1);
+}
+.import-source__tab:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+/* ===== 1-2. 이력서 파일 올리기 ===== */
+.import-drop {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 26px 16px;
+    border: 1.5px dashed var(--c-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--c-surface-sub);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color var(--transition), background var(--transition);
+}
+.import-drop:hover,
+.import-drop.is-drag {
+    border-color: var(--c-primary);
+    background: var(--c-primary-soft);
+}
+.import-drop:focus-within { box-shadow: var(--focus-ring); }
+
+/* 파일 선택 칸은 숨기고 영역 전체를 누르게 (키보드 포커스는 유지) */
+.import-drop input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.import-drop__icon {
+    width: 26px;
+    height: 26px;
+    color: var(--c-primary);
+}
+.import-drop__title {
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    color: var(--c-text);
+}
+.import-drop__desc {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--c-text-muted);
+}
+
+/* 읽는 중 */
+.import-drop__spinner {
+    display: none;
+    width: 24px;
+    height: 24px;
+    border: 2.5px solid #dbeafe;
+    border-top-color: var(--c-primary);
+    border-radius: 50%;
+    animation: import-spin .8s linear infinite;
+}
+.import-drop.is-loading { cursor: progress; border-style: solid; }
+.import-drop.is-loading .import-drop__spinner { display: block; }
+.import-drop.is-loading .import-drop__icon { display: none; }
+@keyframes import-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+    .import-drop__spinner { animation-duration: 2.4s; }
+}
+
+/* 다 읽음 / 실패 */
+.import-drop.is-done {
+    border-style: solid;
+    border-color: #86efac;
+    background: #f0fdf4;
+}
+.import-drop.is-done .import-drop__icon,
+.import-drop.is-done .import-drop__desc { color: var(--c-success); }
+
+.import-drop.is-error {
+    border-style: solid;
+    border-color: #fca5a5;
+    background: #fef2f2;
+}
+.import-drop.is-error .import-drop__icon,
+.import-drop.is-error .import-drop__desc { color: var(--c-danger-hover); }
+
+/* 서버 안내 (직무를 못 찾은 경력 등) */
+.import-warnings {
+    list-style: none;
+    display: grid;
+    gap: 4px;
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border: 1px solid #fde68a;
+    border-radius: var(--radius-sm);
+    background: #fffbeb;
+    color: #92400e;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.import-warnings li {
+    position: relative;
+    padding-left: 14px;
+}
+.import-warnings li::before {
+    content: "!";
+    position: absolute;
+    left: 2px;
+    font-weight: 700;
+}

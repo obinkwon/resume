@@ -1,30 +1,52 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<!--
-    다른 이력서에서 가져오기 모달
-    사용: <div th:replace="~{fragments/import-modal :: importModal}"></div>
-    동작: resume-form.js (다른 이력서에서 가져오기 구간)
-    스타일: common.css (모달 틀) + resume-form.css (가져오기 전용)
--->
 <body>
     <dialog th:fragment="importModal" class="modal" id="importModal" aria-labelledby="importTitle">
         <div class="modal__header">
-            <h2 id="importTitle">다른 이력서에서 가져오기</h2>
+            <h2 id="importTitle">이력서 내용 가져오기</h2>
             <button type="button" class="btn icon ghost" data-close aria-label="닫기">
                 <i class="icon icon-close"></i>
             </button>
         </div>
 
         <div class="modal__body">
-            <!-- 1. 이력서 선택 -->
+            <!-- 1. 가져올 곳 -->
             <section class="import-step">
                 <h3 class="import-step__title">
-                    <span><span class="import-step__num">1</span>이력서 선택</span>
+                    <span><span class="import-step__num">1</span>가져올 곳</span>
                 </h3>
-                <ul class="import-resumes" id="importResumeList" role="radiogroup" aria-label="가져올 이력서"></ul>
+                <div class="import-source" role="tablist" aria-label="가져올 곳">
+                    <button type="button" class="import-source__tab" role="tab" id="importTabResume"
+                            data-source="resume" aria-selected="true" aria-controls="importFromResume">
+                        <i class="icon icon-copy sm"></i> 내 다른 이력서
+                    </button>
+                    <button type="button" class="import-source__tab" role="tab" id="importTabFile"
+                            data-source="file" aria-selected="false" aria-controls="importFromFile" tabindex="-1">
+                        <i class="icon icon-upload sm"></i> 이력서 파일
+                    </button>
+                </div>
+
+                <!-- 1-1. 내 다른 이력서 -->
+                <div id="importFromResume" role="tabpanel" aria-labelledby="importTabResume">
+                    <ul class="import-resumes" id="importResumeList" role="radiogroup" aria-label="가져올 이력서"></ul>
+                </div>
+
+                <!-- 1-2. 이력서 파일 (사람인·잡코리아·원티드 등에서 받은 파일) -->
+                <div class="d-none" id="importFromFile" role="tabpanel" aria-labelledby="importTabFile">
+                    <label class="import-drop" id="importDrop" aria-busy="false">
+                        <input type="file" id="importFile" accept=".pdf,.docx,.hwpx">
+                        <i class="icon icon-upload import-drop__icon" id="importDropIcon" aria-hidden="true"></i>
+                        <span class="import-drop__spinner" aria-hidden="true"></span>
+                        <strong class="import-drop__title" id="importDropTitle">파일을 끌어다 놓거나 눌러서 선택</strong>
+                        <small class="import-drop__desc" id="importDropDesc" aria-live="polite">PDF · Word(.docx) · 한글(.hwpx) · 10MB 이하</small>
+                    </label>
+                    <!-- 서버가 보낸 안내 (직무를 못 찾은 경력 등) -->
+                    <ul class="import-warnings d-none" id="importWarnings" role="status"></ul>
+                    <p class="import-hint">다른 구직 사이트에서 받은 이력서 파일을 자동으로 나눠 채워요. 틀린 곳이 있을 수 있으니 가져온 뒤 꼭 확인해 주세요.</p>
+                </div>
             </section>
 
-            <!-- 이력서를 고르면 보임 -->
+            <!-- 이력서·파일을 고르면 보임 -->
             <div class="import-options d-none" id="importOptions">
                 <!-- 2. 가져올 항목 -->
                 <section class="import-step">
@@ -47,19 +69,19 @@
                         <label class="mode-option">
                             <input type="radio" name="importMode" value="append" checked>
                             <span>
-                                <strong>추가</strong>
-                                <small>지금 항목 뒤에 붙여요. 같은 기술·링크는 건너뛰어요.</small>
-                            </span>
+                                    <strong>추가</strong>
+                                    <small>지금 항목 뒤에 붙여요. 같은 기술·링크는 건너뛰어요.</small>
+                                </span>
                         </label>
                         <label class="mode-option">
                             <input type="radio" name="importMode" value="replace">
                             <span>
-                                <strong>바꾸기</strong>
-                                <small>선택한 섹션의 지금 항목을 지우고 채워요.</small>
-                            </span>
+                                    <strong>바꾸기</strong>
+                                    <small>선택한 섹션의 지금 항목을 지우고 채워요.</small>
+                                </span>
                         </label>
                     </div>
-                    <p class="import-hint">인적 사항·자기소개는 하나뿐이라 값이 있는 칸만 덮어써요.</p>
+                    <p class="import-hint">인적 사항·간단 소개는 하나뿐이라 값이 있는 칸만 덮어써요.</p>
                 </section>
             </div>
         </div>

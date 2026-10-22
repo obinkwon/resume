@@ -1,7 +1,7 @@
 /* =========================================================
    resume-form.js  (이력서 작성 폼)
    항목 추가·삭제 : 외부 링크 / 기술 스택 / 자기소개서 / 학력 / 자격증 / 경력 / 프로젝트
-   가져오기       : 다른 이력서 내용을 골라 이 폼에 채움 (저장해야 반영)
+   가져오기       : 다른 이력서 / 이력서 파일(PDF·docx·hwpx) 내용을 골라 이 폼에 채움 (저장해야 반영)
    저장           : 화면 입력값을 모아 검사 후 /api/resume/save 로 전송
    ========================================================= */
 (() => {
@@ -10,8 +10,13 @@
     // ---------- 상수 ----------
     const API = {
         resumeList: '/api/resume/list',
-        resumeDetail: id => `/api/resume/${encodeURIComponent(id)}`
+        resumeDetail: id => `/api/resume/${encodeURIComponent(id)}`,
+        importFile: '/api/resume/import-file'
     };
+
+    /** 이력서 파일 가져오기 : 서버(ResumeImportService)와 같은 규칙 */
+    const IMPORT_FILE_EXT = ['pdf', 'docx', 'hwpx'];
+    const IMPORT_FILE_MAX = 10 * 1024 * 1024;
 
     const LINK_TYPES = [
         ['github', 'GitHub'],
@@ -570,8 +575,17 @@
         }
     });
 
-    // ---------- 다른 이력서에서 가져오기 ----------
+    // ---------- 가져오기 (다른 이력서 / 이력서 파일) ----------
     const importModal  = document.getElementById('importModal');
+    const $sourceTabs  = $('.import-source__tab');
+    const $fromResume  = $('#importFromResume');
+    const $fromFile    = $('#importFromFile');
+    const fileInput    = document.getElementById('importFile');
+    const $drop        = $('#importDrop');
+    const $dropIcon    = $('#importDropIcon');
+    const $dropTitle   = $('#importDropTitle');
+    const $dropDesc    = $('#importDropDesc');
+    const $warnings    = $('#importWarnings');
     const $resumeList  = $('#importResumeList');
     const $options     = $('#importOptions');
     const $sections    = $('#importSections');
@@ -592,10 +606,12 @@
     let resumes = null;
     /** 불러온 이력서 상세 캐시 : 'resumeId' → detail */
     const resumeDetails = new Map();
-    /** 고른 이력서 : { title, detail } */
+    /** 고른 이력서·파일 : { title, detail, fromFile } */
     let picked = null;
-    /** 이력서를 빠르게 바꿔 눌렀을 때 늦게 온 응답 무시용 */
+    /** 이력서·파일을 빠르게 바꿨을 때 늦게 온 응답 무시용 */
     let pickSeq = 0;
+    /** 지금 보고 있는 탭 : 'resume' | 'file' */
+    let source = 'resume';
 
     function sectionLabel(key) {
         return (SINGLE_SECTIONS[key] || LIST_SECTIONS[key]).label;
@@ -610,16 +626,37 @@
         return $sections.find('input[data-key]:checked').toArray().map(el => el.dataset.key);
     }
 
-    function openImport() {
+    /** @param src 'resume'(내 다른 이력서) | 'file'(이력서 파일) */
+    function openImport(src = 'resume') {
+        setSource(src);
+        importModal.showModal();
+    }
+
+    /** 탭 바꾸기 — 고른 내용은 처음부터 다시 */
+    function setSource(src) {
+        source = src;
         picked = null;
         pickSeq++;
+        $sourceTabs.each(function () {
+            const on = this.dataset.source === src;
+            this.setAttribute('aria-selected', String(on));
+            this.tabIndex = on ? 0 : -1;
+        });
+        $fromResume.toggleClass('d-none', src !== 'resume');
+        $fromFile.toggleClass('d-none', src !== 'file');
         $options.addClass('d-none');
+        $warnings.addClass('d-none').empty();
         $applyBtn.prop('disabled', true);
-        $summary.text('가져올 이력서를 선택해 주세요');
-        importModal.showModal();
 
-        if (resumes) renderResumeList();
-        else loadResumeList();
+        if (src === 'resume') {
+            $summary.text('가져올 이력서를 선택해 주세요');
+            if (resumes) renderResumeList();
+            else loadResumeList();
+        } else {
+            fileInput.value = '';
+            setDrop('idle');
+            $summary.text('이력서 파일을 올려 주세요');
+        }
     }
 
     // ① 이력서 목록
@@ -771,9 +808,111 @@
         });
 
         importModal.close();
-        showNotice(`'${picked.title}'에서 ${added}개 항목을 가져왔어요.`
+        const warnings = picked.fromFile && Array.isArray(d.warnings) ? d.warnings.filter(Boolean) : [];
+        showNotice(`'${picked.title}'${picked.fromFile ? ' 파일' : ''}에서 ${added}개 항목을 가져왔어요.`
             + (skipped ? ` 이미 있는 기술·링크 ${skipped}개는 건너뛰었어요.` : '')
-            + ' [저장]을 눌러야 반영돼요.');
+            + (picked.fromFile
+                ? ' 자동으로 나눈 내용이라 틀린 곳이 없는지 확인한 뒤 [저장]해 주세요.'
+                : ' [저장]을 눌러야 반영돼요.')
+            + (warnings.length ? ' ' + warnings.join(' ') : ''));
+    }
+
+    // ---------- 이력서 파일 ----------
+    /** 올리기 칸 모양 : idle(처음) / loading(읽는 중) / done(다 읽음) / error(실패) */
+    function setDrop(state, title, desc) {
+        const icon = { done: 'icon-check', error: 'icon-close' }[state] || 'icon-upload';
+        $drop.removeClass('is-loading is-done is-error');
+        if (state !== 'idle') $drop.addClass(`is-${state}`);
+        $drop.attr('aria-busy', String(state === 'loading'));
+        $dropIcon.attr('class', `icon ${icon} import-drop__icon`);
+        $dropTitle.text(title || '파일을 끌어다 놓거나 눌러서 선택');
+        $dropDesc.text(desc || 'PDF · Word(.docx) · 한글(.hwpx) · 10MB 이하');
+    }
+
+    function renderWarnings(list) {
+        const items = Array.isArray(list) ? list.filter(Boolean) : [];
+        $warnings.html(items.map(w => `<li>${esc(w)}</li>`).join('')).toggleClass('d-none', !items.length);
+    }
+
+    /** 파일 고름 → 화면에서 먼저 검사 → 서버에서 읽기 → ② 섹션 목록 */
+    async function readResumeFile(file) {
+        if (!file) return;
+        const seq = ++pickSeq;
+        picked = null;
+        $options.addClass('d-none');
+        $warnings.addClass('d-none').empty();
+        $applyBtn.prop('disabled', true);
+
+        const dot = file.name.lastIndexOf('.');
+        const ext = dot < 0 ? '' : file.name.slice(dot + 1).toLowerCase();
+        if (!IMPORT_FILE_EXT.includes(ext)) {
+            setDrop('error', file.name, ext === 'hwp'
+                ? '.hwp 파일은 지원하지 않아요. 한글에서 .hwpx 또는 PDF로 저장해 올려 주세요.'
+                : 'PDF, Word(.docx), 한글(.hwpx) 파일만 올릴 수 있어요.');
+            $summary.text('다른 파일을 선택해 주세요');
+            fileInput.value = '';
+            return;
+        }
+        if (file.size > IMPORT_FILE_MAX) {
+            setDrop('error', file.name, '파일은 10MB까지 올릴 수 있어요.');
+            $summary.text('다른 파일을 선택해 주세요');
+            fileInput.value = '';
+            return;
+        }
+
+        setDrop('loading', file.name, '파일 내용을 읽는 중이에요…');
+        $summary.text('');
+        try {
+            const detail = await uploadResumeFile(file);
+            if (seq !== pickSeq) return;                // 그 사이 다른 파일을 고르거나 탭을 바꿈
+            picked = { title: file.name, detail, fromFile: true };
+            setDrop('done', file.name, '다 읽었어요. 다른 파일로 바꾸려면 다시 눌러 주세요.');
+            renderWarnings(detail.warnings);
+            $options.removeClass('d-none');
+            renderSections(detail);
+        } catch (err) {
+            if (seq !== pickSeq) return;
+            console.error('이력서 파일 읽기 실패', err);
+            setDrop('error', file.name, err.message);
+            $summary.text('다른 파일을 선택해 주세요');
+        } finally {
+            fileInput.value = '';                       // 같은 파일을 다시 골라도 change 가 일어나게
+        }
+    }
+
+    /**
+     * POST /api/resume/import-file (multipart)
+     *  - Content-Type 은 직접 넣지 않음 (브라우저가 boundary 와 함께 넣음)
+     *  - 실패하면 서버가 보낸 안내 문구(text/plain)를 Error 메시지로
+     */
+    async function uploadResumeFile(file) {
+        const body = new FormData();
+        body.append('file', file);
+
+        const headers = {};
+        const token = $('meta[name="_csrf"]').attr('content');
+        const header = $('meta[name="_csrf_header"]').attr('content');
+        if (token && header) headers[header] = token;
+
+        let res;
+        try {
+            res = await fetch(API.importFile, { method: 'POST', body, headers, credentials: 'same-origin' });
+        } catch (e) {
+            throw new Error('서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.');
+        }
+
+        const type = res.headers.get('Content-Type') || '';
+        if (!res.ok) {
+            const text = type.startsWith('text/plain') ? (await res.text()).trim() : '';
+            throw new Error(text || (res.status === 413
+                ? '파일은 10MB까지 올릴 수 있어요.'
+                : `파일을 읽지 못했어요. 잠시 후 다시 시도해 주세요. (${res.status})`));
+        }
+        // 로그인이 풀리면 로그인 페이지(HTML)로 돌아오는 경우
+        if (!type.includes('application/json')) {
+            throw new Error('로그인이 만료됐을 수 있어요. 새로고침한 뒤 다시 시도해 주세요.');
+        }
+        return res.json();
     }
 
     function showNotice(text) {
@@ -783,7 +922,40 @@
     }
 
     // 이벤트
-    $('#btnImportOpen').on('click', openImport);
+    $('#btnImportOpen').on('click', () => openImport('resume'));
+    $('#btnImportFileOpen').on('click', () => openImport('file'));
+
+    // 탭 (← → 로도 이동)
+    $sourceTabs.on('click', function () {
+        if (this.dataset.source !== source) setSource(this.dataset.source);
+    });
+    $sourceTabs.on('keydown', function (e) {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        const next = this.dataset.source === 'resume' ? 'file' : 'resume';
+        setSource(next);
+        $sourceTabs.filter(`[data-source="${next}"]`).trigger('focus');
+    });
+
+    // 파일 고르기 / 끌어다 놓기
+    fileInput.addEventListener('change', () => readResumeFile(fileInput.files[0]));
+    $drop.on('dragenter dragover', e => {
+        e.preventDefault();
+        $drop.addClass('is-drag');
+    });
+    $drop.on('dragleave', e => {
+        if (!$drop[0].contains(e.relatedTarget)) $drop.removeClass('is-drag');
+    });
+    $drop.on('drop', e => {
+        e.preventDefault();
+        $drop.removeClass('is-drag');
+        readResumeFile(e.originalEvent.dataTransfer?.files?.[0]);
+    });
+    // 올리기 칸 밖에 떨어뜨려도 브라우저가 파일을 열어 버리지 않게
+    importModal.addEventListener('dragover', e => e.preventDefault());
+    importModal.addEventListener('drop', e => e.preventDefault());
+    // 창을 닫으면 읽던 결과는 버림
+    importModal.addEventListener('close', () => { pickSeq++; });
     $(importModal).on('click', '[data-close]', () => importModal.close());
     importModal.addEventListener('click', e => {
         if (e.target === importModal) importModal.close();     // 바깥(배경) 클릭
@@ -816,4 +988,13 @@
     $('#experienceList input[name="isCurrent"]').trigger('change');
     // 저장돼 있던 자기소개서 글자 수 표시
     $('#coverLetterList .item-card').each((_, el) => updateCharCount($(el)));
+
+    // 목록의 [파일로 작성] 으로 들어오면 (?import=file) 파일 가져오기 창을 열어 둠
+    const params = new URLSearchParams(location.search);
+    if (params.get('import') === 'file') {
+        params.delete('import');                         // 새로고침해도 다시 열리지 않게
+        const query = params.toString();
+        history.replaceState(null, '', location.pathname + (query ? `?${query}` : '') + location.hash);
+        openImport('file');
+    }
 })();

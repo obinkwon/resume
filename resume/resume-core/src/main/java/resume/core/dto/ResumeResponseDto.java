@@ -14,4 +14,5 @@ public class ResumeResponseDto {
     private Long resumeId;
     private Long templateId;
     private String title;
+    private String introduction;
 }

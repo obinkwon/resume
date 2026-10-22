@@ -12,6 +12,11 @@
             <div class="page-header">
                 <h1>이력서 템플릿 목록</h1>
                 <div class="btn-group">
+                    <!-- 작성 화면을 '파일에서 가져오기' 창이 열린 채로 엶 -->
+                    <a class="btn outline" th:href="@{/web/resume/regist(import='file')}"
+                       title="다른 구직 사이트에서 받은 이력서 파일(PDF·Word·한글)로 시작">
+                        <i class="icon icon-upload"></i> 파일로 작성
+                    </a>
                     <a class="btn primary" th:href="@{/web/resume/regist}">
                         <i class="icon icon-plus"></i> 새 이력서 작성
                     </a>
@@ -47,9 +52,14 @@
 
             <div class="empty-state" th:if="${#lists.isEmpty(resumeList)}">
                 <p>아직 작성된 이력서가 없어요. 새 이력서를 만들어보세요!</p>
-                <a class="btn outline" th:href="@{/web/resume/regist}">
-                    <i class="icon icon-plus"></i> 첫 이력서 작성하기
-                </a>
+                <div class="btn-group empty-state__actions">
+                    <a class="btn outline" th:href="@{/web/resume/regist}">
+                        <i class="icon icon-plus"></i> 첫 이력서 작성하기
+                    </a>
+                    <a class="btn secondary" th:href="@{/web/resume/regist(import='file')}">
+                        <i class="icon icon-upload"></i> 갖고 있는 이력서 파일로 시작
+                    </a>
+                </div>
             </div>
         </div>
     </div>
