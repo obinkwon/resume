@@ -102,8 +102,8 @@
     function skillRowHtml(item = {}) {
         return `
             <div class="item-row">
-                <input type="text" name="skillName" placeholder="기술 입력" value="${esc(item.skillName)}">
-                <input type="text" name="category" placeholder="카테고리 (예: Backend)" value="${esc(item.category)}">
+                <input type="text" name="skillName" placeholder="예: Spring Boot" value="${esc(item.skillName)}">
+                <input type="text" name="category" placeholder="예: Backend" value="${esc(item.category)}">
                 <select name="proficiency">${optionsHtml(PROFICIENCY, item.proficiency, '숙련도 선택')}</select>${REMOVE_BTN}
             </div>`;
     }

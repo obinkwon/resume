@@ -22,9 +22,20 @@
     transform: translateY(-2px);
 }
 
-.resume-card .badge {
-    align-self: flex-start;
-    margin-top: auto;              /* 소개 길이가 달라도 배지·버튼 줄 위치를 맞춤 */
+/* 출처 뱃지 + 수정일 (소개 길이가 달라도 이 줄과 버튼 줄 위치를 맞춤) */
+.resume-card__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: auto;
+}
+.resume-card__meta .badge { flex-shrink: 0; }
+
+.resume-card__date {
+    font-size: 12px;
+    color: var(--c-text-faint);
+    white-space: nowrap;
 }
 
 .resume-card h3 {

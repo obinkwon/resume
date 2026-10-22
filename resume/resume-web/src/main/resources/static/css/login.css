@@ -1,62 +1,60 @@
-/* login css */
+/* login css — 목록 화면(resume-card) 스타일 기준 */
 .login-page {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.login-container {
-    width: 380px;
-    max-width: calc(100% - 32px);   /* 좁은 화면 대비 */
-    padding: 40px;
-    background: var(--c-surface);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, .08);
+    padding: 0 16px;
     box-sizing: border-box;
 }
 
-.login-title {
-    text-align: center;
-    margin-bottom: 30px;
+.login-card {
+    width: 400px;
+    max-width: 100%;
+    padding: 28px;
+    background: var(--c-surface);
+    border: 1px solid #eef0f4;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.login-title h1 {
-    margin: 0 0 10px;
-    font-size: 28px;
+/* 머리 영역: 뱃지 + 제목 + 설명 */
+.login-card__head {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
+.login-card__head .badge { align-self: flex-start; }
+.login-card__head h1 { margin: 0; }
+.login-card__head p  { margin: 0; line-height: 1.5; }
 
-.login-title p {
-    margin: 0;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
+/* 입력 */
+.form-group { margin-bottom: 16px; }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
+    margin-bottom: 6px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--c-text-label);
 }
 
 .form-group input {
-    height: 46px;
+    height: 44px;
     padding: 0 12px;
     margin-bottom: 0;
-    font-size: 15px;
+    border-color: var(--c-border-strong);
+    font-size: 14px;
 }
 
-.login-container .btn.block {
-    height: 46px;
-    padding-top: 0;
-    padding-bottom: 0;
-}
+.login-card .btn.block { height: 44px; padding-top: 0; padding-bottom: 0; }
 
+/* 에러 */
 .login-error {
-    margin-bottom: 16px;
     padding: 10px 14px;
     border-radius: var(--radius-sm);
     background: var(--c-danger-soft);
@@ -65,9 +63,12 @@
     font-weight: 500;
 }
 
-.notice {
-    margin-top: 20px;
-    text-align: center;
+/* 하단 안내 (카드 actions 구분선과 동일) */
+.login-card__foot {
+    margin: 0;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
     font-size: 12px;
     color: var(--c-text-faint);
+    text-align: center;
 }
