@@ -50,7 +50,9 @@ enum Section {
         put(OTHER, "병역", "병역사항", "수상", "수상경력", "수상내역", "수상이력", "대외활동", "활동", "활동사항",
                 "교육", "교육이수", "교육사항", "교육이력", "교육수료", "해외경험", "해외연수", "연수", "봉사활동",
                 "희망근무조건", "희망조건", "취업우대", "취업우대사항", "우대사항", "보훈", "기타", "기타사항",
-                "awards", "activities", "military", "training", "volunteer", "references", "참고사항");
+                "awards", "activities", "military", "training", "volunteer", "references", "참고사항",
+                "인턴·대외활동/해외경험", "인턴·대외활동", "대외활동/해외경험", "인턴", "인턴십", "지원분야", "희망직무",
+                "희망근무조건", "취업우대·병역", "우대사항·병역");
     }
 
     private static void put(Section s, String... keys) {

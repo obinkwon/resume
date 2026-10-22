@@ -109,6 +109,12 @@ public class ResumeApiController {
                 .body(e.getMessage());
     }
 
+    /** 이력서 파일 파싱 확인용 — resume.import.debug=true 일 때만 등록 (운영에서는 끄기) */
+    @PostMapping(value = "/import-file/debug", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResumeImportDebugDto debug(@RequestParam("file") MultipartFile file) {
+        return resumeService.debugImportFile(file);
+    }
+
     // 요청의 쿠키(로그인 세션 포함)를 헤드리스 크롬용으로 변환
     private List<Cookie> toBrowserCookies(HttpServletRequest request, String baseUrl) {
         jakarta.servlet.http.Cookie[] cookies = request.getCookies();

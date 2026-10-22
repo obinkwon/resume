@@ -19,23 +19,24 @@ record Period(String start, String end, boolean current, int from, int to) {
     /** 연도 + (월) + (일). 연도 앞뒤가 다른 숫자에 붙어 있으면 날짜로 보지 않음 */
     private static final String DATE =
             "(?<!\\d)(?:19|20)\\d{2}(?!\\d)"
-          + "(?:\\s*(?:[./\\-]|년)\\s*(?:0?[1-9]|1[0-2])(?!\\d)\\s*월?"
-          + "(?:\\s*[./\\-]\\s*(?:0?[1-9]|[12]\\d|3[01])(?!\\d)|\\s*(?:0?[1-9]|[12]\\d|3[01])\\s*일)?)?\\.?";
+                    + "(?:\\s*(?:[./\\-]|년)\\s*(?:0?[1-9]|1[0-2])(?!\\d)\\s*월?"
+                    + "(?:\\s*[./\\-]\\s*(?:0?[1-9]|[12]\\d|3[01])(?!\\d)|\\s*(?:0?[1-9]|[12]\\d|3[01])\\s*일)?)?\\.?";
 
     /** 월까지 있는 날짜 (날짜 하나만 있을 때는 연도만으로 판단하지 않음) */
     private static final String DATE_WITH_MONTH =
             "(?<!\\d)(?:19|20)\\d{2}\\s*(?:[./\\-]|년)\\s*(?:0?[1-9]|1[0-2])(?!\\d)\\s*월?"
-          + "(?:\\s*[./\\-]\\s*(?:0?[1-9]|[12]\\d|3[01])(?!\\d)|\\s*(?:0?[1-9]|[12]\\d|3[01])\\s*일)?\\.?";
+                    + "(?:\\s*[./\\-]\\s*(?:0?[1-9]|[12]\\d|3[01])(?!\\d)|\\s*(?:0?[1-9]|[12]\\d|3[01])\\s*일)?\\.?";
 
     private static final String CURRENT_WORDS =
             "현재|재직\\s*중|진행\\s*중|재학\\s*중|근무\\s*중|present|now|current";
 
     private static final Pattern RANGE = Pattern.compile(
             "(" + DATE + ")\\s*(?:(?:[~∼〜\\-–—]|부터)\\s*(" + DATE + "|" + CURRENT_WORDS + ")"
-          + "|[~∼〜](?=\\s*(?:$|[|)\\]])))",
+                    + "|[~∼〜](?=\\s*(?:$|[|)\\]])))",
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern SINGLE = Pattern.compile(DATE_WITH_MONTH);
+    private static final Pattern YEAR_ONLY = Pattern.compile("(?:19|20)\\d{2}");
 
     private static final Pattern PARTS = Pattern.compile(
             "((?:19|20)\\d{2})(?:\\s*(?:[./\\-]|년)\\s*(\\d{1,2})(?:\\s*월)?(?:\\s*(?:[./\\-]\\s*)?(\\d{1,2}))?)?");
@@ -51,6 +52,10 @@ record Period(String start, String end, boolean current, int from, int to) {
             String end = endRaw == null || current ? null : toIso(endRaw);
             String start = toIso(m.group(1));
             if (start != null) return new Period(start, end, current, m.start(), m.end());
+        }
+        if (allowSingle && YEAR_ONLY.matcher(line.strip()).matches()) {
+            // 연도만 있는 줄 : "2014" (잡코리아 고등학교 졸업년도)
+            return new Period(line.strip() + "-01-01", null, false, 0, line.length());
         }
         if (allowSingle) {
             Matcher s = SINGLE.matcher(line);

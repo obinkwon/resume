@@ -3,6 +3,9 @@ package resume.core.importer.parse;
 import resume.core.dto.ResumeImportResultDto;
 import resume.core.importer.ResumeFileType;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 추출한 글자 → 이력서 항목
  *  - 지금은 규칙 기반(RuleBasedResumeParser)
@@ -11,4 +14,9 @@ import resume.core.importer.ResumeFileType;
 public interface ResumeParser {
 
     ResumeImportResultDto parse(String text, ResumeFileType fileType);
+
+    /** 디버그용 : 섹션별로 나뉜 줄 (구현이 없으면 빈 값) */
+    default Map<String, List<String>> debugSections(String text) {
+        return Map.of();
+    }
 }

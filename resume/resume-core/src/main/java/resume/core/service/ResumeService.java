@@ -18,9 +18,7 @@ import resume.core.mapper.ResumeMapper;
 import resume.core.mapper.TemplateMapper;
 
 import java.io.IOException;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -213,6 +211,21 @@ public class ResumeService {
     }
 
     public ResumeImportResultDto importFile(MultipartFile file) {
+        ExtractedText ex = extractText(file, true);
+        return parser.parse(ex.text(), ex.type());
+    }
+
+    /** 디버그용 : 꺼낸 글자 + 섹션 + 최종 결과 */
+    public ResumeImportDebugDto debugImportFile(MultipartFile file) {
+        ExtractedText ex = extractText(file, false);
+        return new ResumeImportDebugDto(ex.type().getExtension(), ex.text().length(), ex.text(),
+                parser.debugSections(ex.text()), parser.parse(ex.text(), ex.type()));
+    }
+
+    private record ExtractedText(ResumeFileType type, String text) {
+    }
+
+    private ExtractedText extractText(MultipartFile file, boolean requireReadable) {
         if (file == null || file.isEmpty()) {
             throw new ResumeImportException(ResumeImportException.BAD_REQUEST, "파일을 선택해 주세요.");
         }
@@ -235,8 +248,9 @@ public class ResumeService {
 
         try {
             String text = TextNormalizer.normalize(extractor.extract(bytes));
-            TextNormalizer.requireReadable(text);
-            return parser.parse(text, type);
+            // 디버그(requireReadable=false) 때는 글자가 깨진 파일도 내용을 볼 수 있게 검사하지 않음
+            if (requireReadable) TextNormalizer.requireReadable(text);
+            return new ExtractedText(type, text);
         } catch (ResumeImportException e) {
             // 개인정보가 담긴 파일이라 내용은 로그에 남기지 않음
             log.info("이력서 파일 가져오기 실패 type={} size={} status={} reason={}",
@@ -244,5 +258,4 @@ public class ResumeService {
             throw e;
         }
     }
-
 }
