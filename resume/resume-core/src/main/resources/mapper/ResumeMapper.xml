@@ -434,6 +434,9 @@
         </if>
         WHERE resume_id = #{resumeId}
             AND use_yn = 'Y'
+        <if test='userId != null'>
+            AND user_id = #{userId}
+        </if>
     </update>
 
     <!-- 이력서 삭제 -->

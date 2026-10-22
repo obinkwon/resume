@@ -5,21 +5,36 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import resume.core.dto.*;
+import resume.core.importer.ResumeFileType;
+import resume.core.importer.ResumeFileTypeDetector;
+import resume.core.importer.ResumeImportException;
+import resume.core.importer.TextNormalizer;
+import resume.core.importer.extract.ResumeTextExtractor;
+import resume.core.importer.parse.ResumeParser;
 import resume.core.mapper.PdfLogMapper;
 import resume.core.mapper.ResumeMapper;
 import resume.core.mapper.TemplateMapper;
 
+import java.io.IOException;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ResumeService {
+    /** 업로드 최대 크기 (application.yml 의 multipart 제한은 이보다 조금 크게) */
+    public static final long MAX_FILE_SIZE = 10L * 1024 * 1024;
 
     private final ResumeMapper resumeMapper;
     private final PdfLogMapper pdfLogMapper;
     private final TemplateMapper templateMapper;
+
+    private final List<ResumeTextExtractor> extractors;
+    private final ResumeParser parser;
 
     public List<ResumeResponseDto> getResumeList(ResumeRequestDto requestDto) {
         return resumeMapper.selectResumeList(requestDto);
@@ -168,7 +183,7 @@ public class ResumeService {
                 throw new IllegalArgumentException("원본 템플릿이 없습니다. templateId=" + requestDto.getTemplateId());
             }
 
-            // 이름 : 화면에서 보낸 값, 없으면 '원본이름 (수정)' (최대 100자)
+            // 이름 : 화면에서 보낸 값, 없으면 '원본이름 (수정)'
             String name = StringUtils.hasText(requestDto.getTemplateName()) ? requestDto.getTemplateName() : responseDto.getTemplateName() + " (수정)";
             if (name.length() > 100) name = name.substring(0, 100);
 
@@ -194,6 +209,39 @@ public class ResumeService {
             pdfLogMapper.insertPdfLog(pdfLogDto);
         } catch (Exception e) {
             log.warn("PDF 로그 저장 실패 resumeId={}, templateId={}", pdfLogDto.getResumeId(), pdfLogDto.getTemplateId(), e);
+        }
+    }
+
+    public ResumeImportResultDto importFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new ResumeImportException(ResumeImportException.BAD_REQUEST, "파일을 선택해 주세요.");
+        }
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new ResumeImportException(ResumeImportException.TOO_LARGE, "파일은 10MB까지 올릴 수 있어요.");
+        }
+
+        byte[] bytes;
+        try {
+            bytes = file.getBytes();
+        } catch (IOException e) {
+            throw new ResumeImportException(ResumeImportException.BAD_REQUEST, "파일을 읽지 못했어요. 다시 시도해 주세요.", e);
+        }
+
+        ResumeFileType type = ResumeFileTypeDetector.detect(file.getOriginalFilename(), bytes);
+        ResumeTextExtractor extractor = extractors.stream()
+                .filter(e -> e.supports() == type)
+                .findFirst()
+                .orElseThrow(() -> new ResumeImportException(ResumeImportException.UNSUPPORTED, "지원하지 않는 파일 형식이에요."));
+
+        try {
+            String text = TextNormalizer.normalize(extractor.extract(bytes));
+            TextNormalizer.requireReadable(text);
+            return parser.parse(text, type);
+        } catch (ResumeImportException e) {
+            // 개인정보가 담긴 파일이라 내용은 로그에 남기지 않음
+            log.info("이력서 파일 가져오기 실패 type={} size={} status={} reason={}",
+                    type, bytes.length, e.getStatus(), e.getCause() != null ? e.getCause().toString() : e.getMessage());
+            throw e;
         }
     }
 
