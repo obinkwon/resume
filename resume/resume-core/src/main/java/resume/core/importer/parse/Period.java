@@ -19,20 +19,20 @@ record Period(String start, String end, boolean current, int from, int to) {
     /** 연도 + (월) + (일). 연도 앞뒤가 다른 숫자에 붙어 있으면 날짜로 보지 않음 */
     private static final String DATE =
             "(?<!\\d)(?:19|20)\\d{2}(?!\\d)"
-                    + "(?:\\s*(?:[./\\-]|년)\\s*(?:0?[1-9]|1[0-2])(?!\\d)\\s*월?"
-                    + "(?:\\s*[./\\-]\\s*(?:0?[1-9]|[12]\\d|3[01])(?!\\d)|\\s*(?:0?[1-9]|[12]\\d|3[01])\\s*일)?)?\\.?";
+          + "(?:\\s*(?:[./\\-]|년)\\s*(?:0?[1-9]|1[0-2])(?!\\d)\\s*월?"
+          + "(?:\\s*[./\\-]\\s*(?:0?[1-9]|[12]\\d|3[01])(?!\\d)|\\s*(?:0?[1-9]|[12]\\d|3[01])\\s*일)?)?\\.?";
 
     /** 월까지 있는 날짜 (날짜 하나만 있을 때는 연도만으로 판단하지 않음) */
     private static final String DATE_WITH_MONTH =
             "(?<!\\d)(?:19|20)\\d{2}\\s*(?:[./\\-]|년)\\s*(?:0?[1-9]|1[0-2])(?!\\d)\\s*월?"
-                    + "(?:\\s*[./\\-]\\s*(?:0?[1-9]|[12]\\d|3[01])(?!\\d)|\\s*(?:0?[1-9]|[12]\\d|3[01])\\s*일)?\\.?";
+          + "(?:\\s*[./\\-]\\s*(?:0?[1-9]|[12]\\d|3[01])(?!\\d)|\\s*(?:0?[1-9]|[12]\\d|3[01])\\s*일)?\\.?";
 
     private static final String CURRENT_WORDS =
             "현재|재직\\s*중|진행\\s*중|재학\\s*중|근무\\s*중|present|now|current";
 
     private static final Pattern RANGE = Pattern.compile(
             "(" + DATE + ")\\s*(?:(?:[~∼〜\\-–—]|부터)\\s*(" + DATE + "|" + CURRENT_WORDS + ")"
-                    + "|[~∼〜](?=\\s*(?:$|[|)\\]])))",
+          + "|[~∼〜](?=\\s*(?:$|[|)\\]])))",
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern SINGLE = Pattern.compile(DATE_WITH_MONTH);

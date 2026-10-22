@@ -809,7 +809,8 @@
 
         importModal.close();
         const warnings = picked.fromFile && Array.isArray(d.warnings) ? d.warnings.filter(Boolean) : [];
-        showNotice(`'${picked.title}'${picked.fromFile ? ' 파일' : ''}에서 ${added}개 항목을 가져왔어요.`
+        const site = picked.fromFile && d.source && d.source !== 'generic' ? `(${d.sourceName}) ` : '';
+        showNotice(`'${picked.title}'${picked.fromFile ? ' 파일' : ''}${site ? ' ' + site.trim() : ''}에서 ${added}개 항목을 가져왔어요.`
             + (skipped ? ` 이미 있는 기술·링크 ${skipped}개는 건너뛰었어요.` : '')
             + (picked.fromFile
                 ? ' 자동으로 나눈 내용이라 틀린 곳이 없는지 확인한 뒤 [저장]해 주세요.'
@@ -866,7 +867,10 @@
             const detail = await uploadResumeFile(file);
             if (seq !== pickSeq) return;                // 그 사이 다른 파일을 고르거나 탭을 바꿈
             picked = { title: file.name, detail, fromFile: true };
-            setDrop('done', file.name, '다 읽었어요. 다른 파일로 바꾸려면 다시 눌러 주세요.');
+            // 사이트 전용 규칙으로 읽었으면 알려 줌 (일반이면 표시 안 함)
+            const site = detail.source && detail.source !== 'generic' ? detail.sourceName : null;
+            setDrop('done', file.name, (site ? `${site} 이력서로 인식했어요. ` : '다 읽었어요. ')
+                + '다른 파일로 바꾸려면 다시 눌러 주세요.');
             renderWarnings(detail.warnings);
             $options.removeClass('d-none');
             renderSections(detail);

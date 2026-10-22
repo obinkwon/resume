@@ -1,6 +1,5 @@
 package resume.core.importer.parse;
 
-import org.springframework.stereotype.Component;
 import resume.core.dto.ResumeImportResultDto;
 import resume.core.dto.ResumeImportResultDto.Certificate;
 import resume.core.dto.ResumeImportResultDto.CoverLetter;
@@ -24,16 +23,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 규칙 기반 이력서 파서 (한국어·영어 이력서)
+ * 규칙 기반 이력서 파서의 공통 기반 (한국어·영어 이력서)
  *
  *  1) 섹션 제목(경력, 학력, Experience …)으로 줄을 섹션별로 나눔
  *  2) 경력·학력·프로젝트는 '기간이 있는 줄'을 기준으로 항목을 나눔
  *  3) 자기소개서는 문항 제목(지원동기, [성장과정], 1. … 등)으로 항목을 나눔
  *
+ * 구현
+ *  - GenericResumeParser  : 어느 사이트인지 모를 때 (넓게 받음)
+ *  - JobKoreaResumeParser : 잡코리아 PDF 전용 (아래 '사이트별로 바꾸는 부분' 을 덮어씀)
+ *  - 어느 파서를 쓸지는 ResumeParserRouter 가 정함
+ *
  * 자동으로 나눈 결과라 틀릴 수 있음 → 화면에서 사용자가 확인 후 저장하는 용도
  */
-@Component
-public class RuleBasedResumeParser implements ResumeParser {
+public abstract class RuleBasedResumeParser implements ResumeParser {
 
     // ---------- DB 컬럼 길이 (넘으면 저장 시 오류가 나므로 자름) ----------
     private static final int LEN_NAME = 100, LEN_EMAIL = 100, LEN_PHONE = 30, LEN_ADDRESS = 255;
@@ -53,8 +56,8 @@ public class RuleBasedResumeParser implements ResumeParser {
     private static final Pattern MOBILE = Pattern.compile("(?<!\\d)(?:\\+82[-\\s]?|0)(1[016789])[-.\\s)]*(\\d{3,4})[-.\\s]*(\\d{4})(?!\\d)");
     private static final Pattern URL = Pattern.compile(
             "(?i)(?:https?://|www\\.)[^\\s|<>\"'()\\[\\]]+"
-                    + "|\\b(?:github\\.com|gitlab\\.com|linkedin\\.com|velog\\.io|brunch\\.co\\.kr|medium\\.com|blog\\.naver\\.com"
-                    + "|[a-z0-9-]+\\.tistory\\.com|[a-z0-9-]+\\.github\\.io|[a-z0-9-]+\\.notion\\.site|notion\\.so)(?:/[^\\s|<>\"'()\\[\\]]*)?");
+          + "|\\b(?:github\\.com|gitlab\\.com|linkedin\\.com|velog\\.io|brunch\\.co\\.kr|medium\\.com|blog\\.naver\\.com"
+          + "|[a-z0-9-]+\\.tistory\\.com|[a-z0-9-]+\\.github\\.io|[a-z0-9-]+\\.notion\\.site|notion\\.so)(?:/[^\\s|<>\"'()\\[\\]]*)?");
 
     /** 표 칸 / 2칸 이상 공백 / 앞뒤 띄운 슬래시 / 가운뎃점 으로 칸 나누기 */
     private static final Pattern TOKEN_SPLIT = Pattern.compile("\\s*[|ㅣ\\t·•ㆍ]\\s*|\\s{2,}|\\s+/\\s+");
@@ -84,10 +87,6 @@ public class RuleBasedResumeParser implements ResumeParser {
             ".*(?:주식회사|\\(주\\)|㈜|\\(유\\)|유한회사|재단법인|사단법인|\\b(?:inc|corp|corporation|co\\.?,?\\s*ltd|ltd|llc|gmbh)\\b).*",
             Pattern.CASE_INSENSITIVE);
 
-    /** 잡코리아처럼 값 뒤에 라벨이 붙어 나오는 줄 : "010-1234-5678휴대폰 a@b.comEmail" */
-    private static final String GLUE_LABELS = "휴대폰|휴대전화|전화번호|이메일|[Ee]-?[Mm]ail|주소|연봉|주요직무";
-    private static final Pattern GLUED_LINE = Pattern.compile("^(?:\\S.*?(?<=\\S)(?:" + GLUE_LABELS + ")(?:\\s+|$))+$");
-    private static final Pattern GLUED_PAIR = Pattern.compile("(\\S.*?)(?<=\\S)(" + GLUE_LABELS + ")(?=\\s|$)");
     /** "남 1999년 (만 30세)" */
     private static final Pattern GENDER_AGE = Pattern.compile("^(?:남|여)(?:자|성)?\\s*[,·]?\\s*(?:(?:19|20)\\d{2}\\s*년?생?)?\\s*[(（]?\\s*만?\\s*\\d{1,2}\\s*세\\s*[)）]?$");
     /** 경력기술서의 "프로젝트 명 : …" */
@@ -125,11 +124,42 @@ public class RuleBasedResumeParser implements ResumeParser {
     /** 기술 이름이 아닌 영문 단어 (사용 기술 문장에서 기술만 뽑을 때 뺌) */
     private static final Set<String> NOT_TECH = Set.of("db", "api", "ui", "ux", "web", "was", "and", "or", "the", "with");
 
+    // =========================================================
+    // 사이트별로 바꾸는 부분 (사이트 전용 파서가 덮어씀)
+    // =========================================================
+
+    /** 이 파서가 맡는 사이트 (결과의 source 로 나감) */
+    public abstract ResumeSource source();
+
+    /** 줄 다듬기 — 섹션 나누기 전에 한 번 (기본 : 그대로) */
+    protected List<String> preprocess(List<String> lines) {
+        return lines;
+    }
+
+    /** 맨 위 요약 카드(같은 섹션이 뒤에 다시 나옴)를 버릴지 (기본 : 안 버림) */
+    protected boolean dropSummaryCards() {
+        return false;
+    }
+
+    /** 페이지마다 반복되는 섹션 제목이라 무시할지 (기본 : 아님) */
+    protected boolean isRepeatedPageHeading(String line, Section heading, Section current) {
+        return false;
+    }
+
+    /** 첫 섹션 전의 문장형 줄을 간단 소개로 쓸지 (기본 : 안 씀) */
+    protected boolean useHeadlineAsIntro() {
+        return false;
+    }
+
+    // =========================================================
+    // 공통 처리
+    // =========================================================
+
     @Override
     public ResumeImportResultDto parse(String text, ResumeFileType fileType) {
         // PDF 는 화면 폭에서 줄이 바뀌므로 문장 중간 줄바꿈을 이어 붙임
         boolean wrapped = fileType == ResumeFileType.PDF;
-        List<String> allLines = unglueLabels(text);
+        List<String> allLines = preprocess(toLines(text));
         Split split = splitSections(allLines);
         Map<Section, List<String>> sections = split.sections();
 
@@ -154,7 +184,8 @@ public class RuleBasedResumeParser implements ResumeParser {
             warnings.add("직무를 찾지 못한 경력이 " + noPosition + "개 있어요. 저장 전에 직무를 입력해 주세요.");
         }
 
-        return new ResumeImportResultDto(fileType.getExtension(), profile, links, skills, educations,
+        return new ResumeImportResultDto(fileType.getExtension(), source().getCode(), source().getLabel(),
+                profile, links, skills, educations,
                 certificates, experiences, projects, coverLetters, warnings);
     }
 
@@ -165,25 +196,17 @@ public class RuleBasedResumeParser implements ResumeParser {
     @Override
     public Map<String, List<String>> debugSections(String text) {
         Map<String, List<String>> out = new LinkedHashMap<>();
-        Split split = splitSections(unglueLabels(text));
+        Split split = splitSections(preprocess(toLines(text)));
         split.sections().forEach((section, lines) ->
                 out.put(section.name(), lines.stream().filter(l -> !l.isEmpty()).toList()));
         out.put("(인적사항 줄)", split.profileLines());
         return out;
     }
 
-    /** "3,560만원연봉" → "연봉: 3,560만원" (값 뒤에 라벨이 붙은 줄을 'label: 값' 줄로) */
-    private static List<String> unglueLabels(String text) {
+    /** 글자 → 앞뒤 공백을 지운 줄 목록 (빈 줄 유지) */
+    protected static List<String> toLines(String text) {
         List<String> out = new ArrayList<>();
-        for (String raw : text.split("\n", -1)) {
-            String line = raw.strip();
-            if (line.length() <= 100 && GLUED_LINE.matcher(line).matches()) {
-                Matcher m = GLUED_PAIR.matcher(line);
-                while (m.find()) out.add(m.group(2) + ": " + m.group(1).strip());
-            } else {
-                out.add(line);
-            }
-        }
+        for (String raw : text.split("\n", -1)) out.add(raw.strip());
         return out;
     }
 
@@ -203,7 +226,6 @@ public class RuleBasedResumeParser implements ResumeParser {
         List<String> profileLines = new ArrayList<>();
         Segment cur = new Segment(Section.HEAD, new ArrayList<>());
         segments.add(cur);
-        boolean projectByLabel = false;      // "프로젝트 명 :" 으로 프로젝트에 들어온 상태
 
         for (String line : all) {
             if (line.isEmpty()) {
@@ -229,9 +251,7 @@ public class RuleBasedResumeParser implements ResumeParser {
 
             Section heading = headingOf(line);
             if (heading != null) {
-                // 경력기술서가 페이지를 넘어가면 제목이 다시 나옴 → 프로젝트 이어서
-                if (projectByLabel && heading == Section.EXPERIENCE && Section.key(line).startsWith("경력기술서")) continue;
-                projectByLabel = false;
+                if (isRepeatedPageHeading(line, heading, cur.section())) continue;
                 cur = new Segment(heading, new ArrayList<>());
                 segments.add(cur);
                 continue;
@@ -240,13 +260,11 @@ public class RuleBasedResumeParser implements ResumeParser {
             if (cur.section() != Section.PROJECT && PROJECT_LABEL_LINE.matcher(line).find()) {
                 cur = new Segment(Section.PROJECT, new ArrayList<>());
                 segments.add(cur);
-                projectByLabel = true;
             }
             // 섹션 제목 없이 자기소개서 문항이 바로 나오는 경우 : "성장과정"
             if (cur.section() != Section.COVER && isStrongCoverTitle(line)) {
                 cur = new Segment(Section.COVER, new ArrayList<>());
                 segments.add(cur);
-                projectByLabel = false;
             }
             if (cur.section() != Section.COVER && isHeaderRow(line)) continue;
             cur.lines().add(line);
@@ -279,13 +297,13 @@ public class RuleBasedResumeParser implements ResumeParser {
 
     /**
      * 섹션 합치기
-     *  - 잡코리아처럼 맨 위에 요약 카드(학력/경력/자격증 요약)가 있고 같은 섹션이 뒤에 다시 나오면
+     *  - dropSummaryCards() 이면 맨 위 요약 카드(학력/경력/자격증 요약)가 있고 같은 섹션이 뒤에 다시 나올 때
      *    요약은 버림 (요약 안의 기술 태그 줄만 살림)
      */
     private Map<Section, List<String>> mergeSegments(List<Segment> segments) {
         Map<Section, List<String>> map = new EnumMap<>(Section.class);
         List<String> salvagedSkills = new ArrayList<>();
-        boolean inSummary = true;
+        boolean inSummary = dropSummaryCards();
 
         for (int i = 0; i < segments.size(); i++) {
             Segment s = segments.get(i);
@@ -298,7 +316,7 @@ public class RuleBasedResumeParser implements ResumeParser {
                     s.lines().stream().filter(l -> SKILL_TAGS.matcher(l).matches()).forEach(salvagedSkills::add);
                     continue;
                 }
-                if (s.count() > 0) inSummary = false;
+                if (!small) inSummary = false;          // 큰 섹션이 나오면 요약 카드 구간 끝
             }
             map.computeIfAbsent(s.section(), k -> new ArrayList<>()).addAll(s.lines());
         }
@@ -357,7 +375,7 @@ public class RuleBasedResumeParser implements ResumeParser {
         List<String> introLines = lines(sections, Section.INTRO).stream()
                 .filter(l -> l.isEmpty() || !isUrlOnly(l)).toList();
         String intro = joinText(introLines, wrapped);
-        if (intro.isEmpty()) intro = headline(lines(sections, Section.HEAD));
+        if (intro.isEmpty() && useHeadlineAsIntro()) intro = headline(lines(sections, Section.HEAD));
 
         return new Profile(cut(name, LEN_NAME), cut(email, LEN_EMAIL), cut(phone, LEN_PHONE),
                 cut(address, LEN_ADDRESS), blankToNull(intro));

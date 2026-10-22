@@ -12,6 +12,10 @@ import java.util.List;
  */
 public record ResumeImportResultDto(
         String fileType,
+        /* 인식한 사이트 : generic(일반) / jobkorea … */
+        String source,
+        /* 화면 표시 이름 : 일반 / 잡코리아 … */
+        String sourceName,
         Profile profile,
         List<Link> links,
         List<Skill> skills,
