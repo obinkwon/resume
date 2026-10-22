@@ -922,8 +922,8 @@
     }
 
     // 이벤트
+    // [이력서 불러오기] : 항상 첫 번째 탭(내 다른 이력서)부터
     $('#btnImportOpen').on('click', () => openImport('resume'));
-    $('#btnImportFileOpen').on('click', () => openImport('file'));
 
     // 탭 (← → 로도 이동)
     $sourceTabs.on('click', function () {
