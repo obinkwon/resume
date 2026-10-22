@@ -37,7 +37,11 @@
                     <!-- 간단 소개 (없으면 안내 문구) -->
                     <p class="resume-card__intro" th:if="${!#strings.isEmpty(resume.introduction)}" th:text="${resume.introduction}">간단 소개</p>
                     <p class="resume-card__intro is-empty" th:if="${#strings.isEmpty(resume.introduction)}">간단 소개가 아직 없어요</p>
-                    <span class="badge">이력서</span>
+                    <span class="badge source-badge" th:with="src=${resume.sourceType != null ? resume.sourceType : T(resume.core.enums.ResumeSource).DIRECT}"
+                        th:classappend="'source-badge--' + ${src.cssKey}" th:title="${src.imported and resume.sourceFileName != null} ? '원본 파일: ' + ${resume.sourceFileName} : null">
+                        <i th:if="${src.imported}" class="icon icon-upload sm" aria-hidden="true"></i>
+                        <span th:text="${src.label}">직접 작성</span>
+                    </span>
 
                     <div class="actions">
                         <a th:href="@{/web/resume/modify/{id}(id=${resume.resumeId})}">

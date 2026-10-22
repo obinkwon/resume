@@ -25,6 +25,8 @@
             , r.title
             , r.template_id
             , p.introduction
+            , r.source_type
+            , r.source_file_name
             , r.created_at
             , r.updated_at
         FROM resumes r

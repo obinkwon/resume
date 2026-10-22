@@ -40,6 +40,8 @@ CREATE TABLE resumes (
     user_id BIGINT NOT NULL,
     title VARCHAR(100) NOT NULL,
     template_id BIGINT DEFAULT NULL,
+    source_type VARCHAR(20) NOT NULL DEFAULT 'DIRECT',
+    source_file_name VARCHAR(255),
     use_yn CHAR(1) NOT NULL DEFAULT 'Y',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -54,6 +56,8 @@ COMMENT ON COLUMN resumes.template_id IS '적용 템플릿 ID';
 COMMENT ON COLUMN resumes.use_yn IS '사용여부(Y/N)';
 COMMENT ON COLUMN resumes.created_at IS '생성일시';
 COMMENT ON COLUMN resumes.updated_at IS '수정일시';
+COMMENT ON COLUMN resumes.source_type IS '이력서 출처(DIRECT:직접작성, SARAMIN, WANTED, JOBKOREA, REMEMBER, LINKEDIN, FILE:기타 파일)';
+COMMENT ON COLUMN resumes.source_file_name IS '업로드 원본 파일명';
 -- ========================================
 -- 기본 정보
 -- ========================================

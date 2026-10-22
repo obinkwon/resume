@@ -159,3 +159,12 @@
     box-shadow: var(--shadow-md);
 }
 .toast.is-error { background: var(--c-danger-hover); }
+
+.source-badge { display: inline-flex; align-items: center; gap: 4px; border: 1px solid transparent; }
+.source-badge--direct   { background: #f1f3f5; color: #495057; }
+.source-badge--saramin  { background: #eaf0ff; color: #2f5bd8; border-color: #c9d6ff; }
+.source-badge--wanted   { background: #e8f0ff; color: #1f4fe0; border-color: #c4d3ff; }
+.source-badge--jobkorea { background: #e7f5ff; color: #1864ab; border-color: #c5e3fb; }
+.source-badge--remember { background: #f1f1f1; color: #212529; border-color: #d0d0d0; }
+.source-badge--linkedin { background: #e8f3fb; color: #0a66c2; border-color: #c3dcf2; }
+.source-badge--file     { background: #fff4e6; color: #d9480f; border-color: #ffd8a8; }

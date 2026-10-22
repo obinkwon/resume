@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import resume.core.enums.ResumeSource;
 
 @Getter
 @Setter
@@ -15,4 +16,6 @@ public class ResumeResponseDto {
     private Long templateId;
     private String title;
     private String introduction;
+    private ResumeSource sourceType;
+    private String sourceFileName;
 }
