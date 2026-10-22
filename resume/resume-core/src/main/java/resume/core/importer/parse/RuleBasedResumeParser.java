@@ -62,7 +62,7 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
     /** 표 칸 / 2칸 이상 공백 / 앞뒤 띄운 슬래시 / 가운뎃점 으로 칸 나누기 */
     private static final Pattern TOKEN_SPLIT = Pattern.compile("\\s*[|ㅣ\\t·•ㆍ]\\s*|\\s{2,}|\\s+/\\s+");
     private static final Pattern SKILL_SPLIT = Pattern.compile("\\s*[,，、|·•ㆍ▪]\\s*|\\s+/\\s+");
-    private static final Pattern LABEL_INLINE = Pattern.compile("^([^:：]{1,15}?)\\s*[:：]\\s*(.*)$");
+    protected static final Pattern LABEL_INLINE = Pattern.compile("^([^:：]{1,15}?)\\s*[:：]\\s*(.*)$");
     private static final Pattern DURATION = Pattern.compile(
             "[(（]?\\s*(?:총\\s*)?(?:\\d+\\s*년\\s*)?\\d+\\s*(?:개월|년)\\s*[)）]?|[(（]\\s*\\d+\\s*(?:yrs?|years?|mos?|months?)[^)）]*[)）]",
             Pattern.CASE_INSENSITIVE);
@@ -72,14 +72,14 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
     private static final Pattern BULLET = Pattern.compile("^\\s*(?:[-–•·*●○▪◦■□▶►✓✔※]|\\d{1,2}[.)]\\s)");
     private static final Pattern SENTENCE_END = Pattern.compile(".*(?:다|요|니다|음|함|임|됨|[.!?。])[.!?。\"”’)]*$");
     /** 문단 끝 : 마침표류 또는 '…다' ('요·음·함' 은 글자 단위 줄바꿈과 헷갈려서 마침표가 있을 때만) */
-    private static final Pattern PARAGRAPH_END = Pattern.compile(".*(?:[.!?。…:：)」”\"]|다)$");
+    protected static final Pattern PARAGRAPH_END = Pattern.compile(".*(?:[.!?。…:：)」”\"]|다)$");
     private static final Pattern GPA = Pattern.compile("(?:학점|GPA|평점)?\\s*[:：]?\\s*\\d\\.\\d{1,2}\\s*/\\s*\\d\\.\\d{1,2}", Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern SCHOOL = Pattern.compile(".*(?:대학교|대학원|대학|고등학교|고교|학교|학점은행제|검정고시|university|college|institute|school|academy).*", Pattern.CASE_INSENSITIVE);
-    private static final Pattern SCHOOL_SPLIT = Pattern.compile("^(.*?(?:대학교|대학원|고등학교|University|College))\\s+(.+)$", Pattern.CASE_INSENSITIVE);
+    protected static final Pattern SCHOOL = Pattern.compile(".*(?:대학교|대학원|대학|고등학교|고교|학교|학점은행제|검정고시|university|college|institute|school|academy).*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern SCHOOL_SPLIT = Pattern.compile("^(.*?(?:대학교|대학원|대학|고등학교|University|College))\\s+(.+)$", Pattern.CASE_INSENSITIVE);
     private static final Pattern MAJOR = Pattern.compile(".*(?:학과|학부|전공|공학|과학|과)$|.*\\b(?:major|engineering|science)\\b.*", Pattern.CASE_INSENSITIVE);
     private static final Pattern DEGREE = Pattern.compile("(전문학사|학사|석사|박사|bachelor(?:'s)?|master(?:'s)?|ph\\.?\\s?d|doctorate)", Pattern.CASE_INSENSITIVE);
-    private static final Pattern EDU_STATUS = Pattern.compile("(졸업예정|졸업|재학|휴학|중퇴|수료|편입|graduated|enrolled)", Pattern.CASE_INSENSITIVE);
+    protected static final Pattern EDU_STATUS = Pattern.compile("(졸업예정|졸업|재학|휴학|중퇴|수료|편입|graduated|enrolled)", Pattern.CASE_INSENSITIVE);
     private static final Pattern ISSUER = Pattern.compile(
             ".*(?:공단|협회|진흥원|위원회|재단|학회|협의회|센터|평가원|연구원|상공회의소|ETS|YBM|Oracle|Microsoft|AWS|Amazon|Google|Cisco|PMI|CompTIA|Linux|Adobe).*",
             Pattern.CASE_INSENSITIVE);
@@ -89,6 +89,10 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
 
     /** "남 1999년 (만 30세)" */
     private static final Pattern GENDER_AGE = Pattern.compile("^(?:남|여)(?:자|성)?\\s*[,·]?\\s*(?:(?:19|20)\\d{2}\\s*년?생?)?\\s*[(（]?\\s*만?\\s*\\d{1,2}\\s*세\\s*[)）]?$");
+    /** 이름 줄 : "홍길동", "홍 길 동", "홍길동 신입", "홍길동 경력 3년" */
+    private static final Pattern NAME_LINE = Pattern.compile("^([가-힣](?:\\s?[가-힣]){1,3})(?:\\s+(?:신입|경력(?:\\s*\\d+\\s*년)?(?:\\s*\\d+\\s*개월)?))?$");
+    /** 주소 앞 우편번호 : "(10114) 경기 …" */
+    private static final Pattern POSTCODE = Pattern.compile("^[(\\[]?\\d{5}[)\\]]?\\s*");
     /** 경력기술서의 "프로젝트 명 : …" */
     private static final Pattern PROJECT_LABEL_LINE = Pattern.compile("^(?:프로젝트\\s*(?:명|이름)|project\\s*name)\\s*[:：]", Pattern.CASE_INSENSITIVE);
     /** 기술 태그만 나열된 줄 : "MySQL Javascript Spring Framework JAVA React" */
@@ -144,6 +148,15 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
     /** 페이지마다 반복되는 섹션 제목이라 무시할지 (기본 : 아님) */
     protected boolean isRepeatedPageHeading(String line, Section heading, Section current) {
         return false;
+    }
+
+    /**
+     * 섹션 제목과 상관없이 줄 모양으로 섹션을 정할 때 (기본 : null = 지금 섹션 그대로)
+     *  - 사람인 PDF 처럼 섹션 제목이 내용과 떨어져서 나오는 경우에 사용
+     * @param currentLines 지금 섹션에 이미 들어간 줄들
+     */
+    protected Section routeLine(String line, Section current, List<String> currentLines) {
+        return null;
     }
 
     /** 첫 섹션 전의 문장형 줄을 간단 소개로 쓸지 (기본 : 안 씀) */
@@ -204,6 +217,10 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
     }
 
     /** 글자 → 앞뒤 공백을 지운 줄 목록 (빈 줄 유지) */
+    protected static String labelKeyOf(String s) {
+        return labelKey(s);
+    }
+
     protected static List<String> toLines(String text) {
         List<String> out = new ArrayList<>();
         for (String raw : text.split("\n", -1)) out.add(raw.strip());
@@ -256,6 +273,11 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
                 segments.add(cur);
                 continue;
             }
+            Section routed = routeLine(line, cur.section(), cur.lines());
+            if (routed != null && routed != cur.section()) {
+                cur = new Segment(routed, new ArrayList<>());
+                segments.add(cur);
+            }
             // 경력기술서의 "프로젝트 명 : …" 부터는 프로젝트
             if (cur.section() != Section.PROJECT && PROJECT_LABEL_LINE.matcher(line).find()) {
                 cur = new Segment(Section.PROJECT, new ArrayList<>());
@@ -286,9 +308,10 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
         for (int i = lines.size() - 1; i >= 0; i--) {
             String l = lines.get(i);
             if (l.isEmpty()) continue;
-            if (l.replace(" ", "").matches("[가-힣]{2,4}")) {
+            Matcher nm = NAME_LINE.matcher(l);
+            if (nm.matches()) {
                 lines.remove(i);
-                return l.replace(" ", "");
+                return nm.group(1).replace(" ", "");
             }
             return null;
         }
@@ -372,6 +395,7 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
 
         String address = labeled(head, LBL_ADDRESS);
         if (address != null && URL.matcher(address).find()) address = null;
+        if (address != null) address = POSTCODE.matcher(address).replaceFirst("");
         List<String> introLines = lines(sections, Section.INTRO).stream()
                 .filter(l -> l.isEmpty() || !isUrlOnly(l)).toList();
         String intro = joinText(introLines, wrapped);
@@ -475,6 +499,12 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
             }
 
             for (String part : SKILL_SPLIT.split(value)) {
+                if (part.matches(".*[가-힣].*") && part.strip().contains(" ")) {
+                    // 문장 → 영문 기술 이름만 ("JSP를 중점으로 Spring 프레임워크를" → JSP, Spring), 없으면 건너뜀
+                    String tech = techList(part);
+                    if (tech != null) for (String w : tech.split(", ")) addSkill(skills, w, category);
+                    continue;
+                }
                 List<String> words = part.length() > 30 && part.contains(" ") && !part.matches(".*[가-힣].*")
                         ? Arrays.asList(part.split("\\s+"))          // "Java Spring JPA MySQL" (태그가 한 줄로 나온 경우)
                         : List.of(part);
@@ -833,20 +863,26 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
                     break;
                 }
             }
-            String name = t.remove(0);
-            if (issuer == null && name.contains(" ")) {
-                // 공백으로만 이어진 경우 : "정보처리기사 한국산업인력공단" / "TOEIC 900점 ETS"
-                String[] words = name.split("\\s+");
-                for (int i = 1; i < words.length; i++) {
-                    if (ISSUER.matcher(words[i]).matches()) {
-                        issuer = words[i];
-                        List<String> after = Arrays.asList(words).subList(i + 1, words.length);
-                        t.addAll(0, after);
-                        name = String.join(" ", Arrays.asList(words).subList(0, i));
+            // 공백으로 이어진 칸 안의 기관 단어 : "정보처리기사 한국산업인력공단", "최종합격 한국산업인력공단", "TOEIC 900점 ETS"
+            for (int i = 0; issuer == null && i < t.size(); i++) {
+                List<String> words = new ArrayList<>(Arrays.asList(t.get(i).split("\\s+")));
+                for (int j = (i == 0 ? 1 : 0); j < words.size(); j++) {
+                    if (ISSUER.matcher(words.get(j)).matches()) {
+                        issuer = words.remove(j);
+                        if (i == 0) {
+                            // 첫 칸 = 자격증명 + 기관 + (나머지는 설명)
+                            t.set(0, String.join(" ", words.subList(0, j)));
+                            if (words.size() > j) t.add(1, String.join(" ", words.subList(j, words.size())));
+                        } else if (words.isEmpty()) {
+                            t.remove(i);
+                        } else {
+                            t.set(i, String.join(" ", words));
+                        }
                         break;
                     }
                 }
             }
+            String name = t.remove(0);
             list.add(new Certificate(cut(name, LEN_CERT), cut(issuer, LEN_ISSUER),
                     p == null ? null : p.start(), t.isEmpty() ? null : String.join(" · ", t)));
             if (list.size() >= MAX_ITEMS) break;
@@ -910,8 +946,9 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
     }
 
     /**
-     * 문장형 소제목 찾기 (잡코리아 : "성능과 확장성을 고민하는 개발자입니다." 다음에 긴 본문)
-     *  - 40자 이하의 문장, 앞 줄은 문장이 끝났고, 다음 줄은 긴 본문
+     * 키워드 없는 소제목 찾기
+     *  - 잡코리아 : "성능과 확장성을 고민하는 개발자입니다." / 사람인 : "어릴 적 전공을 택한 계기" 다음에 긴 본문
+     *  - 40자 이하, 앞 줄은 문장이 끝났고, 다음 줄은 긴 본문
      *  - 섹션 첫 줄이거나 두 개 이상일 때만 소제목으로 인정 (우연히 맞는 짧은 문장 제외)
      */
     private static Set<Integer> sentenceTitles(List<String> lines) {
@@ -921,7 +958,7 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
         Set<Integer> found = new java.util.LinkedHashSet<>();
         for (int k = 0; k < nonEmpty.size(); k++) {
             String line = lines.get(nonEmpty.get(k));
-            if (line.length() > 40 || !SENTENCE_END.matcher(line).matches() || BULLET.matcher(line).find()) continue;
+            if (line.length() > 40 || BULLET.matcher(line).find() || COVER_COUNTER.matcher(line).matches()) continue;
             String prev = k == 0 ? null : lines.get(nonEmpty.get(k - 1));
             String next = k + 1 < nonEmpty.size() ? lines.get(nonEmpty.get(k + 1)) : null;
             if (prev != null && !PARAGRAPH_END.matcher(prev).matches()) continue;

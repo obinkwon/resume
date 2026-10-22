@@ -355,6 +355,11 @@
             coverLetters: []
         };
 
+        // 0) 이력서 제목 (필수, DB 에서도 NOT NULL)
+        if (data.title === null) {
+            errors.push('이력서 제목을 입력해주세요.');
+        }
+
         // 1) 기본 정보
         if (getVal($doc, 'name') != null) {
             data.profile = {
@@ -495,6 +500,8 @@
 
         if (errors.length > 0) {
             alert(errors.join('\n'));
+            // 제목이 비어 있으면 제목 칸으로 이동
+            if (data.title === null) $form.find('[name="title"]').trigger('focus')[0]?.scrollIntoView({ block: 'center' });
             return;
         }
 

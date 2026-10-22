@@ -40,11 +40,11 @@ enum Section {
                 "포트폴리오프로젝트", "projects", "project", "personalprojects", "sideprojects");
         put(EDUCATION, "학력", "학력사항", "학력정보", "최종학력", "학력및전공", "education", "academicbackground");
         put(CERTIFICATE, "자격증", "자격사항", "자격증사항", "자격면허", "자격/면허", "자격증/면허", "자격증및어학",
-                "자격증/어학", "어학/자격증", "자격·어학", "자격증·어학", "어학", "어학능력", "어학자격", "어학사항",
+                "자격증/어학", "어학/자격증", "자격/어학/수상", "자격·어학", "자격증·어학", "어학", "어학능력", "어학자격", "어학사항",
                 "외국어", "외국어능력", "자격증및외국어", "certificates", "certifications", "certificate",
                 "certification", "licenses", "license", "languages");
         put(SKILL, "기술", "기술스택", "보유기술", "스킬", "보유스킬", "기술역량", "활용기술", "업무스킬",
-                "보유역량", "skills", "skill", "techstack", "technicalskills", "technologies", "기술및역량");
+                "보유역량", "skills", "skill", "techstack", "technicalskills", "technologies", "기술및역량", "나의스킬");
         put(LINK, "링크", "외부링크", "포트폴리오", "포트폴리오링크", "links", "link", "sns", "웹사이트",
                 "portfolio", "website");
         put(OTHER, "병역", "병역사항", "수상", "수상경력", "수상내역", "수상이력", "대외활동", "활동", "활동사항",
@@ -52,7 +52,7 @@ enum Section {
                 "희망근무조건", "희망조건", "취업우대", "취업우대사항", "우대사항", "보훈", "기타", "기타사항",
                 "awards", "activities", "military", "training", "volunteer", "references", "참고사항",
                 "인턴·대외활동/해외경험", "인턴·대외활동", "대외활동/해외경험", "인턴", "인턴십", "지원분야", "희망직무",
-                "희망근무조건", "취업우대·병역", "우대사항·병역");
+                "희망근무조건", "취업우대·병역", "우대사항·병역", "경험/활동/교육", "포트폴리오/기타문서");
     }
 
     private static void put(Section s, String... keys) {
