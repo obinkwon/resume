@@ -20,9 +20,11 @@
 
             <div class="resume-list" th:unless="${#lists.isEmpty(resumeList)}">
                 <div class="resume-card" th:each="resume : ${resumeList}">
+                    <h3 class="ellipsis" th:text="${resume.title}" th:title="${resume.title}">이력서 제목</h3>
+                    <!-- 간단 소개 (없으면 안내 문구) -->
+                    <p class="resume-card__intro" th:if="${!#strings.isEmpty(resume.introduction)}" th:text="${resume.introduction}">간단 소개</p>
+                    <p class="resume-card__intro is-empty" th:if="${#strings.isEmpty(resume.introduction)}">간단 소개가 아직 없어요</p>
                     <span class="badge">이력서</span>
-                    <h3 class="ellipsis" th:text="${resume.title}"></h3>
-                    <p th:text="${resume.title}"></p>
 
                     <div class="actions">
                         <a th:href="@{/web/resume/modify/{id}(id=${resume.resumeId})}">

@@ -24,11 +24,30 @@
 
 .resume-card .badge {
     align-self: flex-start;
+    margin-top: auto;              /* 소개 길이가 달라도 배지·버튼 줄 위치를 맞춤 */
 }
 
 .resume-card h3 {
-    margin: 4px 0 0;
+    margin: 0;
     font-size: 18px;
+}
+
+/* 간단 소개 : 2줄까지만 보이고 나머지는 … */
+.resume-card .resume-card__intro {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    min-height: calc(1.5em * 2);   /* 1줄이어도 카드 높이 맞춤 */
+    line-height: 1.5;
+    white-space: pre-line;
+    word-break: break-all;
+    color: var(--c-text-sub);
+}
+.resume-card .resume-card__intro.is-empty {
+    color: var(--c-text-faint);
+    font-style: italic;
 }
 
 .resume-card p {
