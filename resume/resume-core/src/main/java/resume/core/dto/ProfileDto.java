@@ -15,8 +15,16 @@ public class ProfileDto {
     private String email;
     private String phone;
     private String address;
-    private String profileImage;
+    private Long profileImageId;
+    private String profileImageUrl;
     private Date birthDate;
     private String introduction;
     private String useYn;
+
+    // URL 우선, 없으면 업로드 파일, 둘 다 없으면 null
+    public String getProfileImageSrc() {
+        if (profileImageUrl != null && !profileImageUrl.isBlank()) return profileImageUrl;
+        if (profileImageId != null) return "/api/files/" + profileImageId;
+        return null;
+    }
 }

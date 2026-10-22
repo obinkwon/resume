@@ -67,6 +67,134 @@
     margin-bottom: 0;
 }
 
+/* =========================================================
+   인적 사항 : 사진 + 입력칸
+   ========================================================= */
+/* 이 화면에서만 쓰는 아이콘 (.icon 은 common.css) */
+.icon-user { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21a8 8 0 0 1 16 0'/%3E%3C/svg%3E"); }
+.icon-link { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1'/%3E%3C/svg%3E"); }
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.photo {
+    display: grid;
+    gap: 8px;
+}
+
+/* 사진 칸 (증명사진 3:4) */
+.photo__frame {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-md);
+    background: var(--c-surface-sub);
+}
+.photo__frame img {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.photo__frame.has-image img { display: block; }
+
+.photo__placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--c-text-faint);
+}
+.photo__placeholder .icon { width: 36px; height: 36px; }
+.photo__frame.has-image .photo__placeholder { display: none; }
+
+/* 불러오지 못한 사진 : 빈 칸 모양으로 */
+.photo__frame.is-broken img { display: none; }
+.photo__frame.is-broken .photo__placeholder { display: flex; }
+
+/* 빼기 버튼 : 사진이 있을 때만 */
+.photo__frame .btn.photo__remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: none;
+    background: rgba(255, 255, 255, .92);
+    box-shadow: var(--shadow-sm);
+}
+.photo__frame.has-image .btn.photo__remove { display: inline-flex; }
+.photo__frame .btn.photo__remove:hover { background: var(--c-danger-soft); }
+
+/* 올리는 중 */
+.photo__frame.is-loading::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, .6);
+}
+.photo__spinner {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 2.5px solid #dbeafe;
+    border-top-color: var(--c-primary);
+    border-radius: 50%;
+    animation: import-spin .8s linear infinite;
+}
+.photo__frame.is-loading .photo__spinner { display: block; }
+.photo__frame.is-loading .btn.photo__remove { display: none; }
+
+/* 버튼 줄 */
+.photo__actions,
+.photo__url-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+.photo__actions .btn,
+.photo__url-actions .btn {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* URL 입력 */
+.photo__url {
+    display: grid;
+    gap: 6px;
+}
+.photo__url input {
+    margin-bottom: 0;
+    padding: 8px 10px;
+    font-size: 13px;
+}
+
+/* 안내 · 에러 */
+.photo__msg {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--c-text-muted);
+}
+.photo__msg.is-error { color: var(--c-danger-hover); }
+
+@media (max-width: 640px) {
+    .profile-grid { grid-template-columns: 1fr; }
+    .photo { width: 168px; }
+}
+
 /* ===== 라벨 + 입력 묶음 ===== */
 .field {
     display: flex;

@@ -34,6 +34,8 @@ public class ResumeService {
     private final List<ResumeTextExtractor> extractors;
     private final ResumeParser parser;
 
+    private final FileService fileService;
+
     public List<ResumeResponseDto> getResumeList(ResumeRequestDto requestDto) {
         return resumeMapper.selectResumeList(requestDto);
     }
@@ -51,6 +53,18 @@ public class ResumeService {
     @Transactional
     public Long saveResume(ResumeRequestDto requestDto) {
         Long resumeId = requestDto.getResumeId();
+
+        // 프로필 사진 검사 : DB 를 건드리기 전에 먼저 (업로드 사진·URL 중 하나, URL 은 https, 사진은 본인 파일)
+        ProfileDto profile = requestDto.getProfile();
+        if (profile != null) {
+            String imageUrl = profile.getProfileImageUrl();
+            profile.setProfileImageUrl(StringUtils.hasText(imageUrl) ? imageUrl.trim() : null);
+            fileService.validateProfileImage(FileDto.builder()
+                    .userId(requestDto.getUserId())
+                    .fileId(profile.getProfileImageId())
+                    .imageUrl(profile.getProfileImageUrl())
+                    .build());
+        }
 
         // 이력서: 기존에 있으면 수정 / 없으면 등록 (resume_id 유지)
         if (resumeId != null) {

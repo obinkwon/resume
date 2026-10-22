@@ -1,5 +1,6 @@
 /* =========================================================
    resume-form.js  (이력서 작성 폼)
+   프로필 사진    : 파일 업로드(profileImageId) 또는 외부 URL(profileImageUrl) 중 하나 (저장해야 반영)
    항목 추가·삭제 : 외부 링크 / 기술 스택 / 자기소개서 / 학력 / 자격증 / 경력 / 프로젝트
    가져오기       : 다른 이력서 / 이력서 파일(PDF·docx·hwpx) 내용을 골라 이 폼에 채움 (저장해야 반영)
    저장           : 화면 입력값을 모아 검사 후 /api/resume/save 로 전송
@@ -11,12 +12,19 @@
     const API = {
         resumeList: '/api/resume/list',
         resumeDetail: id => `/api/resume/${encodeURIComponent(id)}`,
-        importFile: '/api/resume/import-file'
+        importFile: '/api/resume/import-file',
+        profileImage: '/api/files/profile-image',
+        fileView: id => `/api/files/${encodeURIComponent(id)}`
     };
 
     /** 이력서 파일 가져오기 : 서버(ResumeImportService)와 같은 규칙 */
     const IMPORT_FILE_EXT = ['pdf', 'docx', 'hwpx'];
     const IMPORT_FILE_MAX = 10 * 1024 * 1024;
+
+    /** 프로필 사진 : 서버와 같은 규칙 */
+    const PHOTO_EXT = ['jpg', 'jpeg', 'png', 'webp'];
+    const PHOTO_MAX = 5 * 1024 * 1024;
+    const PHOTO_HINT = 'JPG · PNG · WEBP, 5MB 이하';
 
     const LINK_TYPES = [
         ['github', 'GitHub'],
@@ -80,6 +88,37 @@
         const current = String(selected ?? '');
         return `<option value="">${placeholder}</option>` + list.map(([value, text]) =>
             `<option value="${value}"${current === value ? ' selected' : ''}>${text}</option>`).join('');
+    }
+
+    /**
+     * multipart POST (이력서 파일 가져오기 · 프로필 사진 올리기)
+     *  - callApi 는 JSON 본문만 보내므로 파일은 여기서 보냄
+     *  - CSRF · 에러 처리는 common.js 규칙 그대로 (getCsrfHeaders / ApiError / readResponseBody)
+     *  - Content-Type 은 직접 넣지 않음 (브라우저가 boundary 와 함께 넣음)
+     * @throws ApiError  message 는 서버 안내 문구 우선, 413 이면 tooLarge
+     */
+    async function postMultipart(url, body, { tooLarge } = {}) {
+        let res;
+        try {
+            res = await fetch(url, {
+                method: 'POST',
+                body,
+                headers: Object.assign({ Accept: 'application/json' }, getCsrfHeaders())
+            });
+        } catch (e) {
+            throw new ApiError(0, null, e);                      // 네트워크 오류
+        }
+
+        if (!res.ok) {
+            const err = new ApiError(res.status, await readResponseBody(res));
+            // 413 은 서버(톰캣)가 문구 없이 끊는 경우가 많아 화면 문구로 바꿈
+            if (res.status === 413 && tooLarge && err.message === defaultApiMessage(413)) err.message = tooLarge;
+            throw err;
+        }
+        // 로그인이 풀리면 로그인 페이지(HTML)로 돌려보내져서 200 으로 옴 → 401 로 처리
+        const type = res.headers.get('Content-Type') || '';
+        if (!type.includes('json')) throw new ApiError(401, null);
+        return readResponseBody(res);
     }
 
     // ---------- 상태 ----------
@@ -249,6 +288,148 @@
             </div>`;
     }
 
+    // ---------- 프로필 사진 ----------
+    // 업로드 → profileImageId, URL → profileImageUrl (둘 중 하나만 값이 있음)
+    const $photoFrame  = $('#photoFrame');
+    const photoImg     = document.getElementById('photoPreview');
+    const photoFile    = document.getElementById('photoFile');
+    const $photoMsg    = $('#photoMsg');
+    const $photoUrlRow = $('#photoUrlRow');
+    const $photoUrlIn  = $('#photoUrlInput');
+    const $photoUrlBtn = $('#btnPhotoUrl');
+    const $photoId     = $form.find('[name="profileImageId"]');
+    const $photoUrl    = $form.find('[name="profileImageUrl"]');
+    /** 사진을 빠르게 바꿨을 때 늦게 온 결과 무시용 */
+    let photoSeq = 0;
+
+    function photoMsg(text, isError = false) {
+        $photoMsg.text(text || PHOTO_HINT).toggleClass('is-error', isError);
+    }
+
+    function hasPhoto() {
+        return !!($photoId.val() || $photoUrl.val());
+    }
+
+    /** 사진 바꾸기 : { id } 업로드 파일 / { url } 외부 URL / {} 없음 */
+    function setPhoto({ id = null, url = null } = {}) {
+        $photoId.val(url ? '' : (id ?? ''));
+        $photoUrl.val(url ?? '');
+        const src = url || (id ? API.fileView(id) : '');
+        if (src) photoImg.src = src;
+        else photoImg.removeAttribute('src');
+        $photoFrame.toggleClass('has-image', !!src).removeClass('is-broken is-loading');
+    }
+
+    function toggleUrlRow(open) {
+        $photoUrlRow.toggleClass('d-none', !open);
+        $photoUrlBtn.attr('aria-expanded', String(open));
+        if (open) $photoUrlIn.val($photoUrl.val()).trigger('focus');
+    }
+
+    /** 파일 고름 → 화면에서 먼저 검사 → 바로 미리보기 → 서버에 올림 */
+    async function uploadPhoto(file) {
+        if (!file) return;
+        const dot = file.name.lastIndexOf('.');
+        const ext = dot < 0 ? '' : file.name.slice(dot + 1).toLowerCase();
+        if (!PHOTO_EXT.includes(ext)) {
+            photoFile.value = '';
+            return photoMsg('JPG, PNG, WEBP 파일만 올릴 수 있어요.', true);
+        }
+        if (file.size > PHOTO_MAX) {
+            photoFile.value = '';
+            return photoMsg('사진은 5MB까지 올릴 수 있어요.', true);
+        }
+
+        const seq = ++photoSeq;
+        const prev = { id: $photoId.val() || null, url: $photoUrl.val() || null };
+        const local = URL.createObjectURL(file);
+
+        toggleUrlRow(false);
+        photoImg.src = local;
+        $photoFrame.addClass('has-image is-loading').removeClass('is-broken');
+        photoMsg('사진을 올리는 중이에요…');
+
+        try {
+            const body = new FormData();
+            body.append('file', file);
+            const result = await postMultipart(API.profileImage, body, { tooLarge: '사진은 5MB까지 올릴 수 있어요.' });
+            if (seq !== photoSeq) return;
+            setPhoto({ id: result.fileId });
+            photoMsg('사진을 올렸어요. [저장]을 눌러야 반영돼요.');
+        } catch (err) {
+            if (seq !== photoSeq) return;
+            console.error('프로필 사진 올리기 실패', err);
+            setPhoto(prev);                              // 원래 사진으로 되돌림
+            photoMsg(err.message, true);
+        } finally {
+            URL.revokeObjectURL(local);
+            photoFile.value = '';                        // 같은 파일을 다시 골라도 change 가 일어나게
+        }
+    }
+
+    /** URL 검사 → 실제로 이미지가 열리는지 확인 → 적용 */
+    function applyPhotoUrl() {
+        const raw = $photoUrlIn.val().trim();
+        if (!raw) return photoMsg('사진 URL을 입력해 주세요.', true);
+        if (raw.length > 1000) return photoMsg('URL이 너무 길어요. (1000자까지)', true);
+
+        let url;
+        try {
+            url = new URL(raw);
+        } catch (e) {
+            return photoMsg('올바른 URL이 아니에요.', true);
+        }
+        if (url.protocol !== 'https:') return photoMsg('https:// 로 시작하는 주소만 쓸 수 있어요.', true);
+
+        const seq = ++photoSeq;
+        photoMsg('사진을 확인하는 중이에요…');
+        const test = new Image();
+        test.referrerPolicy = 'no-referrer';
+        test.onload = () => {
+            if (seq !== photoSeq) return;
+            setPhoto({ url: url.href });
+            toggleUrlRow(false);
+            photoMsg('사진을 적용했어요. [저장]을 눌러야 반영돼요.');
+        };
+        test.onerror = () => {
+            if (seq !== photoSeq) return;
+            photoMsg('이 주소에서 사진을 불러오지 못했어요. 이미지 주소가 맞는지 확인해 주세요.', true);
+        };
+        test.src = url.href;
+    }
+
+    function markPhotoBroken() {
+        $photoFrame.removeClass('is-loading').addClass('is-broken');
+        photoMsg('사진을 불러오지 못했어요. 다른 사진으로 바꿔 주세요.', true);
+    }
+
+    // 이벤트
+    $('#btnPhotoUpload').on('click', () => photoFile.click());
+    photoFile.addEventListener('change', () => uploadPhoto(photoFile.files[0]));
+
+    $photoUrlBtn.on('click', () => toggleUrlRow($photoUrlRow.hasClass('d-none')));
+    $('#btnPhotoUrlApply').on('click', applyPhotoUrl);
+    $('#btnPhotoUrlCancel').on('click', () => {
+        toggleUrlRow(false);
+        photoMsg();
+    });
+    $photoUrlIn.on('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); applyPhotoUrl(); }
+        if (e.key === 'Escape') { e.preventDefault(); toggleUrlRow(false); photoMsg(); }
+    });
+
+    $('#btnPhotoRemove').on('click', () => {
+        photoSeq++;                                      // 올리던 중이면 결과 버림
+        setPhoto({});
+        photoMsg('사진을 뺐어요. [저장]을 눌러야 반영돼요.');
+    });
+
+    // 저장된 외부 URL 사진이 지워졌거나 막힌 경우
+    photoImg.addEventListener('error', () => {
+        if (photoImg.getAttribute('src')) markPhotoBroken();
+    });
+    photoImg.addEventListener('load', () => $photoFrame.removeClass('is-broken'));
+
     // ---------- 자기소개서 : 글자 수 ----------
     /** 글자 수 (이모지 등도 1자로) */
     function charLength(text, withSpace = true) {
@@ -368,8 +549,13 @@
                 email: getVal($doc, 'email'),
                 phone: getVal($doc, 'phone'),
                 address: getVal($doc, 'address'),
-                introduction: getVal($doc, 'introduction')
+                introduction: getVal($doc, 'introduction'),
+                profileImageId: getNumber($doc, 'profileImageId'),
+                profileImageUrl: getVal($doc, 'profileImageUrl')
             };
+        } else if (hasPhoto()) {
+            // 인적 사항은 이름이 있어야 저장됨 (DB NOT NULL)
+            errors.push('프로필 사진을 저장하려면 이름을 입력해주세요.');
         }
 
         // 2) 외부 링크 (URL 이 비어 있으면 건너뜀)
@@ -517,9 +703,8 @@
             },
             error: err => {
                 console.error('이력서 저장 실패', err);
-                // 서버가 텍스트로 에러를 보내면 err.data, JSON 이면 err.message(서버 message 우선)
-                const msg = typeof err.data === 'string' && err.data ? err.data : err.message;
-                alert('저장 중 오류가 발생했습니다.\n' + msg);
+                // ApiError.message : 서버 JSON message → 서버 안내 문구 → 기본 문구 (common.js)
+                alert('저장 중 오류가 발생했습니다.\n' + err.message);
             },
             complete: () => {
                 isSaving = false;
@@ -602,7 +787,7 @@
 
     /** 하나뿐인 섹션 (덮어쓰기만 가능) */
     const SINGLE_SECTIONS = {
-        profile: { label: '인적 사항', count: d => PROFILE_FIELDS.some(k => d.profile?.[k]) ? 1 : 0 },
+        profile: { label: '인적 사항', count: d => (PROFILE_FIELDS.some(k => d.profile?.[k]) || profilePhoto(d)) ? 1 : 0 },
         intro:   { label: '간단 소개', count: d => d.profile?.introduction ? 1 : 0 }
     };
 
@@ -619,6 +804,13 @@
     let pickSeq = 0;
     /** 지금 보고 있는 탭 : 'resume' | 'file' */
     let source = 'resume';
+
+    /** 가져올 이력서의 프로필 사진 : { id, url } 또는 null */
+    function profilePhoto(d) {
+        const id = d.profile?.profileImageId;
+        const url = d.profile?.profileImageUrl;
+        return (id || url) ? { id: id ?? null, url: url ?? null } : null;
+    }
 
     function sectionLabel(key) {
         return (SINGLE_SECTIONS[key] || LIST_SECTIONS[key]).label;
@@ -779,7 +971,8 @@
 
         // 바뀌거나 지워지는 내용이 있으면 확인
         const changed = [];
-        if (keys.includes('profile') && PROFILE_FIELDS.some(k => d.profile?.[k] && getVal($form, k) != null)) {
+        if (keys.includes('profile') && (PROFILE_FIELDS.some(k => d.profile?.[k] && getVal($form, k) != null)
+                || (profilePhoto(d) && hasPhoto()))) {
             changed.push('인적 사항');
         }
         if (keys.includes('intro') && getVal($form, 'introduction') != null) {
@@ -799,6 +992,14 @@
             PROFILE_FIELDS.forEach(k => {
                 if (d.profile?.[k]) $form.find(`[name="${k}"]`).val(d.profile[k]);
             });
+            // 사진도 있으면 같이 가져옴 (업로드 사진은 같은 파일을 함께 씀)
+            const photo = profilePhoto(d);
+            if (photo) {
+                photoSeq++;
+                toggleUrlRow(false);
+                setPhoto(photo);
+                photoMsg();
+            }
             added++;
         }
         if (keys.includes('intro')) {
@@ -891,39 +1092,11 @@
         }
     }
 
-    /**
-     * POST /api/resume/import-file (multipart)
-     *  - Content-Type 은 직접 넣지 않음 (브라우저가 boundary 와 함께 넣음)
-     *  - 실패하면 서버가 보낸 안내 문구(text/plain)를 Error 메시지로
-     */
+    /** POST /api/resume/import-file (multipart) */
     async function uploadResumeFile(file) {
         const body = new FormData();
         body.append('file', file);
-
-        const headers = {};
-        const token = $('meta[name="_csrf"]').attr('content');
-        const header = $('meta[name="_csrf_header"]').attr('content');
-        if (token && header) headers[header] = token;
-
-        let res;
-        try {
-            res = await fetch(API.importFile, { method: 'POST', body, headers, credentials: 'same-origin' });
-        } catch (e) {
-            throw new Error('서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.');
-        }
-
-        const type = res.headers.get('Content-Type') || '';
-        if (!res.ok) {
-            const text = type.startsWith('text/plain') ? (await res.text()).trim() : '';
-            throw new Error(text || (res.status === 413
-                ? '파일은 10MB까지 올릴 수 있어요.'
-                : `파일을 읽지 못했어요. 잠시 후 다시 시도해 주세요. (${res.status})`));
-        }
-        // 로그인이 풀리면 로그인 페이지(HTML)로 돌아오는 경우
-        if (!type.includes('application/json')) {
-            throw new Error('로그인이 만료됐을 수 있어요. 새로고침한 뒤 다시 시도해 주세요.');
-        }
-        return res.json();
+        return postMultipart(API.importFile, body, { tooLarge: '파일은 10MB까지 올릴 수 있어요.' });
     }
 
     function showNotice(text) {
@@ -999,6 +1172,8 @@
     $('#experienceList input[name="isCurrent"]').trigger('change');
     // 저장돼 있던 자기소개서 글자 수 표시
     $('#coverLetterList .item-card').each((_, el) => updateCharCount($(el)));
+    // 저장돼 있던 사진이 스크립트보다 먼저 실패한 경우 (defer 라 error 이벤트를 놓칠 수 있음)
+    if (photoImg.getAttribute('src') && photoImg.complete && photoImg.naturalWidth === 0) markPhotoBroken();
 
     // 목록의 [파일로 작성] 으로 들어오면 (?import=file) 파일 가져오기 창을 열어 둠
     const params = new URLSearchParams(location.search);

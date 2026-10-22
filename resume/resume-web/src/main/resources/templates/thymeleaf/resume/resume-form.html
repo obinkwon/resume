@@ -49,23 +49,68 @@
 
             <div class="section">
                 <input type="hidden" name="profileId" th:value="${resumeDetail?.profile?.profileId}">
+                <!-- 프로필 사진 : 둘 중 하나만 값이 있음 (업로드 파일 ID / 외부 URL) -->
+                <input type="hidden" name="profileImageId" th:value="${resumeDetail?.profile?.profileImageId}">
+                <input type="hidden" name="profileImageUrl" th:value="${resumeDetail?.profile?.profileImageUrl}">
                 <h2>인적 사항</h2>
-                <label class="field">
-                    <span class="label">이름</span>
-                    <input type="text" name="name" placeholder="이름" th:value="${resumeDetail?.profile?.name}">
-                </label>
-                <label class="field">
-                    <span class="label">이메일</span>
-                    <input type="email" name="email" placeholder="example@email.com" th:value="${resumeDetail?.profile?.email}">
-                </label>
-                <label class="field">
-                    <span class="label">전화번호</span>
-                    <input type="text" name="phone" placeholder="010-0000-0000" th:value="${resumeDetail?.profile?.phone}">
-                </label>
-                <label class="field">
-                    <span class="label">주소</span>
-                    <input type="text" name="address" placeholder="주소" th:value="${resumeDetail?.profile?.address}">
-                </label>
+                <div class="profile-grid">
+                    <!-- 프로필 사진 -->
+                    <div class="photo">
+                        <div class="photo__frame" id="photoFrame"
+                             th:classappend="${resumeDetail?.profile?.profileImageSrc != null} ? 'has-image'">
+                            <img id="photoPreview" alt="프로필 사진 미리보기" referrerpolicy="no-referrer"
+                                 th:src="${resumeDetail?.profile?.profileImageSrc}">
+                            <div class="photo__placeholder" aria-hidden="true">
+                                <i class="icon icon-user"></i>
+                                <span>사진 없음</span>
+                            </div>
+                            <span class="photo__spinner" aria-hidden="true"></span>
+                            <button type="button" class="btn icon sm danger-ghost photo__remove" id="btnPhotoRemove" aria-label="사진 빼기">
+                                <i class="icon icon-close sm"></i>
+                            </button>
+                        </div>
+
+                        <input type="file" id="photoFile" accept="image/jpeg,image/png,image/webp" hidden>
+                        <div class="photo__actions">
+                            <button type="button" class="btn secondary sm" id="btnPhotoUpload">
+                                <i class="icon icon-upload sm"></i> 사진 올리기
+                            </button>
+                            <button type="button" class="btn secondary sm" id="btnPhotoUrl" aria-expanded="false" aria-controls="photoUrlRow">
+                                <i class="icon icon-link sm"></i> URL 입력
+                            </button>
+                        </div>
+
+                        <div class="photo__url d-none" id="photoUrlRow">
+                            <input type="url" id="photoUrlInput" placeholder="https://" maxlength="1000" aria-label="사진 URL">
+                            <div class="photo__url-actions">
+                                <button type="button" class="btn outline sm" id="btnPhotoUrlApply">적용</button>
+                                <button type="button" class="btn ghost sm" id="btnPhotoUrlCancel">취소</button>
+                            </div>
+                        </div>
+
+                        <p class="photo__msg" id="photoMsg" role="status" aria-live="polite">JPG · PNG · WEBP, 5MB 이하</p>
+                    </div>
+
+                    <!-- 기본 입력칸 -->
+                    <div class="profile-fields">
+                        <label class="field">
+                            <span class="label">이름</span>
+                            <input type="text" name="name" placeholder="이름" th:value="${resumeDetail?.profile?.name}">
+                        </label>
+                        <label class="field">
+                            <span class="label">이메일</span>
+                            <input type="email" name="email" placeholder="example@email.com" th:value="${resumeDetail?.profile?.email}">
+                        </label>
+                        <label class="field">
+                            <span class="label">전화번호</span>
+                            <input type="text" name="phone" placeholder="010-0000-0000" th:value="${resumeDetail?.profile?.phone}">
+                        </label>
+                        <label class="field">
+                            <span class="label">주소</span>
+                            <input type="text" name="address" placeholder="주소" th:value="${resumeDetail?.profile?.address}">
+                        </label>
+                    </div>
+                </div>
             </div>
 
             <!-- 외부 링크 -->
