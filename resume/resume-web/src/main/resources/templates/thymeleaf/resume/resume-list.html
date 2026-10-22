@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Spring Security 사용 시 CSRF 토큰 (삭제 요청에 사용, 없으면 자동으로 생략됨) -->
     <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}">
     <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}">
@@ -13,16 +14,16 @@
 </head>
 <body>
     <div class="container">
-        <div class="section">
-            <div class="page-header">
-                <h1>이력서 템플릿 목록</h1>
-                <div class="btn-group">
-                    <a class="btn primary" th:href="@{/web/resume/regist}">
-                        <i class="icon icon-plus"></i> 새 이력서 작성
-                    </a>
-                </div>
+        <div class="page-header">
+            <h1>이력서 템플릿 목록</h1>
+            <div class="btn-group">
+                <a class="btn primary" th:href="@{/web/resume/regist}">
+                    <i class="icon icon-plus"></i> 새 이력서 작성
+                </a>
             </div>
+        </div>
 
+        <div class="section">
             <div class="resume-list" id="resumeList" th:classappend="${#lists.isEmpty(resumeList)} ? 'd-none'">
                 <div class="resume-card" th:each="resume : ${resumeList}"
                      th:attr="data-id=${resume.resumeId},data-title=${resume.title}">
@@ -51,22 +52,17 @@
                         </a>
                         <!-- 템플릿이 없으면 비활성 -->
                         <span th:unless="${resume.templateId != null}" class="is-disabled" aria-disabled="true" title="템플릿을 먼저 선택해 주세요">
-                            <i class="icon icon-eye sm"></i> 미리보기
-                        </span>
+                                <i class="icon icon-eye sm"></i> 미리보기
+                            </span>
                     </div>
                 </div>
             </div>
 
             <div class="empty-state" id="resumeEmpty" th:classappend="${!#lists.isEmpty(resumeList)} ? 'd-none'">
                 <p>아직 작성된 이력서가 없어요. 새 이력서를 만들어보세요!</p>
-                <div class="btn-group empty-state__actions">
-                    <a class="btn outline" th:href="@{/web/resume/regist}">
-                        <i class="icon icon-plus"></i> 첫 이력서 작성하기
-                    </a>
-                    <a class="btn secondary" th:href="@{/web/resume/regist(import='file')}">
-                        <i class="icon icon-upload"></i> 갖고 있는 이력서 파일로 시작
-                    </a>
-                </div>
+                <a class="btn outline" th:href="@{/web/resume/regist}">
+                    <i class="icon icon-plus"></i> 첫 이력서 작성하기
+                </a>
             </div>
         </div>
     </div>

@@ -45,6 +45,16 @@ public class ResumeApiController {
         return ResponseEntity.ok(resumeService.getResumeDetail(requestDto));
     }
 
+    @DeleteMapping("/{resumeId:\\d+}")
+    public ResponseEntity<String> deleteResumeRemove(ResumeRequestDto requestDto,
+                                                                   @PathVariable Long resumeId,
+                                                                   @AuthenticationPrincipal UserPrincipal principal) {
+        requestDto.setUserId(principal.getUserId());
+        requestDto.setResumeId(resumeId);
+        resumeService.removeResume(requestDto);
+        return ResponseEntity.ok("SUCCESS");
+    }
+
     @PostMapping("/save")
     public ResponseEntity<Long> postResumeSave(@RequestBody ResumeRequestDto requestDto,
                                                @AuthenticationPrincipal UserPrincipal principal) {
@@ -59,7 +69,7 @@ public class ResumeApiController {
         return ResponseEntity.ok(resumeService.saveResumeTemplate(request));
     }
 
-    @GetMapping("/{resumeId}/pdf")
+    @GetMapping("/{resumeId:\\d+}/pdf")
     public ResponseEntity<byte[]> getResumeExportPDf(@PathVariable Long resumeId,
                                                      HttpServletRequest request,
                                                      @AuthenticationPrincipal UserPrincipal principal) {

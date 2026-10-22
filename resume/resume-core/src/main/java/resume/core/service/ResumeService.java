@@ -201,6 +201,48 @@ public class ResumeService {
     }
 
     @Transactional
+    public void removeResume(ResumeRequestDto requestDto) {
+        // 이력서 키 확인
+        Long resumeId = requestDto.getResumeId();
+        if (requestDto.getResumeId() != null) {
+            resumeMapper.deleteResume(requestDto);
+
+            // 기존 하위 항목 전부 삭제 처리 (use_yn = 'N')
+            ProfileDto profileCond = new ProfileDto();
+            profileCond.setResumeId(resumeId);
+            resumeMapper.deleteProfile(profileCond);
+
+            CoverLetterDto coverCond = new CoverLetterDto();
+            coverCond.setResumeId(resumeId);
+            resumeMapper.deleteCoverLetter(coverCond);
+
+            SkillDto skillCond = new SkillDto();
+            skillCond.setResumeId(resumeId);
+            resumeMapper.deleteSkill(skillCond);
+
+            EducationDto eduCond = new EducationDto();
+            eduCond.setResumeId(resumeId);
+            resumeMapper.deleteEducation(eduCond);
+
+            ExperienceDto expCond = new ExperienceDto();
+            expCond.setResumeId(resumeId);
+            resumeMapper.deleteExperience(expCond);
+
+            ProjectDto projCond = new ProjectDto();
+            projCond.setResumeId(resumeId);
+            resumeMapper.deleteProject(projCond);
+
+            LinkDto linkCond = new LinkDto();
+            linkCond.setResumeId(resumeId);
+            resumeMapper.deleteLink(linkCond);
+
+            CertificateDto certCond = new CertificateDto();
+            certCond.setResumeId(resumeId);
+            resumeMapper.deleteCertificate(certCond);
+        }
+    }
+
+    @Transactional
     public void savePdfLog(PdfLogDto pdfLogDto) {
         // 로그 저장 - 실패해도 다운로드는 진행
         try {

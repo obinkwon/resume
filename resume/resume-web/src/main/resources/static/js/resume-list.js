@@ -6,10 +6,6 @@
 (() => {
     'use strict';
 
-    const API = {
-        resumeDelete: id => `/api/resume/${encodeURIComponent(id)}`
-    };
-
     const listEl  = document.getElementById('resumeList');
     const emptyEl = document.getElementById('resumeEmpty');
     const toastEl = document.getElementById('listToast');
@@ -35,7 +31,7 @@
      */
     function deleteResume(id) {
         return callApi({
-            url: API.resumeDelete(id),
+            url: `/api/resume/${encodeURIComponent(id)}`,
             method: 'DELETE',
             success: () => 'deleted',
             error: err => {
