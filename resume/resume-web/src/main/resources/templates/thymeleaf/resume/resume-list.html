@@ -2,9 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <!-- Spring Security 사용 시 CSRF 토큰 (삭제 요청에 사용, 없으면 자동으로 생략됨) -->
+    <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}">
     <title>이력서 템플릿 목록</title>
     <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/resume-list.css}">
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/resume-list.js}" defer></script>
 </head>
 <body>
     <div class="container">
@@ -12,20 +17,22 @@
             <div class="page-header">
                 <h1>이력서 템플릿 목록</h1>
                 <div class="btn-group">
-                    <!-- 작성 화면을 '파일에서 가져오기' 창이 열린 채로 엶 -->
-                    <a class="btn outline" th:href="@{/web/resume/regist(import='file')}"
-                       title="다른 구직 사이트에서 받은 이력서 파일(PDF·Word·한글)로 시작">
-                        <i class="icon icon-upload"></i> 파일로 작성
-                    </a>
                     <a class="btn primary" th:href="@{/web/resume/regist}">
                         <i class="icon icon-plus"></i> 새 이력서 작성
                     </a>
                 </div>
             </div>
 
-            <div class="resume-list" th:unless="${#lists.isEmpty(resumeList)}">
-                <div class="resume-card" th:each="resume : ${resumeList}">
-                    <h3 class="ellipsis" th:text="${resume.title}" th:title="${resume.title}">이력서 제목</h3>
+            <div class="resume-list" id="resumeList" th:classappend="${#lists.isEmpty(resumeList)} ? 'd-none'">
+                <div class="resume-card" th:each="resume : ${resumeList}"
+                     th:attr="data-id=${resume.resumeId},data-title=${resume.title}">
+                    <div class="resume-card__head">
+                        <h3 class="ellipsis" th:text="${resume.title}" th:title="${resume.title}">이력서 제목</h3>
+                        <button type="button" class="btn icon sm danger-ghost resume-card__delete"
+                                title="삭제" th:attr="aria-label=${resume.title} + ' 삭제'">
+                            <i class="icon icon-trash sm"></i>
+                        </button>
+                    </div>
                     <!-- 간단 소개 (없으면 안내 문구) -->
                     <p class="resume-card__intro" th:if="${!#strings.isEmpty(resume.introduction)}" th:text="${resume.introduction}">간단 소개</p>
                     <p class="resume-card__intro is-empty" th:if="${#strings.isEmpty(resume.introduction)}">간단 소개가 아직 없어요</p>
@@ -50,7 +57,7 @@
                 </div>
             </div>
 
-            <div class="empty-state" th:if="${#lists.isEmpty(resumeList)}">
+            <div class="empty-state" id="resumeEmpty" th:classappend="${!#lists.isEmpty(resumeList)} ? 'd-none'">
                 <p>아직 작성된 이력서가 없어요. 새 이력서를 만들어보세요!</p>
                 <div class="btn-group empty-state__actions">
                     <a class="btn outline" th:href="@{/web/resume/regist}">
@@ -63,5 +70,7 @@
             </div>
         </div>
     </div>
+    <!-- 삭제 결과 (화면 낭독기용 · 실패 안내) -->
+    <div class="toast d-none" id="listToast" role="status" aria-live="polite"></div>
 </body>
 </html>

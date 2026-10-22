@@ -19,16 +19,31 @@ function isInvalidPeriod(startDate, endDate) {
     return startDate !== null && endDate !== null && startDate > endDate;
 }
 
-/** API 실패 정보 : status (0 = 네트워크 오류), data (서버가 보낸 에러 body) */
+/**
+ * API 실패 정보 : status (0 = 네트워크 오류), data (서버가 보낸 에러 body)
+ *  - message : 서버 JSON 의 message → 서버가 보낸 안내 문구(text/plain) → 기본 문구 순
+ */
 class ApiError extends Error {
     constructor(status, data, cause) {
-        const serverMsg = data && typeof data === 'object' ? data.message : '';
-        super(serverMsg || (status ? `요청에 실패했어요. (${status})` : '서버에 연결할 수 없어요.'));
+        let serverMsg = '';
+        if (data && typeof data === 'object') {
+            serverMsg = data.message || '';
+        } else if (typeof data === 'string' && data.trim() && data.length <= 300 && !/^\s*</.test(data)) {
+            serverMsg = data.trim();          // text/plain 안내 문구 (HTML 오류 페이지는 제외)
+        }
+        super(serverMsg || defaultApiMessage(status));
         this.name = 'ApiError';
         this.status = status;
         this.data = data;
         if (cause) this.cause = cause;
     }
+}
+
+function defaultApiMessage(status) {
+    if (!status) return '서버에 연결할 수 없어요.';
+    if (status === 401) return '로그인이 만료됐을 수 있어요. 새로고침한 뒤 다시 시도해 주세요.';
+    if (status === 403) return '권한이 없어요.';
+    return `요청에 실패했어요. (${status})`;
 }
 
 /** Spring Security CSRF 메타 태그 → 헤더 (없으면 빈 객체) */
@@ -83,6 +98,10 @@ function callApi({ url, method = 'GET', data, headers = {}, responseType = 'auto
         .catch(err => { throw new ApiError(0, null, err); })        // 네트워크 오류
         .then(async res => {
             if (!res.ok) throw new ApiError(res.status, await readResponseBody(res));
+            // 로그인이 풀리면 로그인 페이지(HTML)로 돌려보내져서 200 으로 옴 → 401 로 처리
+            if (res.redirected && (res.headers.get('Content-Type') || '').includes('text/html')) {
+                throw new ApiError(401, null);
+            }
             const body = isBlob ? await res.blob() : await readResponseBody(res);
             return { body, res };
         });
