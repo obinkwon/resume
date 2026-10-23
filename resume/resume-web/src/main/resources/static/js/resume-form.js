@@ -13,8 +13,13 @@
         resumeList: '/api/resume/list',
         resumeDetail: id => `/api/resume/${encodeURIComponent(id)}`,
         importFile: '/api/resume/import-file',
-        profileImage: '/api/files/upload/image',
+        uploadImage: '/api/files/upload/image',
         fileView: id => `/api/files/${encodeURIComponent(id)}`
+    };
+
+    /** 이미지 업로드 용도 (서버 UploadType 의 code 와 같게) */
+    const UPLOAD_TYPE = {
+        profile: 'profile'
     };
 
     /** 이력서 파일 가져오기 : 서버(ResumeImportService)와 같은 규칙 */
@@ -91,7 +96,7 @@
     }
 
     /**
-     * multipart POST (이력서 파일 가져오기 · 프로필 사진 올리기)
+     * multipart POST (이력서 파일 가져오기 · 이미지 올리기)
      *  - callApi 는 JSON 본문만 보내므로 파일은 여기서 보냄
      *  - CSRF · 에러 처리는 common.js 규칙 그대로 (getCsrfHeaders / ApiError / readResponseBody)
      *  - Content-Type 은 직접 넣지 않음 (브라우저가 boundary 와 함께 넣음)
@@ -119,6 +124,17 @@
         const type = res.headers.get('Content-Type') || '';
         if (!type.includes('json')) throw new ApiError(401, null);
         return readResponseBody(res);
+    }
+
+    /**
+     * POST /api/files/upload/image (multipart : file + type) → { fileId, url }
+     * @param type UPLOAD_TYPE 의 값 (서버가 용도에 맞는 폴더에 저장)
+     */
+    async function uploadImage(file, type) {
+        const body = new FormData();
+        body.append('file', file);
+        body.append('type', type);
+        return postMultipart(API.uploadImage, body, { tooLarge: '사진은 5MB까지 올릴 수 있어요.' });
     }
 
     // ---------- 상태 ----------
@@ -350,9 +366,7 @@
         photoMsg('사진을 올리는 중이에요…');
 
         try {
-            const body = new FormData();
-            body.append('file', file);
-            const result = await postMultipart(API.profileImage, body, { tooLarge: '사진은 5MB까지 올릴 수 있어요.' });
+            const result = await uploadImage(file, UPLOAD_TYPE.profile);
             if (seq !== photoSeq) return;
             setPhoto({ id: result.fileId });
             photoMsg('사진을 올렸어요. [저장]을 눌러야 반영돼요.');

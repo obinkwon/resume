@@ -24,11 +24,7 @@ public class FileApiController {
 
     private final FileService fileService;
 
-    /**
-     * 이미지 업로드 (공통) → { fileId, url }
-     *  - type : 용도 (profile 등) — 화면은 용도만 보내고, 실제 저장 폴더는 서버가 정함 (ImageType 참고)
-     *  - 예) FormData : file=사진, type=profile  →  R2 profile/yyyy/MM/UUID.jpg
-     */
+    // 이미지 파일 업로드
     @PostMapping(value = "/upload/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UploadResult> postUploadImage(@RequestParam("file") MultipartFile file,
                                                         @RequestParam("type") String type,

@@ -47,8 +47,8 @@ public class ResumeApiController {
 
     @DeleteMapping("/{resumeId:\\d+}")
     public ResponseEntity<String> deleteResumeRemove(ResumeRequestDto requestDto,
-                                                                   @PathVariable Long resumeId,
-                                                                   @AuthenticationPrincipal UserPrincipal principal) {
+                                                   @PathVariable Long resumeId,
+                                                   @AuthenticationPrincipal UserPrincipal principal) {
         requestDto.setUserId(principal.getUserId());
         requestDto.setResumeId(resumeId);
         resumeService.removeResume(requestDto);
