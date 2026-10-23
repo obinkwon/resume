@@ -1,10 +1,12 @@
 package resume.core.service;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,48 +16,76 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import resume.core.dto.FileDto;
 import resume.core.mapper.FileMapper;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.checksums.RequestChecksumCalculation;
+import software.amazon.awssdk.core.checksums.ResponseChecksumValidation;
+import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-/**
- * 업로드 파일 (지금은 프로필 사진만)
- *  - 파일은 디스크(resume.upload.dir)에, DB(files)에는 정보만 저장
- *  - 올린 사진은 이력서 저장 전까지 어디에도 연결되지 않음 → 하루 지나도 안 쓰이면 정리 배치가 지움
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FileService {
 
-    /** 프로필 사진 최대 크기 (resume-form.js 의 PHOTO_MAX 와 같게) */
+    // 프로필 사진 최대 크기 (resume-form.js 의 PHOTO_MAX 와 같게)
     public static final long MAX_PROFILE_IMAGE_SIZE = 5L * 1024 * 1024;
-    /** 외부 사진 URL 최대 길이 (resume_profile.profile_image_url) */
-    public static final int MAX_IMAGE_URL_LENGTH = 1000;
-
     private static final String PROFILE_DIR = "profile";
     private static final DateTimeFormatter MONTH_DIR = DateTimeFormatter.ofPattern("yyyy/MM");
-    private static final String DEFAULT_ORIGINAL_NAME = "profile-image";
+    private static final String DEFAULT_ORIGINAL_NAME = "upload/image";
 
     private final FileMapper fileMapper;
 
-    /** 저장 기준 경로 (application.yml : resume.upload.dir) */
-    @Value("${resume.upload.dir:./upload}")
-    private String uploadDir;
+    // R2 설정 (application.properties : resume.r2.*, 키 값은 환경변수로)
+    @Value("${resume.r2.account-id}")
+    private String accountId;
+
+    @Value("${resume.r2.access-key}")
+    private String accessKey;
+
+    @Value("${resume.r2.secret-key}")
+    private String secretKey;
+
+    @Value("${resume.r2.bucket}")
+    private String bucket;
+
+    // R2 접속 클라이언트 (S3 호환 API)
+    private S3Client s3;
+
+    @PostConstruct
+    void initR2Client() {
+        s3 = S3Client.builder()
+                .endpointOverride(URI.create("https://" + accountId + ".r2.cloudflarestorage.com"))
+                .region(Region.of("auto"))                                         // R2 는 region 을 auto 로
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))
+                // 최신 SDK 의 기본 체크섬 방식을 R2 가 받지 못하는 경우가 있어 필요할 때만 쓰도록
+                .requestChecksumCalculation(RequestChecksumCalculation.WHEN_REQUIRED)
+                .responseChecksumValidation(ResponseChecksumValidation.WHEN_REQUIRED)
+                .build();
+        log.info("R2 연결 설정 완료 bucket={}", bucket);
+    }
+
+    @PreDestroy
+    void closeR2Client() {
+        if (s3 != null) s3.close();
+    }
 
     // ========================================================
     // 업로드
     // ========================================================
 
-    /** 프로필 사진 올리기 → 파일 저장 + files INSERT */
+    /** 프로필 사진 올리기 → R2 업로드 + files INSERT */
     @Transactional
     public UploadResult uploadProfileImage(MultipartFile file, Long userId) {
         if (file == null || file.isEmpty()) {
@@ -80,13 +110,18 @@ public class FileService {
 
         String subDir = PROFILE_DIR + "/" + LocalDate.now().format(MONTH_DIR);
         String storedName = UUID.randomUUID() + "." + type.getExtension();
-        Path target = resolve(subDir, storedName);
+        String key = objectKey(subDir, storedName);
 
         try {
-            Files.createDirectories(target.getParent());
-            Files.write(target, bytes, StandardOpenOption.CREATE_NEW);
-        } catch (IOException e) {
-            log.error("프로필 사진 저장 실패 userId={} path={}", userId, target, e);
+            s3.putObject(PutObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(key)
+                            .contentType(type.getContentType())
+                            .contentLength((long) bytes.length)
+                            .build(),
+                    RequestBody.fromBytes(bytes));
+        } catch (SdkException e) {
+            log.error("프로필 사진 R2 업로드 실패 userId={} key={}", userId, key, e);
             throw new FileException(HttpStatus.INTERNAL_SERVER_ERROR, "사진을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.", e);
         }
 
@@ -101,7 +136,7 @@ public class FileService {
         try {
             fileMapper.insertFile(fileDto);
         } catch (RuntimeException e) {
-            deleteQuietly(target);                  // DB 저장에 실패하면 디스크 파일도 지움
+            deleteQuietly(key);                     // DB 저장에 실패하면 R2 에 올린 파일도 지움
             throw e;
         }
 
@@ -119,15 +154,23 @@ public class FileService {
             throw new FileException(HttpStatus.NOT_FOUND, "파일을 찾을 수 없어요.");
         }
 
-        Path path = resolve(fileDetailDto.getFilePath(), fileDetailDto.getStoredName());
-        if (!Files.isReadable(path)) {
-            log.warn("DB 에는 있지만 디스크에 없는 파일 fileId={} path={}", fileDto.getFileId(), path);
-            throw new FileException(HttpStatus.NOT_FOUND, "파일을 찾을 수 없어요.");
+        String key = objectKey(fileDetailDto.getFilePath(), fileDetailDto.getStoredName());
+        ResponseInputStream<GetObjectResponse> object;
+        try {
+            object = s3.getObject(GetObjectRequest.builder().bucket(bucket).key(key).build());
+        } catch (NoSuchKeyException e) {
+            log.warn("DB 에는 있지만 R2 에 없는 파일 fileId={} key={}", fileDto.getFileId(), key);
+            throw new FileException(HttpStatus.NOT_FOUND, "파일을 찾을 수 없어요.", e);
+        } catch (SdkException e) {
+            log.error("R2 파일 조회 실패 fileId={} key={}", fileDto.getFileId(), key, e);
+            throw new FileException(HttpStatus.SERVICE_UNAVAILABLE, "사진을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.", e);
         }
 
-        return new StoredFile(new FileSystemResource(path),
+        // 응답에 다 쓰고 나면 스프링이 스트림을 닫음
+        Long size = object.response().contentLength();
+        return new StoredFile(new InputStreamResource(object),
                 MediaType.parseMediaType(fileDetailDto.getContentType()),
-                fileDetailDto.getFileSize());
+                size != null ? size : fileDetailDto.getFileSize());
     }
 
     // ========================================================
@@ -158,9 +201,6 @@ public class FileService {
     }
 
     private void validateImageUrl(String url) {
-        if (url.length() > MAX_IMAGE_URL_LENGTH) {
-            throw new FileException(HttpStatus.BAD_REQUEST, "사진 URL이 너무 길어요. (1000자까지)");
-        }
         URI uri;
         try {
             uri = new URI(url);
@@ -171,29 +211,25 @@ public class FileService {
             throw new FileException(HttpStatus.BAD_REQUEST, "https:// 로 시작하는 사진 주소만 쓸 수 있어요.");
         }
     }
+
     // ========================================================
     // 내부
     // ========================================================
 
-    private Path root() {
-        return Paths.get(uploadDir).toAbsolutePath().normalize();
-    }
-
-    /** 저장 기준 경로 밖으로 나가는 경로는 막음 */
-    private Path resolve(String dir, String name) {
-        Path root = root();
-        Path path = root.resolve(dir).resolve(name).normalize();
-        if (!path.startsWith(root)) {
-            throw new IllegalStateException("저장 경로를 벗어난 파일 경로: " + path);
+    /** R2 객체 키 : 'profile/2026/10' + '/' + 'UUID.jpg' (앞뒤 / 는 정리) */
+    private String objectKey(String dir, String name) {
+        String d = dir == null ? "" : dir.replace('\\', '/').replaceAll("^/+|/+$", "");
+        if (!StringUtils.hasText(name) || name.contains("/") || name.contains("..") || d.contains("..")) {
+            throw new IllegalStateException("잘못된 파일 경로: " + dir + "/" + name);
         }
-        return path;
+        return d.isEmpty() ? name : d + "/" + name;
     }
 
-    private void deleteQuietly(Path path) {
+    private void deleteQuietly(String key) {
         try {
-            Files.deleteIfExists(path);
-        } catch (IOException e) {
-            log.warn("파일 삭제 실패 path={}", path, e);
+            s3.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
+        } catch (SdkException e) {
+            log.warn("R2 파일 삭제 실패 key={}", key, e);
         }
     }
 

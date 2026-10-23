@@ -59,7 +59,8 @@
             , email
             , phone
             , address
-            , profile_image
+            , profile_image_id
+            , profile_image_url
             , birth_date
             , introduction
             , created_at
@@ -225,7 +226,8 @@
             , email
             , phone
             , address
-            , profile_image
+            , profile_image_id
+            , profile_image_url
             , birth_date
             , introduction
             , use_yn
@@ -237,7 +239,8 @@
             , #{email}
             , #{phone}
             , #{address}
-            , #{profileImage}
+            , #{profileImageId}
+            , #{profileImageUrl}
             , #{birthDate}
             , #{introduction}
             , 'Y'

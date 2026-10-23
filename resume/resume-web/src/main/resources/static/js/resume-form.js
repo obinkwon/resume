@@ -13,7 +13,7 @@
         resumeList: '/api/resume/list',
         resumeDetail: id => `/api/resume/${encodeURIComponent(id)}`,
         importFile: '/api/resume/import-file',
-        profileImage: '/api/files/profile-image',
+        profileImage: '/api/files/upload/image',
         fileView: id => `/api/files/${encodeURIComponent(id)}`
     };
 

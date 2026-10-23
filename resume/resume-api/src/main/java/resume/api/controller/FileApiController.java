@@ -23,21 +23,22 @@ public class FileApiController {
 
     private final FileService fileService;
 
-    /** 프로필 사진 올리기 → { fileId, url } */
-    @PostMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UploadResult> postProfileImage(@RequestParam("file") MultipartFile file,
+    // 파일 업로드 이미지
+    @PostMapping(value = "/upload/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UploadResult> postUploadImage(@RequestParam("file") MultipartFile file,
                                                          @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(fileService.uploadProfileImage(file, principal.getUserId()));
     }
 
-    /** 파일 보기 (본인 파일만) — 이력서 폼 미리보기, 이력서 미리보기·PDF 에서 사용 */
+    // 파일 조회
     @GetMapping("/{fileId:\\d+}")
     public ResponseEntity<Resource> getFile(@PathVariable Long fileId,
-                                            @AuthenticationPrincipal UserPrincipal principal,
-                                            FileDto fileDto) {
-        fileDto.setUserId(principal.getUserId());
-        fileDto.setFileId(fileId);
-        StoredFile file = fileService.loadFile(fileDto);
+                                            @AuthenticationPrincipal UserPrincipal principal) {
+        // 본인 파일만 조회
+        StoredFile file = fileService.loadFile(FileDto.builder()
+                                                        .fileId(fileId)
+                                                        .userId(principal.getUserId())
+                                                        .build());
 
         return ResponseEntity.ok()
                 .contentType(file.contentType())
