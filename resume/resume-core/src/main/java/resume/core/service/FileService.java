@@ -40,14 +40,13 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class FileService {
 
-    // 프로필 사진 최대 크기 (resume-form.js 의 PHOTO_MAX 와 같게)
-    public static final long MAX_PROFILE_IMAGE_SIZE = 5L * 1024 * 1024;
-    private static final String PROFILE_DIR = "profile";
+    public static final long MAX_IMAGE_SIZE = 5L * 1024 * 1024;
 
     /** 업로드 폴더 이름 규칙 : 영문 소문자·숫자·- 로 된 이름, / 로 하위 폴더 가능 (예: profile, template/thumbnail) */
     private static final Pattern DIR_PATTERN = Pattern.compile("[a-z0-9-]+(/[a-z0-9-]+)*");
     private static final DateTimeFormatter MONTH_DIR = DateTimeFormatter.ofPattern("yyyy/MM");
-    private static final String DEFAULT_ORIGINAL_NAME = "upload/image";
+    /** 원본 파일명이 없을 때 files.original_name 에 넣을 이름 (화면 표시용이라 경로 형태는 쓰지 않음) */
+    private static final String DEFAULT_ORIGINAL_NAME = "image";
 
     private final FileMapper fileMapper;
 
