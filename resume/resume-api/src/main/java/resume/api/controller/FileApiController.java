@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import resume.core.dto.FileDto;
+import resume.core.enums.UploadType;
 import resume.core.security.UserPrincipal;
 import resume.core.service.FileService;
 import resume.core.service.FileService.FileException;
@@ -23,11 +24,17 @@ public class FileApiController {
 
     private final FileService fileService;
 
-    // 파일 업로드 이미지
+    /**
+     * 이미지 업로드 (공통) → { fileId, url }
+     *  - type : 용도 (profile 등) — 화면은 용도만 보내고, 실제 저장 폴더는 서버가 정함 (ImageType 참고)
+     *  - 예) FormData : file=사진, type=profile  →  R2 profile/yyyy/MM/UUID.jpg
+     */
     @PostMapping(value = "/upload/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UploadResult> postUploadImage(@RequestParam("file") MultipartFile file,
-                                                         @AuthenticationPrincipal UserPrincipal principal) {
-        return ResponseEntity.ok(fileService.uploadProfileImage(file, principal.getUserId()));
+                                                        @RequestParam("type") String type,
+                                                        @AuthenticationPrincipal UserPrincipal principal) {
+        UploadType uploadType = UploadType.from(type);
+        return ResponseEntity.ok(fileService.uploadImage(file, principal.getUserId(), uploadType.getDir()));
     }
 
     // 파일 조회

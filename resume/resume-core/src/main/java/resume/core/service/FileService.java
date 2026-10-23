@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -42,6 +43,9 @@ public class FileService {
     // 프로필 사진 최대 크기 (resume-form.js 의 PHOTO_MAX 와 같게)
     public static final long MAX_PROFILE_IMAGE_SIZE = 5L * 1024 * 1024;
     private static final String PROFILE_DIR = "profile";
+
+    /** 업로드 폴더 이름 규칙 : 영문 소문자·숫자·- 로 된 이름, / 로 하위 폴더 가능 (예: profile, template/thumbnail) */
+    private static final Pattern DIR_PATTERN = Pattern.compile("[a-z0-9-]+(/[a-z0-9-]+)*");
     private static final DateTimeFormatter MONTH_DIR = DateTimeFormatter.ofPattern("yyyy/MM");
     private static final String DEFAULT_ORIGINAL_NAME = "upload/image";
 
@@ -85,13 +89,18 @@ public class FileService {
     // 업로드
     // ========================================================
 
-    /** 프로필 사진 올리기 → R2 업로드 + files INSERT */
+    /**
+     * 이미지 올리기 → R2 업로드 + files INSERT
+     * @param dir 저장할 폴더 (예: "profile") — 코드에서 정한 값만 넘길 것 (요청 파라미터를 그대로 넘기지 않기)
+     *            실제 저장 위치 : {dir}/yyyy/MM/UUID.확장자
+     */
     @Transactional
-    public UploadResult uploadProfileImage(MultipartFile file, Long userId) {
+    public UploadResult uploadImage(MultipartFile file, Long userId, String dir) {
+        String baseDir = checkDir(dir);
         if (file == null || file.isEmpty()) {
             throw new FileException(HttpStatus.BAD_REQUEST, "사진 파일을 선택해 주세요.");
         }
-        if (file.getSize() > MAX_PROFILE_IMAGE_SIZE) {
+        if (file.getSize() > MAX_IMAGE_SIZE) {
             throw new FileException(HttpStatus.PAYLOAD_TOO_LARGE, "사진은 5MB까지 올릴 수 있어요.");
         }
 
@@ -108,7 +117,7 @@ public class FileService {
             throw new FileException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "JPG, PNG, WEBP 사진만 올릴 수 있어요.");
         }
 
-        String subDir = PROFILE_DIR + "/" + LocalDate.now().format(MONTH_DIR);
+        String subDir = baseDir + "/" + LocalDate.now().format(MONTH_DIR);
         String storedName = UUID.randomUUID() + "." + type.getExtension();
         String key = objectKey(subDir, storedName);
 
@@ -121,7 +130,7 @@ public class FileService {
                             .build(),
                     RequestBody.fromBytes(bytes));
         } catch (SdkException e) {
-            log.error("프로필 사진 R2 업로드 실패 userId={} key={}", userId, key, e);
+            log.error("이미지 R2 업로드 실패 userId={} key={}", userId, key, e);
             throw new FileException(HttpStatus.INTERNAL_SERVER_ERROR, "사진을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.", e);
         }
 
@@ -215,6 +224,19 @@ public class FileService {
     // ========================================================
     // 내부
     // ========================================================
+
+    /**
+     * 업로드 폴더 검사 : 앞뒤 / 는 지우고, 규칙(DIR_PATTERN)에 맞지 않으면 거절
+     *  - '..', 대문자, 공백, 한글 등은 막아서 버킷 안 엉뚱한 위치에 쓰지 못하게 함
+     *  - 개발자가 잘못 넘긴 값이므로 화면 안내(FileException)가 아니라 서버 오류로 처리
+     */
+    private String checkDir(String dir) {
+        String d = dir == null ? "" : dir.trim().replaceAll("^/+|/+$", "");
+        if (!DIR_PATTERN.matcher(d).matches()) {
+            throw new IllegalArgumentException("잘못된 업로드 폴더: " + dir);
+        }
+        return d;
+    }
 
     /** R2 객체 키 : 'profile/2026/10' + '/' + 'UUID.jpg' (앞뒤 / 는 정리) */
     private String objectKey(String dir, String name) {
