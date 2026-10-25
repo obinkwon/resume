@@ -2,12 +2,10 @@ package resume.core.service;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -15,7 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import resume.core.dto.FileDto;
+import resume.core.enums.ImageType;
+import resume.core.exception.FileException;
 import resume.core.mapper.FileMapper;
+import resume.core.record.StoredFile;
+import resume.core.record.UploadResult;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -29,24 +31,15 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
-import java.util.regex.Pattern;
+
+import static resume.core.utils.FileUtils.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FileService {
-
-    public static final long MAX_IMAGE_SIZE = 5L * 1024 * 1024;
-
-    /** 업로드 폴더 이름 규칙 : 영문 소문자·숫자·- 로 된 이름, / 로 하위 폴더 가능 (예: profile, template/thumbnail) */
-    private static final Pattern DIR_PATTERN = Pattern.compile("[a-z0-9-]+(/[a-z0-9-]+)*");
-    private static final DateTimeFormatter MONTH_DIR = DateTimeFormatter.ofPattern("yyyy/MM");
-    /** 원본 파일명이 없을 때 files.original_name 에 넣을 이름 (화면 표시용이라 경로 형태는 쓰지 않음) */
-    private static final String DEFAULT_ORIGINAL_NAME = "image";
 
     private final FileMapper fileMapper;
 
@@ -84,9 +77,14 @@ public class FileService {
         if (s3 != null) s3.close();
     }
 
-    // ========================================================
-    // 업로드
-    // ========================================================
+    // R2 파일 제거
+    private void deleteQuietly(String key) {
+        try {
+            s3.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
+        } catch (SdkException e) {
+            log.warn("R2 파일 삭제 실패 key={}", key, e);
+        }
+    }
 
     /**
      * 이미지 올리기 → R2 업로드 + files INSERT
@@ -151,11 +149,7 @@ public class FileService {
         return new UploadResult(fileDto.getFileId(), "/api/files/" + fileDto.getFileId());
     }
 
-    // ========================================================
-    // 조회
-    // ========================================================
-
-    /** 본인 파일만 내려줌 (남의 파일·없는 파일은 똑같이 404) */
+    // 본인 파일만 내려줌 (남의 파일·없는 파일은 똑같이 404)
     public StoredFile loadFile(FileDto fileDto) {
         FileDto fileDetailDto = fileMapper.selectFile(fileDto);
         if (fileDetailDto == null) {
@@ -181,10 +175,6 @@ public class FileService {
                 size != null ? size : fileDetailDto.getFileSize());
     }
 
-    // ========================================================
-    // 이력서 저장 시 검사 (ResumeService.saveResume 에서 호출)
-    // ========================================================
-
     /**
      * 프로필 사진 값 검사
      *  - fileDto.userId   : 로그인 사용자
@@ -208,122 +198,4 @@ public class FileService {
         }
     }
 
-    private void validateImageUrl(String url) {
-        URI uri;
-        try {
-            uri = new URI(url);
-        } catch (URISyntaxException e) {
-            throw new FileException(HttpStatus.BAD_REQUEST, "올바른 사진 URL이 아니에요.", e);
-        }
-        if (!"https".equalsIgnoreCase(uri.getScheme()) || !StringUtils.hasText(uri.getHost())) {
-            throw new FileException(HttpStatus.BAD_REQUEST, "https:// 로 시작하는 사진 주소만 쓸 수 있어요.");
-        }
-    }
-
-    // ========================================================
-    // 내부
-    // ========================================================
-
-    /**
-     * 업로드 폴더 검사 : 앞뒤 / 는 지우고, 규칙(DIR_PATTERN)에 맞지 않으면 거절
-     *  - '..', 대문자, 공백, 한글 등은 막아서 버킷 안 엉뚱한 위치에 쓰지 못하게 함
-     *  - 개발자가 잘못 넘긴 값이므로 화면 안내(FileException)가 아니라 서버 오류로 처리
-     */
-    private String checkDir(String dir) {
-        String d = dir == null ? "" : dir.trim().replaceAll("^/+|/+$", "");
-        if (!DIR_PATTERN.matcher(d).matches()) {
-            throw new IllegalArgumentException("잘못된 업로드 폴더: " + dir);
-        }
-        return d;
-    }
-
-    /** R2 객체 키 : 'profile/2026/10' + '/' + 'UUID.jpg' (앞뒤 / 는 정리) */
-    private String objectKey(String dir, String name) {
-        String d = dir == null ? "" : dir.replace('\\', '/').replaceAll("^/+|/+$", "");
-        if (!StringUtils.hasText(name) || name.contains("/") || name.contains("..") || d.contains("..")) {
-            throw new IllegalStateException("잘못된 파일 경로: " + dir + "/" + name);
-        }
-        return d.isEmpty() ? name : d + "/" + name;
-    }
-
-    private void deleteQuietly(String key) {
-        try {
-            s3.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
-        } catch (SdkException e) {
-            log.warn("R2 파일 삭제 실패 key={}", key, e);
-        }
-    }
-
-    /** 화면 표시용 원본 파일명 : 경로·제어문자 빼고 255자까지 */
-    private String cleanOriginalName(String name) {
-        if (!StringUtils.hasText(name)) return DEFAULT_ORIGINAL_NAME;
-        String cleaned = StringUtils.getFilename(name.replace('\\', '/'));
-        if (cleaned == null) return DEFAULT_ORIGINAL_NAME;
-        cleaned = cleaned.replaceAll("\\p{Cntrl}", "").trim();
-        if (cleaned.isEmpty()) return DEFAULT_ORIGINAL_NAME;
-        return cleaned.length() > 255 ? cleaned.substring(0, 255) : cleaned;
-    }
-
-    /** 허용하는 사진 형식 */
-    @Getter
-    private enum ImageType {
-        JPEG("jpg", "image/jpeg"),
-        PNG("png", "image/png"),
-        WEBP("webp", "image/webp");
-
-        private final String extension;
-        private final String contentType;
-
-        ImageType(String extension, String contentType) {
-            this.extension = extension;
-            this.contentType = contentType;
-        }
-
-        static ImageType detect(byte[] b) {
-            if (b.length >= 3 && u(b[0]) == 0xFF && u(b[1]) == 0xD8 && u(b[2]) == 0xFF) {
-                return JPEG;
-            }
-            if (b.length >= 8 && u(b[0]) == 0x89 && b[1] == 'P' && b[2] == 'N' && b[3] == 'G'
-                    && b[4] == 0x0D && b[5] == 0x0A && b[6] == 0x1A && b[7] == 0x0A) {
-                return PNG;
-            }
-            if (b.length >= 12 && b[0] == 'R' && b[1] == 'I' && b[2] == 'F' && b[3] == 'F'
-                    && b[8] == 'W' && b[9] == 'E' && b[10] == 'B' && b[11] == 'P') {
-                return WEBP;
-            }
-            return null;
-        }
-
-        private static int u(byte v) {
-            return v & 0xFF;
-        }
-    }
-
-    // ========================================================
-    // 결과 · 예외
-    // ========================================================
-
-    /** 업로드 응답 : resume-form.js 가 fileId 를 hidden 에 넣고 url 로 미리보기 */
-    public record UploadResult(Long fileId, String url) {
-    }
-
-    /** 조회 결과 */
-    public record StoredFile(Resource resource, MediaType contentType, long size) {
-    }
-
-    /** 화면에 그대로 보여줄 안내 문구 + HTTP 상태 */
-    @Getter
-    public static class FileException extends RuntimeException {
-        private final HttpStatus status;
-
-        public FileException(HttpStatus status, String message) {
-            super(message);
-            this.status = status;
-        }
-
-        public FileException(HttpStatus status, String message, Throwable cause) {
-            super(message, cause);
-            this.status = status;
-        }
-    }
 }

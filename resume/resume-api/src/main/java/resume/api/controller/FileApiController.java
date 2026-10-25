@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import resume.core.dto.FileDto;
 import resume.core.enums.UploadType;
+import resume.core.exception.FileException;
+import resume.core.record.StoredFile;
+import resume.core.record.UploadResult;
 import resume.core.security.UserPrincipal;
 import resume.core.service.FileService;
-import resume.core.service.FileService.FileException;
-import resume.core.service.FileService.StoredFile;
-import resume.core.service.FileService.UploadResult;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;

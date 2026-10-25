@@ -3,7 +3,7 @@ package resume.core.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import resume.core.service.FileService;
+import resume.core.exception.FileException;
 
 import java.util.Arrays;
 
@@ -19,6 +19,6 @@ public enum UploadType {
         return Arrays.stream(values())
                 .filter(t -> t.code.equalsIgnoreCase(code == null ? "" : code.trim()))
                 .findFirst()
-                .orElseThrow(() -> new FileService.FileException(HttpStatus.BAD_REQUEST, "지원하지 않는 업로드 종류예요."));
+                .orElseThrow(() -> new FileException(HttpStatus.BAD_REQUEST, "지원하지 않는 업로드 종류예요."));
     }
 }
