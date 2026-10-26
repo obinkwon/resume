@@ -1,20 +1,22 @@
 /**
  * 내 템플릿 목록
  *  - 목록   : GET /api/template/list (기본 템플릿 + 내 템플릿) → 둘로 나눠 카드로 그림
- *  - 썸네일 : 샘플 데이터 미리보기(A4)를 카드 너비에 맞춰 축소
+ *  - 썸네일 : 템플릿 선택 화면과 같은 미니 그림 (목록 API 의 layoutType·primaryColor·hasBanner 로 그림)
+ *             → 카드마다 미리보기 페이지를 불러오지 않음
  *  - 삭제   : DELETE /api/template/{id}
  */
 (function () {
     'use strict';
 
-    var PAGE_WIDTH = 794;
     var TOAST_TIME = 3500;
     var REMOVE_TIME = 300;   // 삭제 애니메이션(.22s)보다 조금 길게
 
     var cfg = {};
     var el = {};
     var toastTimer = null;
-    var thumbObserver = null;
+
+    var LAYOUTS = ['single', 'sidebar', 'split'];
+    var DEFAULT_COLOR = '#2D3748';
 
     /* ---------- 공통 ---------- */
 
@@ -63,7 +65,6 @@
 
     function editUrl(id) { return withParams(cfg.editUrl + encodeURIComponent(id), { resumeId: cfg.resumeId }); }
     function copyUrl(id) { return withParams(cfg.newUrl, { from: id, resumeId: cfg.resumeId }); }
-    function previewUrl(id) { return withParams(cfg.previewUrl, { templateId: id }); }
 
     /** 요소 만들기 (글자는 textContent 로만 넣어서 HTML 로 해석되지 않게) */
     function h(tag, attrs, children) {
@@ -85,29 +86,33 @@
         return h('i', { 'class': 'icon ' + name + ' sm', 'aria-hidden': 'true' });
     }
 
-    /* ---------- 썸네일 크기 ---------- */
+    /* ---------- 미니 썸네일 (resume-template.js 의 thumbHtml 과 같은 모양) ---------- */
 
-    function fitThumb(thumb) {
-        var width = thumb.clientWidth;
-        if (width > 0) thumb.style.setProperty('--thumb-scale', String(width / PAGE_WIDTH));
-    }
-
-    function initThumbObserver() {
-        if ('ResizeObserver' in window) {
-            thumbObserver = new ResizeObserver(function (entries) {
-                entries.forEach(function (entry) { fitThumb(entry.target); });
-            });
-        } else {
-            window.addEventListener('resize', function () {
-                document.querySelectorAll('.tl-thumb').forEach(fitThumb);
-            });
+    /**
+     *  - thumbnailUrl 이 있으면 그 이미지
+     *  - 없으면 layoutType(single·sidebar·split) · primaryColor · hasBanner 로 그림
+     */
+    function buildMini(t) {
+        if (t.thumbnailUrl && /^(https?:\/\/|\/)/i.test(t.thumbnailUrl)) {
+            return h('img', { src: t.thumbnailUrl, alt: '', loading: 'lazy' });
         }
-    }
 
-    /** 새로 만든 썸네일도 크기 맞춤 대상에 넣음 */
-    function watchThumb(thumb) {
-        if (thumbObserver) thumbObserver.observe(thumb);
-        else fitThumb(thumb);
+        var layout = LAYOUTS.indexOf(t.layoutType) >= 0 ? t.layoutType : 'single';
+        var color = /^#[0-9a-f]{3,8}$/i.test(t.primaryColor || '') ? t.primaryColor : DEFAULT_COLOR;
+
+        var mini = h('span', {
+            'class': 'mini',
+            'data-layout': layout,
+            'data-banner': String(t.hasBanner === true)
+        }, [
+            h('span', { 'class': 'mini__head' }),
+            h('span', { 'class': 'mini__body' }, [
+                h('span', { 'class': 'mini__col' }),
+                h('span', { 'class': 'mini__col mini__col--aside' })
+            ])
+        ]);
+        mini.style.setProperty('--t-color', color);
+        return mini;
     }
 
     /* ---------- 카드 ---------- */
@@ -121,19 +126,12 @@
         var name = t.templateName || '이름 없는 템플릿';
         var link = mine ? editUrl(id) : copyUrl(id);
 
+        // template-card__thumb : 템플릿 선택 화면의 썸네일 칸 스타일(이미지 채우기 등)을 같이 씀
         var thumb = h('a', {
-            'class': 'tl-thumb',
+            'class': 'tl-thumb template-card__thumb',
             href: link,
             'aria-label': name + (mine ? ' 편집' : ' 복사해서 만들기')
-        }, [
-            h('iframe', {
-                src: previewUrl(id),
-                loading: 'lazy',
-                tabindex: '-1',
-                'aria-hidden': 'true',
-                title: ''
-            })
-        ]);
+        }, [buildMini(t)]);
 
         var head = h('div', { 'class': 'tl-card__head' }, [
             h('h3', { 'class': 'ellipsis', title: name, text: name }),
@@ -163,7 +161,6 @@
             'data-template-name': name
         }, [thumb, head, desc, actions]);
 
-        watchThumb(thumb);
         return card;
     }
 
@@ -182,7 +179,6 @@
      *  - 없으면 템플릿 선택 화면(resume-template.js)과 같이 createdBy 가 없으면 기본
      */
     function isPublicTemplate(t) {
-        console.log('t ::: ',t)
         if (t.isPublic != null) return t.isPublic === true;
         return t.createdBy == null;
     }
@@ -237,8 +233,6 @@
                 card.classList.add('is-removed');
                 // 애니메이션이 꺼져 있으면 animationend 가 오지 않으므로 시간으로 지움
                 setTimeout(function () {
-                    var thumb = card.querySelector('.tl-thumb');
-                    if (thumb && thumbObserver) thumbObserver.unobserve(thumb);
                     card.remove();
                     updateMyCount();
                 }, REMOVE_TIME);
@@ -266,8 +260,7 @@
             listUrl: body.getAttribute('data-list-url'),
             deleteUrl: body.getAttribute('data-delete-url'),
             editUrl: body.getAttribute('data-edit-url'),
-            newUrl: body.getAttribute('data-new-url'),
-            previewUrl: body.getAttribute('data-preview-url')
+            newUrl: body.getAttribute('data-new-url')
         };
 
         el.toast = document.getElementById('listToast');
@@ -278,8 +271,6 @@
         el.myEmpty = document.getElementById('myEmpty');
         el.publicSection = document.getElementById('publicSection');
         el.publicGrid = document.getElementById('publicTemplateGrid');
-
-        initThumbObserver();
 
         document.addEventListener('click', function (e) {
             var deleteBtn = e.target.closest('.js-delete');

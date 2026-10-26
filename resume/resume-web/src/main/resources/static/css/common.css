@@ -357,6 +357,79 @@ body:has(.modal[open]) { overflow: hidden; }   /* 모달 열린 동안 뒤 페�
 }
 
 /* =========================================================
+   템플릿 썸네일 (템플릿 선택 화면, 내 템플릿 목록에서 같이 씀)
+   사용: <span class="template-card__thumb">
+           <span class="mini" data-layout="sidebar" data-banner="true" style="--t-color:#2563eb">
+             <span class="mini__head"></span>
+             <span class="mini__body">
+               <span class="mini__col"></span>
+               <span class="mini__col mini__col--aside"></span>
+             </span>
+           </span>
+         </span>
+        data-layout : single(기본) / sidebar / split
+        이미지가 있으면 .mini 대신 <img>
+   ========================================================= */
+.template-card__thumb {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border: 2px solid var(--c-border);
+    border-radius: var(--radius-md);
+    background: #fff;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+.template-card__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+}
+
+/* 썸네일 안의 미니 이력서 */
+.mini {
+    --t-color: #2D3748;
+    position: absolute;
+    inset: 8px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 6px;
+}
+.mini__head {
+    height: 14px;
+    border-bottom: 2px solid var(--t-color);
+}
+.mini__body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+}
+.mini__col {
+    background:
+        repeating-linear-gradient(#e2e8f0 0 3px, transparent 3px 8px);
+    border-radius: 2px;
+}
+.mini__col--aside { display: none; }
+
+.mini[data-layout="sidebar"] .mini__body { grid-template-columns: 30% 1fr; }
+.mini[data-layout="sidebar"] .mini__col--aside {
+    display: block;
+    order: -1;
+    background-color: color-mix(in srgb, var(--t-color) 14%, #fff);
+}
+.mini[data-layout="split"] .mini__body { grid-template-columns: 1.4fr 1fr; }
+.mini[data-layout="split"] .mini__col--aside { display: block; border-left: 1px solid #e2e8f0; }
+
+.mini[data-banner="true"] .mini__head {
+    height: 18px;
+    margin: -8px -8px 0;
+    border: none;
+    background: var(--t-color);
+}
+
+/* =========================================================
    resume list page
    ========================================================= */
 .page-header {

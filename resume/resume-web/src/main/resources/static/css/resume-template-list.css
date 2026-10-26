@@ -1,5 +1,6 @@
 /* =========================================================
    resume-template-list.css  (common.css 토큰·버튼 사용)
+   썸네일 칸 기본 모양(.template-card__thumb)과 미니 그림(.mini)은 common.css
    ========================================================= */
 
 /* ===== 상단 ===== */
@@ -45,31 +46,20 @@
     transform: translateY(-2px);
 }
 
-/* 썸네일 : A4 미리보기(794px)를 카드 너비에 맞춰 축소 (배율은 JS 가 --thumb-scale 로 넣음), 위쪽만 보이게 */
-.tl-thumb {
-    position: relative;
-    display: block;
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    border: 2px solid var(--c-border);
-    border-radius: var(--radius-md);
-    background: #fff;
-    transition: border-color var(--transition), box-shadow var(--transition);
-}
+/* 썸네일 칸 (기본 모양은 common.css 의 .template-card__thumb) : 누르면 편집·복사로 이동 */
 .tl-thumb:hover { border-color: var(--c-border-strong); }
 .tl-thumb:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-.tl-thumb iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 794px;
-    height: 1123px;
-    border: none;
-    background: #fff;
-    transform: scale(var(--thumb-scale, .3));
-    transform-origin: top left;
-    pointer-events: none;
+
+/* 이 화면의 카드는 템플릿 선택 화면보다 커서 미니 그림 여백·머리 높이를 조금 키움 */
+.tl-thumb .mini {
+    inset: 14px;
+    gap: 10px;
+}
+.tl-thumb .mini__head { height: 20px; }
+.tl-thumb .mini__body { gap: 10px; }
+.tl-thumb .mini[data-banner="true"] .mini__head {
+    height: 26px;
+    margin: -14px -14px 0;
 }
 
 /* 제목 + 삭제 */
@@ -154,6 +144,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
     .tl-card, .tl-card.is-removed { transition: none; animation-duration: .01s; }
+    .tl-card:hover { transform: none; }
 }
 
 /* 비어 있을 때 */
