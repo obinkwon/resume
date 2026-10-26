@@ -54,6 +54,13 @@
                     </div>
                     <!-- 카드 목록 — 높이 제한, 안에서만 스크롤 -->
                     <div class="template-scroll" id="templateGroups"></div>
+                    <!-- 템플릿 직접 만들기·편집은 내 템플릿 목록에서만 -->
+                    <div class="template-manage">
+                        <span class="text-xs text-muted">원하는 템플릿이 없나요?</span>
+                        <a class="btn ghost sm" th:href="@{/web/template/list(resumeId=${resumeDetail?.resumeId})}">
+                            내 템플릿 관리<i class="icon icon-arrow-right sm"></i>
+                        </a>
+                    </div>
                 </section>
                 <details class="panel panel-collapsible">
                     <summary class="panel-title">

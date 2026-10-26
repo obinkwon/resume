@@ -14,16 +14,18 @@
     <script th:src="@{/js/resume-form.js}" defer></script>
 </head>
 <body>
-    <div class="container">
+    <div class="container form-page" th:with="isEdit=${resumeDetail?.resumeId != null}">
         <div class="page-header">
-            <h1>이력서 작성</h1>
+            <div class="page-header__left">
+                <button type="button" class="btn secondary sm" id="btnBack">
+                    <i class="icon icon-arrow-left sm"></i>뒤로가기
+                </button>
+                <h1 th:text="${isEdit} ? '이력서 수정' : '이력서 작성'">이력서 작성</h1>
+            </div>
             <div class="btn-group">
                 <!-- 내 다른 이력서 / 이력서 파일 (모달 탭으로 선택) -->
                 <button type="button" class="btn outline" id="btnImportOpen">
                     <i class="icon icon-download"></i> 이력서 불러오기
-                </button>
-                <button type="button" class="btn secondary" id="btnBack">
-                    <i class="icon icon-arrow-left"></i> 뒤로가기
                 </button>
             </div>
         </div>
@@ -40,7 +42,10 @@
         <form method="post" id="resumeForm">
             <input type="hidden" name="resumeId" th:value="${resumeDetail?.resumeId}">
             <div class="section">
-                <h2>이력서 정보</h2>
+                <div class="section-header">
+                    <h2>이력서 정보</h2>
+                    <span class="hint">목록에서 구분하는 이름이에요</span>
+                </div>
                 <label class="field">
                     <span class="label">이력서 제목</span>
                     <input type="text" name="title" placeholder="이력서 제목" th:value="${resumeDetail?.title}">
@@ -52,7 +57,9 @@
                 <!-- 프로필 사진 : 둘 중 하나만 값이 있음 (업로드 파일 ID / 외부 URL) -->
                 <input type="hidden" name="profileImageId" th:value="${resumeDetail?.profile?.profileImageId}">
                 <input type="hidden" name="profileImageUrl" th:value="${resumeDetail?.profile?.profileImageUrl}">
-                <h2>인적 사항</h2>
+                <div class="section-header">
+                    <h2>인적 사항</h2>
+                </div>
                 <div class="profile-grid">
                     <!-- 프로필 사진 -->
                     <div class="photo">
@@ -149,7 +156,10 @@
             </div>
 
             <div class="section">
-                <h2>간단 소개</h2>
+                <div class="section-header">
+                    <h2>간단 소개</h2>
+                    <span class="hint">이력서 목록 카드에도 보여요</span>
+                </div>
                 <label class="field">
                     <textarea name="introduction" rows="4" placeholder="핵심 역량과 경력을 3~5문장으로 요약해 주세요" th:text="${resumeDetail?.profile?.introduction}"></textarea>
                 </label>
@@ -393,8 +403,12 @@
                     </div>
                 </div>
             </div>
+            <!-- 화면 아래에 붙어 있는 저장 줄 -->
             <div class="form-actions">
-                <button id="btnResumeSave" type="button" class="btn primary lg">저장</button>
+                <span class="form-actions__hint text-sm text-muted">불러온 내용도 저장해야 반영돼요</span>
+                <button id="btnResumeSave" type="button" class="btn primary lg">
+                    <i class="icon icon-save"></i>저장
+                </button>
             </div>
         </form>
     </div>

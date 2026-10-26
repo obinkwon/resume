@@ -203,6 +203,17 @@
 .template-card[aria-checked="true"] .template-card__name { color: var(--c-primary); }
 .template-card[aria-busy="true"] .template-card__thumb { opacity: .6; }
 
+/* 내 템플릿 관리 링크 */
+.template-manage {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--c-border);
+}
+
 /* 썸네일 안의 미니 이력서 */
 .mini {
     --t-color: #2D3748;
