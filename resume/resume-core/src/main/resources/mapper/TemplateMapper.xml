@@ -24,11 +24,8 @@
         FROM templates
         WHERE use_yn = 'Y'
         <choose>
-            <when test="isPublic != null and isPublic and userId == null">
+            <when test="userId == null">
                 AND is_public = true
-            </when>
-            <when test="isPublic != null and !isPublic and userId != null">
-                AND created_by = #{userId}
             </when>
             <otherwise>
                 AND ( is_public = true OR created_by = #{userId} )

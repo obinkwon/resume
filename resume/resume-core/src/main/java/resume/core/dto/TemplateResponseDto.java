@@ -19,4 +19,6 @@ public class TemplateResponseDto {
     private String layoutType;
     private String primaryColor;
     private Boolean hasBanner;
+    private Boolean isPublic;
+    private Long createdBy;
 }

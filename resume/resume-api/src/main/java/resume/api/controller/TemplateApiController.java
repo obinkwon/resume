@@ -25,7 +25,6 @@ public class TemplateApiController {
     @GetMapping("/list")
     public ResponseEntity<List<TemplateResponseDto>> getTemplateList(TemplateRequestDto requestDto,
                                                                      @AuthenticationPrincipal UserPrincipal principal) {
-        requestDto.setIsPublic(true);
         requestDto.setUserId(principal.getUserId());
         return ResponseEntity.ok(templateService.getTemplateList(requestDto));
     }

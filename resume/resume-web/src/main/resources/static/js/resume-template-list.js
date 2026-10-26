@@ -182,6 +182,7 @@
      *  - 없으면 템플릿 선택 화면(resume-template.js)과 같이 createdBy 가 없으면 기본
      */
     function isPublicTemplate(t) {
+        console.log('t ::: ',t)
         if (t.isPublic != null) return t.isPublic === true;
         return t.createdBy == null;
     }

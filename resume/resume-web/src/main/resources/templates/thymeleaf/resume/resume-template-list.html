@@ -24,9 +24,9 @@
     <div class="container">
         <div class="page-header">
             <div class="page-header__left">
-                <a class="btn secondary sm"
-                   th:href="${hasResume} ? @{/web/resume/template/{id}(id=${resumeId})} : @{/web/resume/list}">
-                    <i class="icon icon-arrow-left sm"></i><span th:text="${hasResume} ? '템플릿 선택' : '목록'">목록</span>
+                <a class="btn secondary sm" th:href="@{/web/resume/list}">
+                    <i class="icon icon-arrow-left sm"></i>
+                    <span th:text="목록">목록</span>
                 </a>
                 <h1>내 템플릿</h1>
             </div>
