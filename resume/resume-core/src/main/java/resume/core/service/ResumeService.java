@@ -205,6 +205,7 @@ public class ResumeService {
                     .htmlContent(responseDto.getHtmlContent())
                     .cssContent(requestDto.getCssContent())
                     .isPublic(false)
+                    .createdBy(requestDto.getLoginId())
                     .build();
             templateMapper.insertTemplate(templateDto);
             requestDto.setTemplateId(templateDto.getTemplateId());

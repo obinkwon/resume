@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>템플릿 편집</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: https:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}">
+    <link rel="stylesheet" th:href="@{/fonts/pretendard.css}">
+    <link rel="stylesheet" th:href="@{/css/resume-template-editor.css}">
+    <script th:src="@{/js/resume-template-editor.js}" defer></script>
+</head>
+<!--/* resumeId 가 없으면 이력서 없이 템플릿만 만드는 모드 (샘플 데이터로 미리보기) */-->
+<body th:with="hasResume=${resumeId != null},
+               backUrl=${resumeId != null} ? @{/template/{id}(id=${resumeId})} : @{/web/template/list}"
+      th:attr="data-resume-id=${resumeId},
+               data-base-template-id=${resumeTemplate?.templateId},
+               data-own-template=${ownTemplate == true},
+               data-sample-preview-url=@{/web/template/sample-preview},
+               data-resume-preview-url=${hasResume} ? @{/preview/{id}(id=${resumeId},embed=1)} : '',
+               data-save-url=@{/api/template/save},
+               data-edit-url=@{/web/template/edit/},
+               data-back-url=${backUrl},
+               data-list-url=@{/web/template/list}">
+
+    <!-- ===== 상단 바 ===== -->
+    <header class="te-bar">
+        <a class="te-bar__back" th:href="${backUrl}" href="#"
+           th:text="${hasResume} ? '← 템플릿 선택' : '← 내 템플릿'">&larr; 내 템플릿</a>
+        <div class="te-bar__name">
+            <label for="templateName">템플릿 이름</label>
+            <input type="text" id="templateName" maxlength="50"
+                   th:value="${resumeTemplate?.templateName} ?: '새 템플릿'">
+        </div>
+        <span class="te-bar__mode" th:if="${!hasResume}">이력서 연결 없음</span>
+        <span class="te-bar__status" id="saveStatus"></span>
+        <div class="te-bar__actions">
+            <button type="button" class="te-btn" id="btnReset">원래대로</button>
+            <button type="button" class="te-btn" id="btnSaveAsNew"
+                    th:classappend="${ownTemplate == true} ? '' : 'd-none'">새 템플릿으로 저장</button>
+            <button type="button" class="te-btn te-btn--primary" id="btnSave"
+                    th:text="${ownTemplate == true} ? '저장' : '새 템플릿으로 저장'">저장</button>
+        </div>
+    </header>
+
+    <main class="te-main">
+
+        <!-- ===== 치환자 목록 ===== -->
+        <aside class="te-vars">
+            <h2 class="te-vars__title">치환자</h2>
+            <p class="te-vars__desc">클릭하면 HTML 커서 위치에 들어갑니다. 섹션마다 한 번씩만 쓸 수 있어요.</p>
+            <ul class="te-vars__list" id="varList">
+                <li data-var="profile"><code>{{profile}}</code><span>인적사항</span></li>
+                <li data-var="intro"><code>{{intro}}</code><span>자기소개</span></li>
+                <li data-var="cover"><code>{{cover}}</code><span>자기소개서</span></li>
+                <li data-var="experience"><code>{{experience}}</code><span>경력</span></li>
+                <li data-var="project"><code>{{project}}</code><span>프로젝트</span></li>
+                <li data-var="education"><code>{{education}}</code><span>학력</span></li>
+                <li data-var="certificate"><code>{{certificate}}</code><span>자격증</span></li>
+                <li data-var="skill"><code>{{skill}}</code><span>기술 스택</span></li>
+                <li data-var="link"><code>{{link}}</code><span>외부 링크</span></li>
+            </ul>
+            <dl class="te-vars__legend">
+                <div><dt class="is-used"></dt><dd>템플릿에 넣음</dd></div>
+                <div><dt class="is-empty"></dt><dd>미리보기 데이터에 내용 없음</dd></div>
+            </dl>
+
+            <h2 class="te-vars__title">CSS 클래스</h2>
+            <ul class="te-classes">
+                <li><code>.resume</code> 전체 영역</li>
+                <li><code>.r-header</code> <code>.r-photo</code> <code>.r-name</code> <code>.r-contact</code></li>
+                <li><code>.r-section</code> <code>.r-section__title</code></li>
+                <li><code>.r-item</code> <code>.r-item__head</code> <code>.r-item__title</code> <code>.r-item__sub</code></li>
+                <li><code>.r-period</code> <code>.r-text</code> <code>.r-url</code></li>
+                <li><code>.r-tags</code> <code>li[data-level]</code> <code>li[data-category]</code></li>
+                <li><code>.r-links</code> <code>.r-link__name</code> <code>.r-link__url</code></li>
+                <li><code>[data-section="이름"]</code> 섹션별 지정</li>
+            </ul>
+        </aside>
+
+        <!-- ===== 편집기 ===== -->
+        <section class="te-editor">
+            <div class="te-tabs" role="tablist">
+                <button type="button" class="te-tab is-active" role="tab" data-tab="html">HTML</button>
+                <button type="button" class="te-tab" role="tab" data-tab="css">CSS</button>
+            </div>
+            <div class="te-code">
+                <textarea id="htmlEditor" class="te-textarea is-active" spellcheck="false" autocomplete="off"
+                          th:text="${resumeTemplate?.htmlContent}"></textarea>
+                <textarea id="cssEditor" class="te-textarea" spellcheck="false" autocomplete="off"
+                          th:text="${resumeTemplate?.cssContent}"></textarea>
+            </div>
+            <ul class="te-messages" id="messages" aria-live="polite"></ul>
+        </section>
+
+        <!-- ===== 미리보기 ===== -->
+        <section class="te-preview">
+            <div class="te-preview__bar">
+                <span>미리보기</span>
+                <div class="te-preview__tools">
+                    <div class="te-seg" id="dataToggle" th:if="${hasResume}" role="group" aria-label="미리보기 데이터">
+                        <button type="button" class="te-seg__btn is-active" data-source="resume">내 이력서</button>
+                        <button type="button" class="te-seg__btn" data-source="sample">샘플 데이터</button>
+                    </div>
+                    <span class="te-preview__hint" th:unless="${hasResume}">샘플 데이터</span>
+                    <button type="button" class="te-btn te-btn--small" id="btnRefresh">새로고침</button>
+                </div>
+            </div>
+            <div class="te-preview__frame">
+                <iframe id="previewFrame" title="이력서 미리보기"></iframe>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>

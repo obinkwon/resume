@@ -1,0 +1,266 @@
+/* ===== 템플릿 편집기 ===== */
+:root {
+    --te-bg: #f4f5f7;
+    --te-panel: #ffffff;
+    --te-line: #e3e5e9;
+    --te-text: #1f2328;
+    --te-muted: #6b7280;
+    --te-primary: #2f6fed;
+    --te-primary-dark: #2457c5;
+    --te-code-bg: #1e2127;
+    --te-code-text: #e6e6e6;
+    --te-error: #d93025;
+    --te-error-bg: #fdecea;
+    --te-warn: #9a6700;
+    --te-warn-bg: #fff8e1;
+    --te-ok: #1a7f37;
+    --te-bar-h: 56px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; margin: 0; }
+
+body {
+    font-family: 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif;
+    font-size: 14px;
+    color: var(--te-text);
+    background: var(--te-bg);
+    overflow: hidden;
+}
+
+code {
+    font-family: 'D2Coding', 'Consolas', 'Menlo', monospace;
+    font-size: 12px;
+}
+
+/* ----- 버튼 ----- */
+.te-btn {
+    height: 34px;
+    padding: 0 14px;
+    border: 1px solid var(--te-line);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--te-text);
+    font: inherit;
+    cursor: pointer;
+}
+.te-btn:hover { background: #f0f1f3; }
+.te-btn:disabled { opacity: .45; cursor: not-allowed; }
+.te-btn--primary { background: var(--te-primary); border-color: var(--te-primary); color: #fff; font-weight: 600; }
+.te-btn--primary:hover:not(:disabled) { background: var(--te-primary-dark); }
+.te-btn--small { height: 28px; padding: 0 10px; font-size: 13px; }
+
+/* ----- 상단 바 ----- */
+.te-bar {
+    height: var(--te-bar-h);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 20px;
+    background: var(--te-panel);
+    border-bottom: 1px solid var(--te-line);
+}
+.te-bar__back { color: var(--te-muted); text-decoration: none; white-space: nowrap; }
+.te-bar__back:hover { color: var(--te-text); }
+.te-bar__name { display: flex; align-items: center; gap: 8px; flex: 0 1 360px; min-width: 0; }
+.te-bar__name label { color: var(--te-muted); white-space: nowrap; }
+.te-bar__name input {
+    flex: 1;
+    min-width: 0;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--te-line);
+    border-radius: 6px;
+    font: inherit;
+}
+.te-bar__name input:focus { outline: 2px solid var(--te-primary); outline-offset: -1px; }
+.te-bar__status { margin-left: auto; font-size: 13px; color: var(--te-muted); white-space: nowrap; }
+.te-bar__status.is-dirty { color: var(--te-warn); }
+.te-bar__status.is-saved { color: var(--te-ok); }
+.te-bar__status.is-error { color: var(--te-error); }
+.te-bar__actions { display: flex; gap: 8px; }
+
+/* ----- 3단 레이아웃 ----- */
+.te-main {
+    height: calc(100% - var(--te-bar-h));
+    display: grid;
+    grid-template-columns: 240px minmax(360px, 1fr) minmax(420px, 1.1fr);
+}
+
+/* ----- 치환자 목록 ----- */
+.te-vars {
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--te-panel);
+    border-right: 1px solid var(--te-line);
+}
+.te-vars__title { margin: 0 0 6px; font-size: 14px; font-weight: 700; }
+.te-vars__title:not(:first-child) { margin-top: 24px; }
+.te-vars__desc { margin: 0 0 12px; font-size: 12px; line-height: 1.5; color: var(--te-muted); }
+.te-vars__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.te-vars__list li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px 8px 22px;
+    border: 1px solid var(--te-line);
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+}
+.te-vars__list li:hover { border-color: var(--te-primary); background: #f5f8ff; }
+.te-vars__list li::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    margin-top: -3.5px;
+    border-radius: 50%;
+    background: var(--te-line);
+}
+.te-vars__list li.is-used::before { background: var(--te-primary); }
+.te-vars__list li code { color: var(--te-primary-dark); }
+.te-vars__list li span { font-size: 12px; color: var(--te-muted); }
+.te-vars__list li.is-empty span::after { content: ' · 내용 없음'; color: #b0b4ba; }
+.te-vars__list li.is-empty code { opacity: .55; }
+
+.te-vars__legend { margin: 12px 0 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--te-muted); }
+.te-vars__legend div { display: flex; align-items: center; gap: 6px; }
+.te-vars__legend dt { width: 7px; height: 7px; border-radius: 50%; }
+.te-vars__legend dt.is-used { background: var(--te-primary); }
+.te-vars__legend dt.is-empty { background: #b0b4ba; }
+.te-vars__legend dd { margin: 0; }
+
+.te-classes { list-style: none; margin: 0; padding: 0; font-size: 12px; color: var(--te-muted); line-height: 1.5; }
+.te-classes li { padding: 4px 0; border-bottom: 1px dashed var(--te-line); }
+.te-classes code { color: var(--te-text); background: #f0f1f3; padding: 0 3px; border-radius: 3px; }
+
+/* ----- 편집기 ----- */
+.te-editor {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background: var(--te-code-bg);
+}
+.te-tabs { display: flex; background: #15171b; }
+.te-tab {
+    padding: 10px 20px;
+    border: 0;
+    background: transparent;
+    color: #8b919a;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    border-top: 2px solid transparent;
+}
+.te-tab:hover { color: #d0d4da; }
+.te-tab.is-active { color: #fff; background: var(--te-code-bg); border-top-color: var(--te-primary); }
+
+.te-code { position: relative; flex: 1; min-height: 0; }
+.te-textarea {
+    display: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 14px 16px;
+    border: 0;
+    resize: none;
+    outline: none;
+    background: var(--te-code-bg);
+    color: var(--te-code-text);
+    caret-color: #fff;
+    font-family: 'D2Coding', 'Consolas', 'Menlo', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    tab-size: 4;
+    white-space: pre;
+    overflow: auto;
+}
+.te-textarea.is-active { display: block; }
+.te-textarea::selection { background: #3a4d75; }
+
+.te-messages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 30%;
+    overflow-y: auto;
+    background: #fff;
+}
+.te-messages:empty { display: none; }
+.te-msg { padding: 8px 14px; font-size: 13px; border-top: 1px solid var(--te-line); }
+.te-msg--error { color: var(--te-error); background: var(--te-error-bg); }
+.te-msg--error::before { content: '오류 · '; font-weight: 700; }
+.te-msg--warn { color: var(--te-warn); background: var(--te-warn-bg); }
+.te-msg--warn::before { content: '안내 · '; font-weight: 700; }
+
+/* ----- 미리보기 ----- */
+.te-preview { display: flex; flex-direction: column; min-width: 0; min-height: 0; border-left: 1px solid var(--te-line); }
+.te-preview__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 41px;
+    padding: 0 12px;
+    background: var(--te-panel);
+    border-bottom: 1px solid var(--te-line);
+    font-weight: 600;
+}
+.te-preview__frame { flex: 1; min-height: 0; padding: 16px; overflow: hidden; }
+.te-preview__frame iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
+}
+
+.te-preview__tools { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+.te-preview__hint { font-size: 12px; color: var(--te-muted); }
+
+/* 미리보기 데이터 전환 [내 이력서 | 샘플 데이터] */
+.te-seg { display: inline-flex; border: 1px solid var(--te-line); border-radius: 6px; overflow: hidden; }
+.te-seg__btn {
+    height: 28px;
+    padding: 0 10px;
+    border: 0;
+    background: #fff;
+    color: var(--te-muted);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+.te-seg__btn + .te-seg__btn { border-left: 1px solid var(--te-line); }
+.te-seg__btn.is-active { background: var(--te-primary); color: #fff; }
+
+.te-bar__mode {
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #eef2fb;
+    color: var(--te-primary-dark);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.d-none { display: none !important; }
+
+/* ----- 좁은 화면 ----- */
+@media (max-width: 1100px) {
+    body { overflow: auto; }
+    .te-main { height: auto; grid-template-columns: 1fr; }
+    .te-vars { border-right: 0; border-bottom: 1px solid var(--te-line); }
+    .te-vars__list { flex-direction: row; flex-wrap: wrap; }
+    .te-editor { height: 60vh; }
+    .te-preview { height: 80vh; border-left: 0; }
+    .te-bar { flex-wrap: wrap; height: auto; padding: 10px 16px; }
+    .te-main { height: auto; }
+}

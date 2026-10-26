@@ -105,7 +105,7 @@ CREATE TABLE resume_cover_letter (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_resume_cover_letter PRIMARY KEY (cover_letter_id),
-    CONSTRAINT ck_resume_cover_letter_use_yn CHECK (use_yn IN ('Y', 'N')),
+    CONSTRAINT ck_resume_cover_letter_use_yn CHECK (use_yn IN ('Y', 'N'))
 );
 COMMENT ON TABLE resume_cover_letter IS '이력서 자기소개서 항목';
 COMMENT ON COLUMN resume_cover_letter.cover_letter_id IS '자기소개서 항목 PK';
