@@ -47,8 +47,10 @@ public class TemplateWebController {
         TemplateDetailResponseDto base = null;
         // 템플릿 복사해서 생성할 경우 (공개 템플릿 또는 내 템플릿만)
         if (requestDto.getTemplateId() != null) {
+            requestDto.setUserId(principal.getUserId());
+            requestDto.setIsPublic(true);
             base = templateService.getTemplateDetail(requestDto);
-            if (base == null || !"Y".equals(base.getUseYn()) || !(Boolean.TRUE.equals(base.getIsPublic()) || templateService.isOwner(base, principal.getUserId()))) {
+            if (base == null) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "템플릿을 찾을 수 없습니다.");
             }
         }
@@ -69,9 +71,11 @@ public class TemplateWebController {
                                      @AuthenticationPrincipal UserPrincipal principal,
                                      Model model) {
         requestDto.setTemplateId(templateId);
+        // 내 템플릿만 조회 (기본 템플릿은 복사해서 만들기)
+        requestDto.setUserId(principal.getUserId());
+        requestDto.setIsPublic(false);
         TemplateDetailResponseDto templateDetailDto = templateService.getTemplateDetail(requestDto);
-        // 내 템플릿만 수정 가능 (기본 템플릿은 복사해서 만들기)
-        if (!templateService.isOwner(templateDetailDto, principal.getUserId())) {
+        if (templateDetailDto == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "템플릿을 찾을 수 없습니다.");
         }
 

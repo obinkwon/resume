@@ -50,6 +50,19 @@
             , updated_at
         FROM templates
         WHERE template_id = #{templateId}
+        <!-- userId 가 있으면 내가 등록한 템플릿만 (수정 화면), isPublic = true 면 공개 템플릿도 (복사해서 등록 화면) -->
+        <if test="userId != null">
+            AND use_yn = 'Y'
+            <choose>
+                <when test="isPublic == true">
+                    AND ( is_public = true OR created_by = #{userId} )
+                </when>
+                <otherwise>
+                    AND is_public = false
+                    AND created_by = #{userId}
+                </otherwise>
+            </choose>
+        </if>
     </select>
 
     <!-- 이력서 템플릿 추가 -->
