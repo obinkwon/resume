@@ -1,185 +1,221 @@
-/* ===== 내 템플릿 목록 ===== */
-:root {
-    --tl-bg: #f4f5f7;
-    --tl-panel: #ffffff;
-    --tl-line: #e3e5e9;
-    --tl-text: #1f2328;
-    --tl-muted: #6b7280;
-    --tl-primary: #2f6fed;
-    --tl-primary-dark: #2457c5;
-    --tl-danger: #d93025;
+/* =========================================================
+   resume-template-list.css  (common.css 토큰·버튼·모달 사용)
+   ========================================================= */
 
-    /* 썸네일 : A4(794 x 1123) 를 0.3 배로 */
-    --tl-page-w: 794px;
-    --tl-page-h: 1123px;
-    --tl-scale: .3;
-    --tl-thumb-w: calc(var(--tl-page-w) * var(--tl-scale));
-    --tl-thumb-h: calc(var(--tl-page-h) * var(--tl-scale));
+/* ===== 상단 ===== */
+.page-header { gap: 16px; }
+.page-header__left {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
 }
+.page-header__left .btn { margin-top: 2px; }
+.page-header__left p { margin: 4px 0 0; }
 
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    font-family: 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif;
-    font-size: 14px;
-    color: var(--tl-text);
-    background: var(--tl-bg);
-}
-
-/* ----- 버튼 ----- */
-.tl-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 36px;
-    padding: 0 14px;
-    border: 1px solid var(--tl-line);
-    border-radius: 6px;
-    background: #fff;
-    color: var(--tl-text);
-    font: inherit;
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-}
-.tl-btn:hover { background: #f0f1f3; }
-.tl-btn:disabled { opacity: .45; cursor: not-allowed; }
-.tl-btn--primary { background: var(--tl-primary); border-color: var(--tl-primary); color: #fff; font-weight: 600; }
-.tl-btn--primary:hover:not(:disabled) { background: var(--tl-primary-dark); }
-.tl-btn--small { height: 30px; padding: 0 10px; font-size: 13px; }
-.tl-btn--danger { color: var(--tl-danger); }
-.tl-btn--danger:hover { background: #fdecea; }
-
-/* ----- 상단 바 ----- */
-.tl-bar {
-    position: sticky;
-    top: 0;
-    z-index: 10;
+/* ===== 섹션 제목 ===== */
+.tl-title {
     display: flex;
     align-items: center;
-    gap: 16px;
-    height: 60px;
-    padding: 0 24px;
-    background: var(--tl-panel);
-    border-bottom: 1px solid var(--tl-line);
-}
-.tl-bar__back { color: var(--tl-muted); text-decoration: none; white-space: nowrap; }
-.tl-bar__back:hover { color: var(--tl-text); }
-.tl-bar__title { flex: 1; margin: 0; font-size: 18px; }
-
-/* ----- 본문 ----- */
-.tl-main { max-width: 1200px; margin: 0 auto; padding: 24px; }
-.tl-intro { margin: 0 0 28px; color: var(--tl-muted); line-height: 1.6; }
-
-.tl-section + .tl-section { margin-top: 40px; }
-.tl-section__title { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; font-size: 16px; }
-.tl-count {
-    min-width: 22px;
-    padding: 1px 7px;
-    border-radius: 999px;
-    background: #e6ebf5;
-    color: var(--tl-primary-dark);
-    font-size: 12px;
-    text-align: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    font-size: 16px;
 }
 
-.tl-empty {
-    padding: 36px 24px;
-    border: 1px dashed #c9cdd4;
-    border-radius: 10px;
-    background: #fafbfc;
-    text-align: center;
-    color: var(--tl-muted);
-}
-.tl-empty p { margin: 0 0 6px; }
-.tl-empty .tl-btn { margin-top: 12px; }
-
-/* ----- 카드 ----- */
+/* ===== 카드 목록 ===== */
 .tl-grid {
-    list-style: none;
-    margin: 0;
-    padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, calc(var(--tl-thumb-w) + 26px));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 20px;
 }
+
 .tl-card {
     display: flex;
     flex-direction: column;
-    padding: 12px;
-    background: var(--tl-panel);
-    border: 1px solid var(--tl-line);
-    border-radius: 10px;
-    transition: box-shadow .15s, border-color .15s;
+    gap: 8px;
+    padding: 14px;
+    background: var(--c-surface);
+    border: 1px solid #eef0f4;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .2s ease, transform .2s ease, opacity .2s ease;
 }
-.tl-card:hover { border-color: #c9d6f5; box-shadow: 0 4px 14px rgba(32, 56, 110, .08); }
+.tl-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
 
+/* 썸네일 : A4 미리보기(794px)를 카드 너비에 맞춰 축소 (배율은 JS 가 --thumb-scale 로 넣음), 위쪽만 보이게 */
 .tl-thumb {
     position: relative;
     display: block;
-    width: var(--tl-thumb-w);
-    height: var(--tl-thumb-h);
+    width: 100%;
+    aspect-ratio: 4 / 3;
     overflow: hidden;
-    border: 1px solid var(--tl-line);
-    border-radius: 4px;
+    border: 2px solid var(--c-border);
+    border-radius: var(--radius-md);
     background: #fff;
+    transition: border-color var(--transition), box-shadow var(--transition);
 }
+.tl-thumb:hover { border-color: var(--c-border-strong); }
+.tl-thumb:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .tl-thumb iframe {
     position: absolute;
     top: 0;
     left: 0;
-    width: var(--tl-page-w);
-    height: var(--tl-page-h);
-    border: 0;
-    transform: scale(var(--tl-scale));
-    transform-origin: 0 0;
+    width: 794px;
+    height: 1123px;
+    border: none;
+    background: #fff;
+    transform: scale(var(--thumb-scale, .3));
+    transform-origin: top left;
     pointer-events: none;
 }
 
-.tl-card__body { flex: 1; padding: 12px 2px 8px; min-width: 0; }
-.tl-card__name { margin: 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 제목 + 삭제 */
+.tl-card__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+.tl-card__head h3 {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-size: 16px;
+}
+.tl-card__head .badge { flex-shrink: 0; }
+
+/* 평소엔 흐리게, 카드에 마우스를 올리거나 키보드로 오면 또렷하게 */
+.tl-card__delete {
+    margin: -4px -6px 0 0;
+    opacity: .55;
+    transition: opacity var(--transition), background var(--transition), color var(--transition);
+}
+.tl-card:hover .tl-card__delete,
+.tl-card__delete:focus-visible { opacity: 1; }
+
+/* 설명 : 2줄까지 */
 .tl-card__desc {
-    margin: 4px 0 0;
-    font-size: 12px;
-    color: var(--tl-muted);
-    line-height: 1.5;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     overflow: hidden;
+    min-height: calc(1.5em * 2);
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--c-text-sub);
+    word-break: break-all;
 }
-.tl-card__actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.tl-card__desc.is-empty {
+    color: var(--c-text-faint);
+    font-style: italic;
+}
 
-/* ----- 적용 대화상자 ----- */
-.tl-dialog {
-    width: min(420px, calc(100% - 32px));
-    padding: 24px;
-    border: 0;
-    border-radius: 12px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, .2);
-    color: var(--tl-text);
+/* 아래 버튼 줄 (resume-list 카드와 같은 모양) */
+.tl-card .actions {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    gap: 8px;
 }
-.tl-dialog::backdrop { background: rgba(20, 24, 32, .45); }
-.tl-dialog__title { margin: 0 0 8px; font-size: 17px; }
-.tl-dialog__desc { margin: 0 0 16px; color: var(--tl-muted); line-height: 1.5; }
-.tl-dialog__desc strong { color: var(--tl-text); }
-.tl-dialog__field { display: flex; flex-direction: column; gap: 6px; }
-.tl-dialog__field span { font-size: 13px; color: var(--tl-muted); }
-.tl-dialog__field select {
-    height: 38px;
-    padding: 0 10px;
-    border: 1px solid var(--tl-line);
-    border-radius: 6px;
-    font: inherit;
-    background: #fff;
+.tl-card .actions a,
+.tl-card .actions button {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    text-decoration: none;
+    color: var(--c-text-sub);
+    background: var(--c-surface-sub);
+    transition: background var(--transition), color var(--transition);
 }
-.tl-dialog__empty { padding: 14px; border-radius: 6px; background: #fff8e1; color: #9a6700; }
-.tl-dialog__note { min-height: 18px; margin: 8px 0 0; font-size: 12px; color: #9a6700; }
-.tl-dialog__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.tl-card .actions a:hover,
+.tl-card .actions button:hover {
+    background: var(--c-border);
+    color: #111;
+}
+.tl-card .actions .apply { color: var(--c-primary); }
+.tl-card .actions .apply:hover { background: var(--c-primary-soft); color: var(--c-primary-hover); }
+.tl-card .actions a:focus-visible,
+.tl-card .actions button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
-@media (max-width: 600px) {
-    .tl-bar { padding: 0 16px; }
-    .tl-main { padding: 16px; }
-    .tl-grid { grid-template-columns: 1fr; justify-items: center; }
+/* 삭제 중 / 삭제됨 */
+.tl-card.is-deleting { opacity: .5; pointer-events: none; }
+.tl-card.is-removed { animation: tl-card-out .22s ease forwards; }
+@keyframes tl-card-out {
+    to { opacity: 0; transform: scale(.96); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .tl-card, .tl-card.is-removed { transition: none; animation-duration: .01s; }
+}
+
+/* 비어 있을 때 */
+.empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--c-text-faint);
+}
+.empty-state p { margin: 0 0 16px; }
+
+/* ===== 이력서에 적용 모달 ===== */
+.tl-apply__desc { margin: 0; color: var(--c-text-sub); }
+.tl-apply__desc strong { color: var(--c-text); }
+.tl-apply__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.tl-apply__field select { margin: 0; }
+.tl-apply__empty {
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: #fffbeb;
+    color: #b45309;
+    font-size: 13px;
+}
+.tl-apply__note {
+    min-height: 20px;
+    margin: -12px 0 0;
+    color: #b45309;
+}
+.tl-apply__note:empty { display: none; }
+
+/* ===== 알림 (resume-list 와 같은 모양) ===== */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 32px;
+    z-index: 100;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 32px);
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    background: var(--c-text);
+    color: #fff;
+    font-size: 14px;
+    box-shadow: var(--shadow-md);
+}
+.toast.is-error { background: var(--c-danger-hover); }
+.toast a { color: #93c5fd; margin-left: 8px; }
+
+/* ===== 좁은 화면 ===== */
+@media (max-width: 1240px) {
+    .container { width: auto; margin: 24px 16px; }
+}
+@media (max-width: 640px) {
+    .page-header { flex-wrap: wrap; }
+    .page-header__left { flex-direction: column; gap: 8px; }
+    .page-header .btn-group { width: 100%; }
+    .page-header .btn-group .btn { flex: 1; }
 }

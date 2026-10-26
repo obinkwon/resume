@@ -15,6 +15,8 @@
     var FORBIDDEN_TAGS = ['script', 'iframe', 'frame', 'frameset', 'object', 'embed', 'link', 'meta', 'base', 'form', 'input', 'button', 'textarea', 'select', 'style'];
     var MAX_LENGTH = 100000;
     var RENDER_DELAY = 300;
+    var PAGE_WIDTH = 794;      // A4
+    var PAGE_HEIGHT = 1123;
 
     var el = {};
     var cfg = {};
@@ -153,6 +155,29 @@
         return state.source === 'resume' && cfg.resumePreviewUrl ? cfg.resumePreviewUrl : cfg.samplePreviewUrl;
     }
 
+    /** A4 미리보기를 미리보기 영역 너비에 맞춰 축소 (최대 100%) */
+    function fitPreview() {
+        var style = window.getComputedStyle(el.stage);
+        var padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+        var available = el.stage.clientWidth - padding;
+        if (available <= 0) return;
+
+        var scale = Math.min(1, available / PAGE_WIDTH);
+        el.frame.style.transform = 'scale(' + scale + ')';
+        el.page.style.width = Math.floor(PAGE_WIDTH * scale) + 'px';
+        el.page.style.height = Math.floor(PAGE_HEIGHT * scale) + 'px';
+        if (el.zoom) el.zoom.textContent = Math.round(scale * 100) + '%';
+    }
+
+    function initPreviewSize() {
+        if ('ResizeObserver' in window) {
+            new ResizeObserver(fitPreview).observe(el.stage);
+        } else {
+            window.addEventListener('resize', fitPreview);
+        }
+        fitPreview();
+    }
+
     function reloadFrame() {
         state.ready = false;
         el.frame.src = previewUrl();
@@ -247,7 +272,7 @@
     /** 내 템플릿이면 [저장](덮어쓰기) + [새 템플릿으로 저장], 아니면 [새 템플릿으로 저장] 하나 */
     function updateOwnership(own) {
         state.own = own;
-        el.btnSave.textContent = own ? '저장' : '새 템플릿으로 저장';
+        el.btnSaveText.textContent = own ? '저장' : '새 템플릿으로 저장';
         el.btnSaveAsNew.classList.toggle('d-none', !own);
     }
 
@@ -348,8 +373,7 @@
             resumePreviewUrl: body.getAttribute('data-resume-preview-url') || '',
             saveUrl: body.getAttribute('data-save-url'),
             editUrl: body.getAttribute('data-edit-url'),
-            backUrl: body.getAttribute('data-back-url'),
-            listUrl: body.getAttribute('data-list-url')
+            backUrl: body.getAttribute('data-back-url')
         };
         state.baseTemplateId = baseId ? Number(baseId) : null;
         state.own = body.getAttribute('data-own-template') === 'true';
@@ -367,6 +391,10 @@
         el.status = document.getElementById('saveStatus');
         el.btnSave = document.getElementById('btnSave');
         el.btnSaveAsNew = document.getElementById('btnSaveAsNew');
+        el.btnSaveText = document.getElementById('btnSaveText');
+        el.stage = document.getElementById('previewStage');
+        el.page = document.getElementById('previewPage');
+        el.zoom = document.getElementById('zoomLabel');
         el.tabs = Array.prototype.slice.call(document.querySelectorAll('.te-tab'));
         el.varItems = Array.prototype.slice.call(document.querySelectorAll('#varList li[data-var]'));
         el.sourceButtons = Array.prototype.slice.call(document.querySelectorAll('#dataToggle [data-source]'));
@@ -396,6 +424,7 @@
             if (state.dirty) { e.preventDefault(); e.returnValue = ''; }
         });
 
+        initPreviewSize();
         sendPreview();   // 검사 메시지 먼저 표시
         reloadFrame();   // 미리보기 로드 → preview-ready 를 받으면 반영
     });
