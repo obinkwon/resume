@@ -78,4 +78,18 @@
             , CURRENT_TIMESTAMP
         )
     </insert>
+
+    <!-- 이력서 템플릿 삭제 -->
+    <update id="deleteTemplate" parameterType="resume.core.dto.TemplateRequestDto">
+        UPDATE templates
+        SET use_yn = 'N'
+            , updated_at = CURRENT_TIMESTAMP
+        WHERE use_yn = 'Y'
+        <if test='templateId != null'>
+            AND template_id = #{templateId}
+        </if>
+        <if test='userId != null'>
+            AND created_by = #{userId}
+        </if>
+    </update>
 </mapper>

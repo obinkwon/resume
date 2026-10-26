@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import resume.core.dto.TemplateDetailResponseDto;
 import resume.core.dto.TemplateRequestDto;
 import resume.core.dto.TemplateResponseDto;
@@ -55,6 +56,11 @@ public class TemplateService {
 
     public TemplateDetailResponseDto getTemplateDetail(TemplateRequestDto requestDto) {
         return templateMapper.selectTemplateDetail(requestDto);
+    }
+
+    @Transactional
+    public void deleteTemplate(TemplateRequestDto requestDto) {
+        templateMapper.deleteTemplate(requestDto);
     }
 
     /**

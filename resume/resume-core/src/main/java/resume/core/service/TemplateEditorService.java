@@ -98,20 +98,6 @@ public class TemplateEditorService {
         templateEditorMapper.updateResumeTemplate(req.getResumeId(), req.getTemplateId());
     }
 
-    /** 내 템플릿 삭제 (쓰고 있는 이력서가 있으면 막음) */
-    @Transactional
-    public void delete(Long templateId, String loginId) {
-        TemplateDto t = templateEditorMapper.findTemplate(templateId);
-        if (!isOwner(t, loginId)) {
-            throw new IllegalArgumentException("내가 만든 템플릿만 지울 수 있습니다.");
-        }
-        int used = templateEditorMapper.countResumesUsingTemplate(templateId, loginId);
-        if (used > 0) {
-            throw new IllegalArgumentException("이력서 " + used + "개가 이 템플릿을 쓰고 있습니다. 다른 템플릿으로 바꾼 뒤 지워 주세요.");
-        }
-        templateEditorMapper.deleteTemplate(templateId, loginId);
-    }
-
     private static boolean isPublic(TemplateDto t) {
         return Boolean.TRUE.equals(t.getIsPublic());
     }

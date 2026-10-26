@@ -16,4 +16,6 @@ public interface TemplateMapper {
     TemplateDetailResponseDto selectTemplateDetail(TemplateRequestDto requestDto);
     // 템플릿 추가
     void insertTemplate(TemplateDto requestDto);
+    // 템플릿 삭제
+    void deleteTemplate(TemplateRequestDto requestDto);
 }

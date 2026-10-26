@@ -43,12 +43,6 @@ public class TemplateEditorApiController {
         return ResponseEntity.ok(Map.of("message", "이력서에 적용했습니다."));
     }
 
-    @DeleteMapping("/{templateId}")
-    public ResponseEntity<Map<String, Object>> delete(@PathVariable Long templateId, Principal principal) {
-        templateEditorService.delete(templateId, principal.getName());
-        return ResponseEntity.ok(Map.of("message", "삭제했습니다."));
-    }
-
     @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
     public ResponseEntity<Map<String, Object>> badRequest(RuntimeException e) {
         return ResponseEntity.badRequest().body(Map.of("message", e.getMessage() == null ? "요청을 처리하지 못했습니다." : e.getMessage()));

@@ -3,17 +3,16 @@ package resume.api.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import resume.core.dto.TemplateDetailResponseDto;
 import resume.core.dto.TemplateRequestDto;
 import resume.core.dto.TemplateResponseDto;
 import resume.core.security.UserPrincipal;
 import resume.core.service.TemplateService;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,5 +33,13 @@ public class TemplateApiController {
 
         requestDto.setTemplateId(templateId);
         return ResponseEntity.ok(templateService.getTemplateDetail(requestDto));
+    }
+
+    @DeleteMapping("/{templateId}")
+    public ResponseEntity<Map<String, Object>> deleteTemplate(TemplateRequestDto requestDto,
+                                                              @AuthenticationPrincipal UserPrincipal principal) {
+        requestDto.setUserId(principal.getUserId());
+        templateService.deleteTemplate(requestDto);
+        return ResponseEntity.ok(Map.of("message", "삭제했습니다."));
     }
 }

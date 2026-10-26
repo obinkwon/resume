@@ -40,10 +40,6 @@ public interface TemplateEditorMapper {
             + "WHERE template_id = #{templateId} AND created_by = #{createdBy} AND use_yn = 'Y'")
     int updateTemplate(TemplateDto template);
 
-    @Update("UPDATE templates SET use_yn = 'N' "
-            + "WHERE template_id = #{templateId} AND created_by = #{loginId} AND use_yn = 'Y'")
-    int deleteTemplate(@Param("templateId") Long templateId, @Param("loginId") String loginId);
-
     /** 이 템플릿을 쓰는 내 이력서 수 (삭제 전 확인) */
     @Select("SELECT COUNT(*) FROM resume.resumes r "
             + "JOIN resume.users u ON u.user_id = r.user_id "
