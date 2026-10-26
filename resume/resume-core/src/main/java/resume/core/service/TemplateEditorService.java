@@ -4,14 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import resume.core.dto.ResumeResponseDto;
 import resume.core.dto.TemplateApplyRequestDto;
 import resume.core.dto.TemplateDto;
 import resume.core.dto.TemplateSaveRequestDto;
 import resume.core.mapper.TemplateEditorMapper;
 import resume.core.template.TemplateValidator;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -25,11 +23,6 @@ public class TemplateEditorService {
 
     private final TemplateEditorMapper templateEditorMapper;
     private final TemplateValidator templateValidator;
-
-    @Transactional(readOnly = true)
-    public List<ResumeResponseDto> findMyResumes(String loginId) {
-        return templateEditorMapper.findMyResumes(loginId);
-    }
 
     /** 볼 수 있는 템플릿 (공개 템플릿 또는 내 템플릿) */
     @Transactional(readOnly = true)

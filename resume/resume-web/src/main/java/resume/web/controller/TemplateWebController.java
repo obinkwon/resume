@@ -2,7 +2,6 @@ package resume.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,15 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
-import resume.core.dto.ResumeRequestDto;
 import resume.core.dto.TemplateDto;
 import resume.core.dto.TemplateRequestDto;
-import resume.core.dto.UserDto;
 import resume.core.security.UserPrincipal;
-import resume.core.service.ResumeService;
 import resume.core.service.TemplateEditorService;
 import resume.core.service.TemplateService;
-import resume.core.service.UserService;
 import resume.core.template.SampleResumeFactory;
 
 import java.security.Principal;
@@ -30,8 +25,6 @@ import java.security.Principal;
 public class TemplateWebController {
 
     private final TemplateService templateService;
-    private final UserService userService;
-    private final ResumeService resumeService;
     private final TemplateEditorService templateEditorService;
     private final SampleResumeFactory sampleResumeFactory;
 
@@ -41,6 +34,18 @@ public class TemplateWebController {
         model.addAttribute("user", principal);
         return "thymeleaf/resume/resume-template-list";
     }
+
+    @GetMapping("/sample-preview")
+    public String samplePreview(TemplateRequestDto requestDto,
+                                @AuthenticationPrincipal UserPrincipal principal,
+                                Model model) {
+        model.addAttribute("resumeDetail", sampleResumeFactory.create());
+        if (requestDto.getTemplateId() != null) {
+            model.addAttribute("resumeTemplate", templateService.getTemplateDetail(requestDto));
+        }
+        return "thymeleaf/resume/resume-preview";
+    }
+
 
     @GetMapping("/new")
     public String create(@RequestParam(required = false) Long resumeId,
@@ -78,15 +83,6 @@ public class TemplateWebController {
             template.setTemplateName(template.getTemplateName() + " 복사본");
         }
         return editor(model, resumeId, template, own);
-    }
-
-    @GetMapping("/sample-preview")
-    public String samplePreview(@RequestParam(required = false) Long templateId, Principal principal, Model model) {
-        model.addAttribute("resumeDetail", sampleResumeFactory.create());
-        if (templateId != null) {
-            model.addAttribute("resumeTemplate", findTemplate(templateId, principal.getName()));
-        }
-        return "resume-preview";
     }
 
     private String editor(Model model, Long resumeId, TemplateDto template, boolean ownTemplate) {
