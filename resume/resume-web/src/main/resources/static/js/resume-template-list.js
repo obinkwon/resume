@@ -64,7 +64,7 @@
     }
 
     function editUrl(id) { return withParams(cfg.editUrl + encodeURIComponent(id), { resumeId: cfg.resumeId }); }
-    function copyUrl(id) { return withParams(cfg.newUrl, { from: id, resumeId: cfg.resumeId }); }
+    function copyUrl(id) { return withParams(cfg.newUrl, { templateId: id, resumeId: cfg.resumeId }); }
 
     /** 요소 만들기 (글자는 textContent 로만 넣어서 HTML 로 해석되지 않게) */
     function h(tag, attrs, children) {

@@ -381,7 +381,8 @@
                 updateDirty();
                 setStatus(createsNew ? '새 템플릿으로 저장됨' : '저장됨', 'saved');
 
-                if (confirm('저장하고 이력서에 적용했습니다. 템플릿 선택 화면으로 갈까요?')) {
+                var doneMsg = cfg.resumeId ? '저장하고 이력서에 적용했습니다. 템플릿 선택 화면으로 갈까요?' : '저장했습니다. 내 템플릿 목록으로 갈까요?';
+                if (confirm(doneMsg)) {
                     window.location.href = cfg.backUrl;
                 }
             })

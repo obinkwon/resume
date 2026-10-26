@@ -79,6 +79,19 @@
         )
     </insert>
 
+    <!-- 이력서 템플릿 수정 (작성자 본인 것만) -->
+    <update id="updateTemplate" parameterType="resume.core.dto.TemplateDto">
+        UPDATE templates
+        SET template_name = #{templateName}
+            , description = #{description}
+            , html_content = #{htmlContent}
+            , css_content = #{cssContent}
+            , updated_at = CURRENT_TIMESTAMP
+        WHERE template_id = #{templateId}
+        AND created_by = #{createdBy}
+        AND use_yn = 'Y'
+    </update>
+
     <!-- 이력서 템플릿 삭제 -->
     <update id="deleteTemplate" parameterType="resume.core.dto.TemplateRequestDto">
         UPDATE templates
@@ -91,5 +104,23 @@
         <if test='userId != null'>
             AND created_by = #{userId}
         </if>
+    </update>
+
+    <!-- 내 이력서인지 확인 -->
+    <select id="countMyResume" resultType="int">
+        SELECT COUNT(*)
+        FROM resumes
+        WHERE resume_id = #{resumeId}
+        AND user_id = #{userId}
+        AND use_yn = 'Y'
+    </select>
+
+    <!-- 이력서에 템플릿 연결 -->
+    <update id="updateResumeTemplate">
+        UPDATE resumes
+        SET template_id = #{templateId}
+            , updated_at = CURRENT_TIMESTAMP
+        WHERE resume_id = #{resumeId}
+        AND use_yn = 'Y'
     </update>
 </mapper>

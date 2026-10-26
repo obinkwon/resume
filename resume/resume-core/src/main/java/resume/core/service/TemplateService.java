@@ -13,16 +13,21 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import resume.core.dto.TemplateDetailResponseDto;
+import resume.core.dto.TemplateDto;
 import resume.core.dto.TemplateRequestDto;
 import resume.core.dto.TemplateResponseDto;
+import resume.core.dto.TemplateSaveRequestDto;
 import resume.core.mapper.TemplateMapper;
+import resume.core.template.TemplateValidator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.*;
 
 @Slf4j
@@ -31,6 +36,7 @@ import java.util.concurrent.*;
 public class TemplateService {
 
     private final TemplateMapper templateMapper;
+    private final TemplateValidator templateValidator;
     /** 페이지 로딩 + 렌더링 대기 */
     private static final double PAGE_TIMEOUT_MS = 30_000;
     /** 요청 하나가 기다리는 최대 시간 (앞 요청 대기 시간 포함) */
@@ -61,6 +67,54 @@ public class TemplateService {
     @Transactional
     public void deleteTemplate(TemplateRequestDto requestDto) {
         templateMapper.deleteTemplate(requestDto);
+    }
+
+    /** 내 템플릿 (사용 중, 비공개, 작성자 본인) 인가 */
+    public boolean isOwner(TemplateDetailResponseDto t, Long userId) {
+        return t != null && userId != null && "Y".equals(t.getUseYn())
+                && !Boolean.TRUE.equals(t.getIsPublic()) && Objects.equals(t.getCreatedBy(), userId);
+    }
+
+    /**
+     * 템플릿 직접 만들기 저장 후 템플릿 번호를 돌려준다.
+     *  - 기본(공개) 템플릿은 고칠 수 없고, 편집해서 저장하면 내 템플릿으로 새로 추가된다.
+     *  - 내 템플릿을 편집 중이고 saveAsNew 가 아니면 덮어쓰기
+     *  - 그 외에는 새 템플릿으로 추가
+     *  - resumeId 가 있으면 그 이력서에 연결
+     */
+    @Transactional
+    public Long saveTemplate(TemplateSaveRequestDto req, Long userId) {
+        templateValidator.validateOrThrow(req.getTemplateName(), req.getHtmlContent(), req.getCssContent());
+        if (req.getResumeId() != null && templateMapper.countMyResume(req.getResumeId(), userId) == 0) {
+            throw new IllegalArgumentException("이력서를 찾을 수 없습니다.");
+        }
+
+        TemplateDetailResponseDto base = req.getBaseTemplateId() == null ? null
+                : templateMapper.selectTemplateDetail(TemplateRequestDto.builder().templateId(req.getBaseTemplateId()).build());
+        boolean overwrite = !Boolean.TRUE.equals(req.getSaveAsNew()) && isOwner(base, userId);
+
+        TemplateDto t = TemplateDto.builder()
+                .templateName(req.getTemplateName().trim())
+                .description(StringUtils.hasText(req.getDescription()) ? req.getDescription().trim() : "직접 만든 템플릿")
+                .htmlContent(req.getHtmlContent() == null ? "" : req.getHtmlContent())
+                .cssContent(req.getCssContent() == null ? "" : req.getCssContent())
+                .isPublic(false)
+                .createdBy(userId)
+                .build();
+
+        if (overwrite) {
+            t.setTemplateId(base.getTemplateId());
+            if (templateMapper.updateTemplate(t) == 0) {
+                throw new IllegalStateException("템플릿을 저장하지 못했습니다.");
+            }
+        } else {
+            templateMapper.insertTemplate(t);
+        }
+
+        if (req.getResumeId() != null) {
+            templateMapper.updateResumeTemplate(req.getResumeId(), t.getTemplateId());
+        }
+        return t.getTemplateId();
     }
 
     /**

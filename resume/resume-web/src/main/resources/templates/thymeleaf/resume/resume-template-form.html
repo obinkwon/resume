@@ -18,11 +18,11 @@
                backUrl=${resumeId != null} ? @{/web/resume/template/{id}(id=${resumeId})} : @{/web/template/list}"
       th:attr="data-resume-id=${resumeId},
                data-base-template-id=${resumeTemplate?.templateId},
-               data-own-template=${ownTemplate == true},
+               data-mode=${mode},
                data-preview-url=@{/web/template/preview},
                data-resume-preview-url=${hasResume} ? @{/web/resume/preview/{id}(id=${resumeId})} : '',
                data-save-url=@{/api/template/save},
-               data-edit-url=@{/web/template/edit/},
+               data-edit-url=@{/web/template/modify/},
                data-back-url=${backUrl}">
 
     <div class="te">
@@ -45,11 +45,11 @@
                 <span class="save-status text-sm" id="saveStatus" aria-live="polite"></span>
                 <button type="button" class="btn ghost sm" id="btnReset" disabled>되돌리기</button>
                 <button type="button" class="btn secondary sm" id="btnSaveAsNew"
-                        th:classappend="${ownTemplate == true} ? '' : 'd-none'">
+                        th:classappend="${mode == 'U'} ? '' : 'd-none'">
                     <i class="icon icon-copy sm"></i>새 템플릿으로 저장
                 </button>
                 <button type="button" class="btn primary sm" id="btnSave">
-                    <i class="icon icon-save sm"></i><span id="btnSaveText" th:text="${ownTemplate == true} ? '저장' : '새 템플릿으로 저장'">저장</span>
+                    <i class="icon icon-save sm"></i><span id="btnSaveText" th:text="${mode == 'U'} ? '저장' : '새 템플릿으로 저장'">저장</span>
                 </button>
             </div>
         </header>

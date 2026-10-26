@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import resume.core.dto.TemplateDetailResponseDto;
 import resume.core.dto.TemplateRequestDto;
 import resume.core.dto.TemplateResponseDto;
+import resume.core.dto.TemplateSaveRequestDto;
 import resume.core.security.UserPrincipal;
 import resume.core.service.TemplateService;
 
@@ -33,6 +34,14 @@ public class TemplateApiController {
 
         requestDto.setTemplateId(templateId);
         return ResponseEntity.ok(templateService.getTemplateDetail(requestDto));
+    }
+
+    /** 템플릿 저장 (덮어쓰기 또는 새 템플릿) → { templateId } */
+    @PostMapping("/save")
+    public ResponseEntity<Map<String, Object>> saveTemplate(@RequestBody TemplateSaveRequestDto requestDto,
+                                                            @AuthenticationPrincipal UserPrincipal principal) {
+        Long templateId = templateService.saveTemplate(requestDto, principal.getUserId());
+        return ResponseEntity.ok(Map.of("templateId", templateId, "message", "저장했습니다."));
     }
 
     @DeleteMapping("/{templateId}")
