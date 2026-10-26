@@ -8,13 +8,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import resume.core.dto.FileDto;
 import resume.core.enums.UploadType;
-import resume.core.exception.FileException;
 import resume.core.record.StoredFile;
 import resume.core.record.UploadResult;
 import resume.core.security.UserPrincipal;
 import resume.core.service.FileService;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 @RestController
@@ -51,13 +49,5 @@ public class FileApiController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline().build().toString())
                 .header("X-Content-Type-Options", "nosniff")
                 .body(file.resource());
-    }
-
-    /** resume-form.js(ApiError) 가 안내 문구를 그대로 보여줄 수 있게 text/plain 으로 보냄 */
-    @ExceptionHandler(FileException.class)
-    public ResponseEntity<String> handleFileError(FileException e) {
-        return ResponseEntity.status(e.getStatus())
-                .contentType(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8))
-                .body(e.getMessage());
     }
 }

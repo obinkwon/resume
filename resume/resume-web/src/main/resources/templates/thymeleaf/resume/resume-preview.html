@@ -3,163 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <title>템플릿 미리보기</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: https:; object-src 'none'; base-uri 'none'; form-action 'none'">
     <link rel="stylesheet" th:href="@{/fonts/pretendard.css}">
     <link rel="stylesheet" th:href="@{/fonts/google-fonts.css}">
     <link rel="stylesheet" th:href="@{/css/resume-preview.css}">
     <style id="templateCss"></style>
     <script th:src="@{/js/resume-preview.js}" defer></script>
 </head>
-<!--
-    GET /web/resume/preview/{resumeId}                 → 이력서에 저장된 템플릿으로 그림
-    GET /web/resume/preview/{resumeId}?templateId={id} → 지정한 템플릿으로 그림 (저장은 안 함)
+<body th:attr="data-template-html=${resumeTemplate?.htmlContent}, data-template-css=${resumeTemplate?.cssContent}" th:with="r=${resumeDetail}, p=${resumeDetail?.profile}">
 
-      model : resumeDetail   (이력서 작성 폼과 같은 ResumeDetailResponseDto)
-              resumeTemplate (그릴 템플릿 — htmlContent, cssContent / 없으면 null → 한 컬럼 기본 틀)
+    <!-- 템플릿 HTML 이 여기에 그려짐 -->
+    <div class="resume" id="resume"></div>
 
-    1) 아래 #sectionPool 에 실제 이력서 내용으로 섹션을 모두 그려 둠 (Thymeleaf, 값은 자동 이스케이프)
-    2) resume-preview.js 가 템플릿 HTML 의 {{profile}}, {{cover}}, {{experience}} … 자리에 섹션을 넣음
-       - 템플릿 HTML 은 Thymeleaf 로 처리하지 않음 (data 속성으로 문자열만 전달)
-    3) 빌더 iframe 안에서는 postMessage 로 받은 HTML·CSS 로 다시 그림
-       (빌더에서는 ?templateId 없이 열고, 템플릿 변경은 postMessage 로만 반영)
+    <!-- ===== 섹션 원본 (화면에 보이지 않음) ===== -->
+    <div class="r-pool" id="sectionPool" hidden>
 
-    ※ 클래스 이름(r-*)과 data-section 값은 템플릿 CSS 가 의존하므로 바꾸지 말 것
--->
-<body th:attr="data-template-html=${resumeTemplate?.htmlContent},
-               data-template-css=${resumeTemplate?.cssContent}"
-      th:with="r=${resumeDetail}, p=${resumeDetail?.profile}">
-
-<!-- 템플릿 HTML 이 여기에 그려짐 -->
-<div class="resume" id="resume"></div>
-
-<!-- ===== 섹션 원본 (화면에 보이지 않음) ===== -->
-<div class="r-pool" id="sectionPool" hidden>
-
-    <!-- {{profile}} 인적사항 -->
-    <header class="r-header" data-section="profile">
-        <img class="r-photo" th:if="${!#strings.isEmpty(p?.profileImage)}" th:src="${p.profileImage}" alt="">
-        <div class="r-header__main">
-            <h1 class="r-name" th:text="${p?.name} ?: '이름'">홍길동</h1>
-        </div>
-        <ul class="r-contact">
-            <li class="r-contact__email"   th:if="${!#strings.isEmpty(p?.email)}"   th:text="${p.email}">mail@example.com</li>
-            <li class="r-contact__phone"   th:if="${!#strings.isEmpty(p?.phone)}"   th:text="${p.phone}">010-0000-0000</li>
-            <li class="r-contact__address" th:if="${!#strings.isEmpty(p?.address)}" th:text="${p.address}">서울</li>
-        </ul>
-    </header>
-
-    <!-- {{intro}} 자기소개 -->
-    <section class="r-section" data-section="intro" th:if="${!#strings.isEmpty(p?.introduction)}">
-        <h2 class="r-section__title">자기소개</h2>
-        <p class="r-text" th:text="${p.introduction}">자기소개</p>
-    </section>
-
-    <!-- {{cover}} 자기소개서 (항목마다 제목 + 내용) -->
-    <section class="r-section" data-section="cover" th:if="${!#lists.isEmpty(r?.coverLetters)}">
-        <h2 class="r-section__title">자기소개서</h2>
-        <article class="r-item" th:each="cl : ${r.coverLetters}">
-            <div class="r-item__head">
-                <h3 class="r-item__title" th:text="${cl.title}">지원동기</h3>
+        <!-- {{profile}} 인적사항 -->
+        <header class="r-header" data-section="profile">
+            <img class="r-photo" th:if="${!#strings.isEmpty(p?.profileImageSrc)}" th:src="${p.profileImageSrc}" alt="">
+            <div class="r-header__main">
+                <h1 class="r-name" th:text="${p?.name} ?: '이름'">홍길동</h1>
             </div>
-            <p class="r-text" th:if="${!#strings.isEmpty(cl.content)}" th:text="${cl.content}">내용</p>
-        </article>
-    </section>
-
-    <!-- {{experience}} 경력 -->
-    <section class="r-section" data-section="experience" th:if="${!#lists.isEmpty(r?.experiences)}">
-        <h2 class="r-section__title">경력</h2>
-        <article class="r-item" th:each="e : ${r.experiences}">
-            <div class="r-item__head">
-                <div>
-                    <h3 class="r-item__title" th:text="${e.companyName}">회사명</h3>
-                    <p class="r-item__sub" th:text="${e.position}">직무</p>
-                </div>
-                <span class="r-period">
-                        <span th:text="${e.startDate != null} ? ${#temporals.format(e.startDate, 'yyyy.MM')} : ''">2022.01</span> ~
-                        <span th:text="${e.isCurrent} ? '재직 중' : (${e.endDate != null} ? ${#temporals.format(e.endDate, 'yyyy.MM')} : '')">2024.03</span>
-                    </span>
-            </div>
-            <p class="r-text" th:if="${!#strings.isEmpty(e.description)}" th:text="${e.description}">업무 내용</p>
-        </article>
-    </section>
-
-    <!-- {{project}} 프로젝트 -->
-    <section class="r-section" data-section="project" th:if="${!#lists.isEmpty(r?.projects)}">
-        <h2 class="r-section__title">프로젝트</h2>
-        <article class="r-item" th:each="pj : ${r.projects}">
-            <div class="r-item__head">
-                <div>
-                    <h3 class="r-item__title" th:text="${pj.projectName}">프로젝트명</h3>
-                    <p class="r-item__sub" th:if="${!#strings.isEmpty(pj.role)}" th:text="${pj.role}">역할</p>
-                </div>
-                <span class="r-period">
-                        <span th:text="${pj.startDate != null} ? ${#temporals.format(pj.startDate, 'yyyy.MM')} : ''">2023.01</span> ~
-                        <span th:text="${pj.endDate != null} ? ${#temporals.format(pj.endDate, 'yyyy.MM')} : '진행 중'">2023.06</span>
-                    </span>
-            </div>
-            <p class="r-text" th:if="${!#strings.isEmpty(pj.description)}" th:text="${pj.description}">설명</p>
-            <ul class="r-tags" th:if="${!#strings.isEmpty(pj.techStack)}">
-                <li th:each="t : ${#strings.arraySplit(pj.techStack, ',')}" th:text="${#strings.trim(t)}">Spring</li>
+            <ul class="r-contact">
+                <li class="r-contact__email"   th:if="${!#strings.isEmpty(p?.email)}"   th:text="${p.email}">mail@example.com</li>
+                <li class="r-contact__phone"   th:if="${!#strings.isEmpty(p?.phone)}"   th:text="${p.phone}">010-0000-0000</li>
+                <li class="r-contact__address" th:if="${!#strings.isEmpty(p?.address)}" th:text="${p.address}">서울</li>
             </ul>
-            <p class="r-url" th:if="${!#strings.isEmpty(pj.demoUrl)}" th:text="${pj.demoUrl}">https://</p>
-        </article>
-    </section>
+        </header>
 
-    <!-- {{education}} 학력 -->
-    <section class="r-section" data-section="education" th:if="${!#lists.isEmpty(r?.educations)}">
-        <h2 class="r-section__title">학력</h2>
-        <article class="r-item" th:each="ed : ${r.educations}">
-            <div class="r-item__head">
-                <div>
-                    <h3 class="r-item__title" th:text="${ed.schoolName}">학교명</h3>
-                    <p class="r-item__sub"
-                       th:text="${ed.major} + (${#strings.isEmpty(ed.degree)} ? '' : ' · ' + ${ed.degree})">전공 · 학사</p>
+        <!-- {{intro}} 자기소개 -->
+        <section class="r-section" data-section="intro" th:if="${!#strings.isEmpty(p?.introduction)}">
+            <h2 class="r-section__title">자기소개</h2>
+            <p class="r-text" th:text="${p.introduction}">자기소개</p>
+        </section>
+
+        <!-- {{cover}} 자기소개서 -->
+        <section class="r-section" data-section="cover" th:if="${!#lists.isEmpty(r?.coverLetters)}">
+            <h2 class="r-section__title">자기소개서</h2>
+            <article class="r-item" th:each="cl : ${r.coverLetters}">
+                <div class="r-item__head">
+                    <h3 class="r-item__title" th:text="${cl.title}">지원동기</h3>
                 </div>
-                <span class="r-period">
-                        <span th:text="${ed.startDate != null} ? ${#temporals.format(ed.startDate, 'yyyy.MM')} : ''">2016.03</span> ~
-                        <span th:text="${ed.endDate != null} ? ${#temporals.format(ed.endDate, 'yyyy.MM')} : '재학 중'">2020.02</span>
-                    </span>
-            </div>
-            <p class="r-text" th:if="${!#strings.isEmpty(ed.description)}" th:text="${ed.description}"></p>
-        </article>
-    </section>
+                <p class="r-text" th:if="${!#strings.isEmpty(cl.content)}" th:text="${cl.content}">내용</p>
+            </article>
+        </section>
 
-    <!-- {{certificate}} 자격증 -->
-    <section class="r-section" data-section="certificate" th:if="${!#lists.isEmpty(r?.certificates)}">
-        <h2 class="r-section__title">자격증</h2>
-        <article class="r-item" th:each="c : ${r.certificates}">
-            <div class="r-item__head">
-                <div>
-                    <h3 class="r-item__title" th:text="${c.certificateName}">정보처리기사</h3>
-                    <p class="r-item__sub" th:if="${!#strings.isEmpty(c.issuer)}" th:text="${c.issuer}">발급 기관</p>
+        <!-- {{experience}} 경력 -->
+        <section class="r-section" data-section="experience" th:if="${!#lists.isEmpty(r?.experiences)}">
+            <h2 class="r-section__title">경력</h2>
+            <article class="r-item" th:each="e : ${r.experiences}">
+                <div class="r-item__head">
+                    <div>
+                        <h3 class="r-item__title" th:text="${e.companyName}">회사명</h3>
+                        <p class="r-item__sub" th:text="${e.position}">직무</p>
+                    </div>
+                    <span class="r-period">
+                            <span th:text="${e.startDate != null} ? ${#temporals.format(e.startDate, 'yyyy.MM')} : ''">2022.01</span> ~
+                            <span th:text="${e.isCurrent} ? '재직 중' : (${e.endDate != null} ? ${#temporals.format(e.endDate, 'yyyy.MM')} : '')">2024.03</span>
+                        </span>
                 </div>
-                <span class="r-period" th:if="${c.issuedDate != null}"
-                      th:text="${#temporals.format(c.issuedDate, 'yyyy.MM')}">2020.11</span>
-            </div>
-            <p class="r-text" th:if="${!#strings.isEmpty(c.description)}" th:text="${c.description}"></p>
-        </article>
-    </section>
+                <p class="r-text" th:if="${!#strings.isEmpty(e.description)}" th:text="${e.description}">업무 내용</p>
+            </article>
+        </section>
 
-    <!-- {{skill}} 기술 스택 — data-level(1~5), data-category 로 CSS 꾸미기 가능 -->
-    <section class="r-section" data-section="skill" th:if="${!#lists.isEmpty(r?.skills)}">
-        <h2 class="r-section__title">기술 스택</h2>
-        <ul class="r-tags">
-            <li th:each="s : ${r.skills}"
-                th:attr="data-level=${s.proficiency},data-category=${s.category}"
-                th:text="${s.skillName}">Java</li>
-        </ul>
-    </section>
+        <!-- {{project}} 프로젝트 -->
+        <section class="r-section" data-section="project" th:if="${!#lists.isEmpty(r?.projects)}">
+            <h2 class="r-section__title">프로젝트</h2>
+            <article class="r-item" th:each="pj : ${r.projects}">
+                <div class="r-item__head">
+                    <div>
+                        <h3 class="r-item__title" th:text="${pj.projectName}">프로젝트명</h3>
+                        <p class="r-item__sub" th:if="${!#strings.isEmpty(pj.role)}" th:text="${pj.role}">역할</p>
+                    </div>
+                    <span class="r-period">
+                            <span th:text="${pj.startDate != null} ? ${#temporals.format(pj.startDate, 'yyyy.MM')} : ''">2023.01</span> ~
+                            <span th:text="${pj.endDate != null} ? ${#temporals.format(pj.endDate, 'yyyy.MM')} : '진행 중'">2023.06</span>
+                        </span>
+                </div>
+                <p class="r-text" th:if="${!#strings.isEmpty(pj.description)}" th:text="${pj.description}">설명</p>
+                <ul class="r-tags" th:if="${!#strings.isEmpty(pj.techStack)}">
+                    <li th:each="t : ${#strings.arraySplit(pj.techStack, ',')}" th:text="${#strings.trim(t)}">Spring</li>
+                </ul>
+                <p class="r-url" th:if="${!#strings.isEmpty(pj.demoUrl)}" th:text="${pj.demoUrl}">https://</p>
+            </article>
+        </section>
 
-    <!-- {{link}} 외부 링크 -->
-    <section class="r-section" data-section="link" th:if="${!#lists.isEmpty(r?.links)}">
-        <h2 class="r-section__title">외부 링크</h2>
-        <ul class="r-links">
-            <li th:each="l : ${r.links}" th:attr="data-type=${l.linkType}">
-                <span class="r-link__name" th:text="${!#strings.isEmpty(l.displayName)} ? ${l.displayName} : ${l.linkType}">GitHub</span>
-                <span class="r-link__url" th:text="${l.url}">https://github.com/...</span>
-            </li>
-        </ul>
-    </section>
-</div>
+        <!-- {{education}} 학력 -->
+        <section class="r-section" data-section="education" th:if="${!#lists.isEmpty(r?.educations)}">
+            <h2 class="r-section__title">학력</h2>
+            <article class="r-item" th:each="ed : ${r.educations}">
+                <div class="r-item__head">
+                    <div>
+                        <h3 class="r-item__title" th:text="${ed.schoolName}">학교명</h3>
+                        <p class="r-item__sub"
+                           th:text="${ed.major} + (${#strings.isEmpty(ed.degree)} ? '' : ' · ' + ${ed.degree})">전공 · 학사</p>
+                    </div>
+                    <span class="r-period">
+                            <span th:text="${ed.startDate != null} ? ${#temporals.format(ed.startDate, 'yyyy.MM')} : ''">2016.03</span> ~
+                            <span th:text="${ed.endDate != null} ? ${#temporals.format(ed.endDate, 'yyyy.MM')} : '재학 중'">2020.02</span>
+                        </span>
+                </div>
+                <p class="r-text" th:if="${!#strings.isEmpty(ed.description)}" th:text="${ed.description}"></p>
+            </article>
+        </section>
+
+        <!-- {{certificate}} 자격증 -->
+        <section class="r-section" data-section="certificate" th:if="${!#lists.isEmpty(r?.certificates)}">
+            <h2 class="r-section__title">자격증</h2>
+            <article class="r-item" th:each="c : ${r.certificates}">
+                <div class="r-item__head">
+                    <div>
+                        <h3 class="r-item__title" th:text="${c.certificateName}">정보처리기사</h3>
+                        <p class="r-item__sub" th:if="${!#strings.isEmpty(c.issuer)}" th:text="${c.issuer}">발급 기관</p>
+                    </div>
+                    <span class="r-period" th:if="${c.issuedDate != null}"
+                          th:text="${#temporals.format(c.issuedDate, 'yyyy.MM')}">2020.11</span>
+                </div>
+                <p class="r-text" th:if="${!#strings.isEmpty(c.description)}" th:text="${c.description}"></p>
+            </article>
+        </section>
+
+        <!-- {{skill}} 기술 스택 -->
+        <section class="r-section" data-section="skill" th:if="${!#lists.isEmpty(r?.skills)}">
+            <h2 class="r-section__title">기술 스택</h2>
+            <ul class="r-tags">
+                <li th:each="s : ${r.skills}"
+                    th:attr="data-level=${s.proficiency},data-category=${s.category}"
+                    th:text="${s.skillName}">Java</li>
+            </ul>
+        </section>
+
+        <!-- {{link}} 외부 링크 -->
+        <section class="r-section" data-section="link" th:if="${!#lists.isEmpty(r?.links)}">
+            <h2 class="r-section__title">외부 링크</h2>
+            <ul class="r-links">
+                <li th:each="l : ${r.links}" th:attr="data-type=${l.linkType}">
+                    <span class="r-link__name" th:text="${!#strings.isEmpty(l.displayName)} ? ${l.displayName} : ${l.linkType}">GitHub</span>
+                    <span class="r-link__url" th:text="${l.url}">https://github.com/...</span>
+                </li>
+            </ul>
+        </section>
+    </div>
 </body>
 </html>

@@ -17,6 +17,7 @@ public class ProfileDto {
     private String address;
     private Long profileImageId;
     private String profileImageUrl;
+    private String profileImageSrc;
     private Date birthDate;
     private String introduction;
     private String useYn;
