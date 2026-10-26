@@ -39,3 +39,6 @@ out/
 application-dev.properties
 application-sup.properties
 **/playwright
+resume/.claude/*
+resume/CLAUDE.md
+resume/graphify-out/*
