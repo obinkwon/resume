@@ -1,7 +1,7 @@
 package resume.core.importer.parse;
 
 import resume.core.dto.ResumeImportResultDto;
-import resume.core.importer.ResumeFileType;
+import resume.core.enums.ResumeFileType;
 
 import java.util.List;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package resume.core.importer.extract;
 
-import resume.core.importer.ResumeFileType;
+import resume.core.enums.ResumeFileType;
 
 /**
  * 파일 형식별 글자 추출

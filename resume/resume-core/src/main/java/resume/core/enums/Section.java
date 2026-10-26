@@ -1,16 +1,15 @@
-package resume.core.importer.parse;
+package resume.core.enums;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import lombok.Getter;
+
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
  * 이력서 섹션 + 섹션 제목 사전 (국내 구직 사이트 양식 기준, 영문 제목 포함)
  */
-enum Section {
+@Getter
+public enum Section {
     /** 첫 섹션 제목 전 (이름·연락처가 보통 여기) */
     HEAD,
     PROFILE,
@@ -66,7 +65,7 @@ enum Section {
     private static final Pattern TAIL = Pattern.compile("[\\])】〕>〉》:：]+$");
 
     /** 제목 비교용 : 괄호 내용·공백·번호·글머리표 제거, 소문자 */
-    static String key(String line) {
+    public static String key(String line) {
         String s = PAREN.matcher(line).replaceAll("");
         s = s.toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
         s = LEAD.matcher(s).replaceAll("");
@@ -75,7 +74,7 @@ enum Section {
     }
 
     /** 줄 전체가 섹션 제목이면 그 섹션 (아니면 null) */
-    static Section heading(String line) {
+    public static Section heading(String line) {
         if (line.length() > 30) return null;
         String k = key(line);
         if (k.isEmpty()) {
@@ -90,20 +89,20 @@ enum Section {
     // ---------- 자기소개서 문항 ----------
 
     /** 자기소개서 문항 제목에 자주 쓰이는 말 */
-    static final List<String> COVER_KEYWORDS = List.of(
+    public static final List<String> COVER_KEYWORDS = List.of(
             "성장과정", "성장배경", "성격의장단점", "성격장단점", "장단점", "지원동기", "지원이유", "입사동기",
             "입사후포부", "입사후계획", "포부", "직무역량", "직무관련경험", "직무경험", "핵심역량", "생활신조",
             "가치관", "강점", "협업경험", "갈등해결", "실패경험", "극복경험", "도전경험", "문제해결", "리더십",
             "성공경험", "역경");
 
     /** 섹션 제목 없이 바로 나와도 자기소개서로 볼 문항 */
-    static final Set<String> STRONG_COVER_TITLES = Set.of(
+    public static final Set<String> STRONG_COVER_TITLES = Set.of(
             "성장과정", "성장배경", "성격의장단점", "성격장단점", "지원동기", "입사동기", "입사후포부", "생활신조",
             "성장과정및가치관", "지원동기및입사후포부");
 
     // ---------- 표 머리 행 ("회사명 | 기간 | 직무") ----------
 
-    static final Set<String> HEADER_WORDS = Set.of(
+    public static final Set<String> HEADER_WORDS = Set.of(
             "회사명", "회사", "기간", "근무기간", "재직기간", "직무", "직급", "직책", "직위", "담당업무", "업무", "부서",
             "학교명", "학교", "전공", "학위", "졸업여부", "구분", "입학일", "졸업일", "재학기간",
             "자격증명", "자격증", "발행처", "발급기관", "발행기관", "취득일", "등급", "점수", "급수", "프로젝트명",

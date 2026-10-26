@@ -7,8 +7,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import resume.core.importer.ResumeFileType;
-import resume.core.importer.ResumeImportException;
+import resume.core.enums.ResumeFileType;
+import resume.core.exception.ResumeImportException;
 import resume.core.importer.SafeZip;
 
 import javax.xml.XMLConstants;

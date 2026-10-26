@@ -106,14 +106,33 @@
         return (a || '').replace(/\s+/g, '') === (b || '').replace(/\s+/g, '');
     }
 
-    function isDirty() {
-        return String(state.templateId) !== String(saved.templateId) || state.cssContent !== saved.cssContent;
+    /** 숨긴 섹션 목록이 같은가 (순서 무관) */
+    function sameHidden(a, b) {
+        return [...a].sort().join(',') === [...b].sort().join(',');
     }
 
-    /** CSS 가 선택한 템플릿의 원래 CSS 와 다른가 → 저장하면 새 템플릿이 만들어짐 */
+    /**
+     * 실제 내용이 같은가
+     *  - CSS 본문 : 공백 차이는 무시
+     *  - 섹션 숨김 블록 : 줄바꿈·순서가 달라도 숨긴 섹션이 같으면 같음
+     */
+    function sameContent(a, b) {
+        const x = splitHidden(a || '');
+        const y = splitHidden(b || '');
+        return sameCss(x.body, y.body) && sameHidden(x.hidden, y.hidden);
+    }
+
+    function isDirty() {
+        return String(state.templateId) !== String(saved.templateId) || !sameContent(state.cssContent, saved.cssContent);
+    }
+
+    /**
+     * 선택한 템플릿에서 CSS 를 고쳤거나 섹션 표시를 바꿨는가 → 저장하면 새 템플릿이 만들어짐
+     * (템플릿만 바꾼 경우는 해당 없음)
+     */
     function isCustom() {
         const t = current();
-        return !!t && !sameCss(state.cssContent, t.cssContent);
+        return !!t && !sameContent(state.cssContent, t.cssContent);
     }
 
     /** 새로 만들 템플릿 이름 : '원래 이름 (수정)' (이미 붙어 있으면 한 번만) */
@@ -392,7 +411,7 @@
         cssWarningEl.hidden = !problem;
         cssWarningEl.textContent = problem;
 
-        // 원래 CSS 와 달라졌으면 '새 템플릿으로 저장' 안내
+        // CSS 를 고쳤거나 섹션 표시를 바꿨으면 '새 템플릿으로 저장' 안내 (템플릿만 바꾼 건 해당 없음)
         const custom = loadingId == null && isCustom();
         cssNoteEl.hidden = !custom;
         if (custom) {
@@ -405,9 +424,9 @@
     function update(patch) {
         Object.assign(state, patch);
         pushToPreview();
-        const dirty = isDirty();
-        resetBtn.disabled = !dirty || !saved.templateId;
-        setStatus(dirty ? '저장 안 됨' : '', dirty ? 'dirty' : '');
+        // 바뀐 게 있는지는 [되돌리기] 활성화로만 알림 (상태 문구는 비움)
+        resetBtn.disabled = !isDirty() || !saved.templateId;
+        setStatus('');
     }
 
     function pushToPreview() {
@@ -471,17 +490,35 @@
         }
 
         if (String(loadingId) !== key) return;         // 그 사이 다른 템플릿을 고름
+
+        // 새 템플릿의 CSS 를 먼저 정한 뒤 화면을 갱신 (이전 CSS 로 '수정됨' 이 잠깐 보이지 않게)
+        const nextCss = initial ? detail.cssContent : cssForNewTemplate(detail);
+
         loadingId = null;
         state.templateId = tid;
+        state.cssContent = nextCss;
         setBusy(false);
         renderTemplates();
-
-        // 섹션 표시 설정은 그대로 유지
-        const { hidden } = splitHidden(state.cssContent);
-        setCss(initial ? detail.cssContent : joinHidden(detail.cssContent, hidden));
+        setCss(nextCss);
 
         // 템플릿을 바꾸면 편집기는 다시 잠금
         setCssLock(true);
+    }
+
+    /**
+     * 템플릿을 바꿀 때 쓸 CSS
+     *  - 이 화면에서 섹션 표시를 직접 바꿨으면 그 설정을 새 템플릿에 이어 붙임 (→ 수정으로 봄)
+     *  - 바꾸지 않았으면 새 템플릿 CSS 그대로 (→ 수정 아님)
+     *    이전 템플릿에 원래 들어 있던 숨김 설정은 이어받지 않음
+     */
+    function cssForNewTemplate(detail) {
+        const prev = current();                   // 아직 이전 템플릿
+        const now = splitHidden(state.cssContent);
+        const sectionsChanged = !!prev && !sameHidden(now.hidden, splitHidden(prev.cssContent).hidden);
+        if (!sectionsChanged) return detail.cssContent;
+
+        // 새 템플릿에 원래 있던 숨김 블록은 빼고, 사용자가 고른 설정으로 다시 붙임
+        return joinHidden(splitHidden(detail.cssContent).body, now.hidden);
     }
 
     groupsEl.addEventListener('click', e => {
@@ -632,7 +669,7 @@
     });
 
     // ---------- PDF 다운로드 (서버에서 미리보기와 똑같이 만듦) ----------
-    /** Content-Disposition 에서 파일 이름 꺼내기 (filename*=UTF-8'' 우선) */
+    // Content-Disposition 에서 파일 이름 꺼내기 (filename*=UTF-8'' 우선)
     function fileNameFrom(disposition) {
         if (!disposition) return null;
         const utf8 = /filename\*\s*=\s*UTF-8''([^;]+)/i.exec(disposition);
@@ -670,7 +707,7 @@
             success: (blob, res) => {
                 const name = fileNameFrom(res.headers.get('Content-Disposition')) || '이력서.pdf';
                 downloadBlob(blob, name);
-                setStatus(isDirty() ? '저장 안 됨' : prevStatus, isDirty() ? 'dirty' : '');
+                setStatus(prevStatus);
             },
             error: err => {
                 console.error('PDF 다운로드 실패', err);

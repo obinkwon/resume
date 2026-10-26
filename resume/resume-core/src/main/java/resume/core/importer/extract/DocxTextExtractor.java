@@ -9,8 +9,8 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.springframework.stereotype.Component;
-import resume.core.importer.ResumeFileType;
-import resume.core.importer.ResumeImportException;
+import resume.core.enums.ResumeFileType;
+import resume.core.exception.ResumeImportException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

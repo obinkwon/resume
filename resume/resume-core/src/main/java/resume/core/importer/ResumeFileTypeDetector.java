@@ -1,5 +1,8 @@
 package resume.core.importer;
 
+import resume.core.enums.ResumeFileType;
+import resume.core.exception.ResumeImportException;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Set;

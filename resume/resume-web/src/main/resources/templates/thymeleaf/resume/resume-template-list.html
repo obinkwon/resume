@@ -12,11 +12,14 @@
     <script th:src="@{/js/common.js}"></script>
     <script th:src="@{/js/resume-template-list.js}" defer></script>
 </head>
-<!--/* 모델 값이 없어도 화면이 깨지지 않도록 빈 목록으로 대체 */-->
-<body th:with="mine=${myTemplates != null ? myTemplates : {}},
-               publics=${publicTemplates != null ? publicTemplates : {}},
-               hasResume=${resumeId != null}"
-      th:attr="data-delete-url=@{/api/template/}">
+<!--/* 템플릿 목록은 화면이 열린 뒤 JS 가 /api/template/list 로 불러와서 그림 */-->
+<body th:with="hasResume=${resumeId != null}"
+      th:attr="data-resume-id=${resumeId},
+               data-list-url=@{/api/template/list},
+               data-delete-url=@{/api/template/},
+               data-edit-url=@{/web/template/edit/},
+               data-new-url=@{/web/template/new},
+               data-preview-url=@{/web/template/sample-preview}">
 
     <div class="container">
         <div class="page-header">
@@ -38,35 +41,23 @@
         <div class="section">
             <h2 class="tl-title">
                 내가 만든 템플릿
-                <span class="badge gray" id="myCount" th:text="${#lists.size(mine)}">0</span>
+                <span class="badge gray d-none" id="myCount">0</span>
             </h2>
 
-            <div class="tl-grid" id="myTemplateGrid" th:classappend="${#lists.isEmpty(mine)} ? 'd-none'">
-                <article class="tl-card" th:each="t : ${mine}"
-                         th:attr="data-template-id=${t.templateId},data-template-name=${t.templateName}">
-                    <a class="tl-thumb" th:href="@{/web/template/edit/{id}(id=${t.templateId},resumeId=${resumeId})}"
-                       th:attr="aria-label=${t.templateName} + ' 편집'">
-                        <iframe th:src="@{/web/template/sample-preview(templateId=${t.templateId})}"
-                                loading="lazy" tabindex="-1" aria-hidden="true" title=""></iframe>
-                    </a>
-                    <div class="tl-card__head">
-                        <h3 class="ellipsis" th:text="${t.templateName}" th:title="${t.templateName}">내 템플릿</h3>
-                        <button type="button" class="btn icon sm danger-ghost tl-card__delete js-delete"
-                                title="삭제" th:attr="aria-label=${t.templateName} + ' 삭제'">
-                            <i class="icon icon-trash sm"></i>
-                        </button>
-                    </div>
-                    <p class="tl-card__desc" th:if="${!#strings.isEmpty(t.description)}" th:text="${t.description}">설명</p>
-                    <p class="tl-card__desc is-empty" th:if="${#strings.isEmpty(t.description)}">설명이 없어요</p>
-                    <div class="actions">
-                        <a th:href="@{/web/template/edit/{id}(id=${t.templateId},resumeId=${resumeId})}">
-                            <i class="icon icon-edit sm"></i> 편집
-                        </a>
-                    </div>
-                </article>
+            <!-- 불러오는 중 -->
+            <div class="empty-state" id="listLoading" role="status" aria-live="polite">
+                <p>템플릿을 불러오는 중…</p>
             </div>
 
-            <div class="empty-state" id="myEmpty" th:classappend="${!#lists.isEmpty(mine)} ? 'd-none'">
+            <!-- 불러오기 실패 -->
+            <div class="empty-state d-none" id="listError" role="alert">
+                <p>템플릿 목록을 불러오지 못했어요.</p>
+                <button type="button" class="btn secondary" id="btnRetry">다시 시도</button>
+            </div>
+
+            <div class="tl-grid d-none" id="myTemplateGrid"></div>
+
+            <div class="empty-state d-none" id="myEmpty">
                 <p>아직 만든 템플릿이 없어요. 빈 템플릿에서 시작하거나 아래 기본 템플릿을 복사해 보세요.</p>
                 <a class="btn outline" th:href="@{/web/template/new(resumeId=${resumeId})}">
                     <i class="icon icon-plus"></i> 빈 템플릿에서 시작
@@ -74,33 +65,13 @@
             </div>
         </div>
 
-        <!-- ===== 기본 템플릿 ===== -->
-        <div class="section" th:unless="${#lists.isEmpty(publics)}">
+        <!-- ===== 기본 템플릿 (있을 때만 보임) ===== -->
+        <div class="section d-none" id="publicSection">
             <h2 class="tl-title">
                 기본 템플릿에서 시작
                 <span class="text-sm text-faint fw-normal">복사해서 만들면 원본은 그대로 남아요</span>
             </h2>
-            <div class="tl-grid">
-                <article class="tl-card" th:each="t : ${publics}"
-                         th:attr="data-template-id=${t.templateId},data-template-name=${t.templateName}">
-                    <a class="tl-thumb" th:href="@{/web/template/new(from=${t.templateId},resumeId=${resumeId})}"
-                       th:attr="aria-label=${t.templateName} + ' 복사해서 만들기'">
-                        <iframe th:src="@{/web/template/sample-preview(templateId=${t.templateId})}"
-                                loading="lazy" tabindex="-1" aria-hidden="true" title=""></iframe>
-                    </a>
-                    <div class="tl-card__head">
-                        <h3 class="ellipsis" th:text="${t.templateName}" th:title="${t.templateName}">기본 템플릿</h3>
-                        <span class="badge">기본</span>
-                    </div>
-                    <p class="tl-card__desc" th:if="${!#strings.isEmpty(t.description)}" th:text="${t.description}">설명</p>
-                    <p class="tl-card__desc is-empty" th:if="${#strings.isEmpty(t.description)}">설명이 없어요</p>
-                    <div class="actions">
-                        <a class="primary" th:href="@{/web/template/new(from=${t.templateId},resumeId=${resumeId})}">
-                            <i class="icon icon-copy sm"></i> 복사해서 만들기
-                        </a>
-                    </div>
-                </article>
-            </div>
+            <div class="tl-grid" id="publicTemplateGrid"></div>
         </div>
     </div>
 

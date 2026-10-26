@@ -12,7 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import resume.core.dto.*;
-import resume.core.importer.ResumeImportException;
+import resume.core.exception.ResumeImportException;
 import resume.core.security.UserPrincipal;
 import resume.core.service.ResumeService;
 import resume.core.service.TemplateService;

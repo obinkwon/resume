@@ -5,7 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import resume.core.dto.ResumeImportResultDto;
-import resume.core.importer.ResumeFileType;
+import resume.core.enums.ResumeFileType;
+import resume.core.enums.ResumeSource;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -45,7 +46,7 @@ public class ResumeParserRouter implements ResumeParser {
     public Map<String, List<String>> debugSections(String text) {
         Map<String, List<String>> out = new LinkedHashMap<>();
         ResumeParser parser = pick(text);
-        String chosen = parser instanceof SiteResumeParser s ? s.source().getLabel() : ResumeSource.GENERIC.getLabel();
+        String chosen = parser instanceof SiteResumeParser s ? s.source().getLabel() : ResumeSource.DIRECT.getLabel();
         out.put("(인식한 사이트)", List.of(chosen));
         out.put("(사이트별 점수)", sites.stream()
                 .map(s -> s.source().getLabel() + " " + s.matchScore(text) + "점 (기준 " + MIN_SCORE + "점)")

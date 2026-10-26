@@ -1,8 +1,11 @@
-package resume.core.importer;
+package resume.core.exception;
+
+import lombok.Getter;
 
 /**
  * 이력서 파일 가져오기 실패 (message 는 사용자에게 그대로 보여줄 문구)
  */
+@Getter
 public class ResumeImportException extends RuntimeException {
 
     /** 400 : 요청이 잘못됨 (파일 없음, 손상된 파일) */
@@ -26,7 +29,4 @@ public class ResumeImportException extends RuntimeException {
         this.status = status;
     }
 
-    public int getStatus() {
-        return status;
-    }
 }

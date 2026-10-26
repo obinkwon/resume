@@ -2,6 +2,8 @@ package resume.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,7 @@ import resume.core.dto.ResumeRequestDto;
 import resume.core.dto.TemplateDto;
 import resume.core.dto.TemplateRequestDto;
 import resume.core.dto.UserDto;
+import resume.core.security.UserPrincipal;
 import resume.core.service.ResumeService;
 import resume.core.service.TemplateEditorService;
 import resume.core.service.TemplateService;
@@ -33,19 +36,9 @@ public class TemplateWebController {
     private final SampleResumeFactory sampleResumeFactory;
 
     @GetMapping("/list")
-    public String list(ResumeRequestDto resumeRequestDto, Principal principal, Model model) {
-        String loginId = principal.getName();
-        UserDto userDto = userService.getUserId(loginId);
-
-        model.addAttribute("myTemplates", templateService.getTemplateList(TemplateRequestDto.builder()
-                        .userId(userDto.getUserId())
-                        .isPublic(false)
-                        .build()));
-        model.addAttribute("publicTemplates", templateService.getTemplateList(TemplateRequestDto.builder()
-                        .isPublic(true)
-                        .build()));
-        resumeRequestDto.setUserId(userDto.getUserId());
-        model.addAttribute("myResumes", resumeService.getResumeList(resumeRequestDto));
+    public String list(@AuthenticationPrincipal UserPrincipal principal,
+                       Model model) {
+        model.addAttribute("user", principal);
         return "thymeleaf/resume/resume-template-list";
     }
 

@@ -18,4 +18,11 @@ public class ApiExceptionHandler {
                 .contentType(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8))
                 .body(e.getMessage());
     }
+
+    @ExceptionHandler(ResumeImportException.class)
+    public ResponseEntity<String> handleImportError(ResumeImportException e) {
+        return ResponseEntity.status(e.getStatus())
+                .contentType(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8))
+                .body(e.getMessage());
+    }
 }

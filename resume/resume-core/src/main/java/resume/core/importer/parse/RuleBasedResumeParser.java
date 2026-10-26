@@ -9,7 +9,9 @@ import resume.core.dto.ResumeImportResultDto.Link;
 import resume.core.dto.ResumeImportResultDto.Profile;
 import resume.core.dto.ResumeImportResultDto.Project;
 import resume.core.dto.ResumeImportResultDto.Skill;
-import resume.core.importer.ResumeFileType;
+import resume.core.enums.ResumeFileType;
+import resume.core.enums.ResumeSource;
+import resume.core.enums.Section;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -132,7 +134,9 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
     // 사이트별로 바꾸는 부분 (사이트 전용 파서가 덮어씀)
     // =========================================================
 
-    /** 이 파서가 맡는 사이트 (결과의 source 로 나감) */
+    /**
+     * 이 파서가 맡는 사이트 (결과의 source 로 나감)
+     */
     public abstract ResumeSource source();
 
     /** 줄 다듬기 — 섹션 나누기 전에 한 번 (기본 : 그대로) */

@@ -1,5 +1,7 @@
 package resume.core.importer;
 
+import resume.core.exception.ResumeImportException;
+
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 

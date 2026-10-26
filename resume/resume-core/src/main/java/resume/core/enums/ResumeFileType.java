@@ -1,4 +1,4 @@
-package resume.core.importer;
+package resume.core.enums;
 
 import java.util.Arrays;
 import java.util.Locale;

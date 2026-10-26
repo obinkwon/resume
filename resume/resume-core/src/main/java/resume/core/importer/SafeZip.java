@@ -1,5 +1,7 @@
 package resume.core.importer;
 
+import resume.core.exception.ResumeImportException;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

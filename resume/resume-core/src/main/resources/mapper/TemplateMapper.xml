@@ -23,12 +23,18 @@
             , updated_at
         FROM templates
         WHERE use_yn = 'Y'
-        <if test="isPublic">
-            AND is_public = #{isPublic}
-        </if>
-        <if test="!isPublic">
-            AND created_by = #{userId} AND (is_public IS NULL OR is_public = false)
-        </if>
+        <choose>
+            <when test="isPublic != null and isPublic and userId == null">
+                AND is_public = true
+            </when>
+            <when test="isPublic != null and !isPublic and userId != null">
+                AND created_by = #{userId}
+            </when>
+            <otherwise>
+                AND ( is_public = true OR created_by = #{userId} )
+            </otherwise>
+        </choose>
+        ORDER BY is_public DESC NULLS LAST, template_id ASC
     </select>
 
     <!-- 이력서 템플릿 상세 조회 -->

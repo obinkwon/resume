@@ -1,5 +1,7 @@
 package resume.core.importer.parse;
 
+import resume.core.enums.ResumeSource;
+
 /**
  * 구직 사이트 전용 파서
  *  - matchScore : 글자에 그 사이트 PDF 에만 있는 문구가 얼마나 있는지 (ResumeParserRouter 가 가장 높은 곳을 고름)

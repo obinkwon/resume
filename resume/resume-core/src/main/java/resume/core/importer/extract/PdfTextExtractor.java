@@ -5,8 +5,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.stereotype.Component;
-import resume.core.importer.ResumeFileType;
-import resume.core.importer.ResumeImportException;
+import resume.core.enums.ResumeFileType;
+import resume.core.exception.ResumeImportException;
 
 import java.io.IOException;
 

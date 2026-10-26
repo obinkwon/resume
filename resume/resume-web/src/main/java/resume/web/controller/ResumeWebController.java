@@ -2,6 +2,7 @@ package resume.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,9 +24,9 @@ public class ResumeWebController {
 	private final TemplateService templateService;
 
 	@GetMapping("/list")
-	public String resumeListPage(Authentication authentication, Model model, ResumeRequestDto requestDto) {
-
-		UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+	public String resumeListPage(@AuthenticationPrincipal UserPrincipal principal,
+                                 Model model,
+                                 ResumeRequestDto requestDto) {
 		requestDto.setUserId(principal.getUserId());
 
 		model.addAttribute("user", principal);
