@@ -46,7 +46,7 @@ public class TemplateWebController {
     }
 
     @GetMapping("/regist")
-    public String templateRegistPagecreate(TemplateRequestDto requestDto,
+    public String templateRegistPage(TemplateRequestDto requestDto,
                          Model model) {
         TemplateDetailResponseDto base = null;
         // 템플릿 복사해서 생성할 경우
@@ -64,12 +64,11 @@ public class TemplateWebController {
         return "thymeleaf/resume/resume-template-form";
     }
 
-    @GetMapping("/edit/{templateId}")
-    public String edit(@PathVariable Long templateId,
+    @GetMapping("/modify/{templateId}")
+    public String templateModifyPage(@PathVariable Long templateId,
                        @RequestParam(required = false) Long resumeId,
                        Principal principal, Model model) {
         String loginId = principal.getName();
-        if (resumeId != null) checkResume(resumeId, loginId);
 
         TemplateDto template = findTemplate(templateId, loginId);
 

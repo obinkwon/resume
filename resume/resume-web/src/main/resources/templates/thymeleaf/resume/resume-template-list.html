@@ -18,7 +18,7 @@
                data-list-url=@{/api/template/list},
                data-delete-url=@{/api/template/},
                data-edit-url=@{/web/template/edit/},
-               data-new-url=@{/web/template/new}">
+               data-new-url=@{/web/template/regist}">
 
     <div class="container">
         <div class="page-header">
@@ -30,7 +30,7 @@
                 <h1>내 템플릿</h1>
             </div>
             <div class="btn-group">
-                <a class="btn primary" th:href="@{/web/template/new(resumeId=${resumeId})}">
+                <a class="btn primary" th:href="@{/web/template/regist}">
                     <i class="icon icon-plus"></i> 새 템플릿
                 </a>
             </div>
@@ -58,7 +58,7 @@
 
             <div class="empty-state d-none" id="myEmpty">
                 <p>아직 만든 템플릿이 없어요. 빈 템플릿에서 시작하거나 아래 기본 템플릿을 복사해 보세요.</p>
-                <a class="btn outline" th:href="@{/web/template/new(resumeId=${resumeId})}">
+                <a class="btn outline" th:href="@{/web/template/regist}">
                     <i class="icon icon-plus"></i> 빈 템플릿에서 시작
                 </a>
             </div>

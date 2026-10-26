@@ -373,7 +373,7 @@
                     state.baseTemplateId = Number(templateId);
                     setMode(MODE.UPDATE);
                     if (window.history && history.replaceState) {
-                        var url = cfg.editUrl + templateId + (cfg.resumeId ? '?resumeId=' + cfg.resumeId : '');
+                        var url = cfg.editUrl + templateId;
                         history.replaceState(null, '', url);
                     }
                 }
@@ -381,7 +381,7 @@
                 updateDirty();
                 setStatus(createsNew ? '새 템플릿으로 저장됨' : '저장됨', 'saved');
 
-                if (cfg.resumeId && confirm('저장하고 이력서에 적용했습니다. 템플릿 선택 화면으로 갈까요?')) {
+                if (confirm('저장하고 이력서에 적용했습니다. 템플릿 선택 화면으로 갈까요?')) {
                     window.location.href = cfg.backUrl;
                 }
             })
