@@ -15,12 +15,8 @@
 <!--/* 모델 값이 없어도 화면이 깨지지 않도록 빈 목록으로 대체 */-->
 <body th:with="mine=${myTemplates != null ? myTemplates : {}},
                publics=${publicTemplates != null ? publicTemplates : {}},
-               resumes=${myResumes != null ? myResumes : {}},
                hasResume=${resumeId != null}"
-      th:attr="data-resume-id=${resumeId},
-               data-apply-url=@{/api/template/apply},
-               data-delete-url=@{/api/template/},
-               data-resume-template-url=@{/web/resume/template/}">
+      th:attr="data-delete-url=@{/api/template/}">
 
     <div class="container">
         <div class="page-header">
@@ -29,9 +25,7 @@
                    th:href="${hasResume} ? @{/web/resume/template/{id}(id=${resumeId})} : @{/web/resume/list}">
                     <i class="icon icon-arrow-left sm"></i><span th:text="${hasResume} ? '템플릿 선택' : '목록'">목록</span>
                 </a>
-                <div>
-                    <h1>내 템플릿</h1>
-                </div>
+                <h1>내 템플릿</h1>
             </div>
             <div class="btn-group">
                 <a class="btn primary" th:href="@{/web/template/new(resumeId=${resumeId})}">
@@ -68,9 +62,6 @@
                         <a th:href="@{/web/template/edit/{id}(id=${t.templateId},resumeId=${resumeId})}">
                             <i class="icon icon-edit sm"></i> 편집
                         </a>
-                        <button type="button" class="apply js-apply">
-                            <i class="icon icon-check sm"></i> 이력서에 적용
-                        </button>
                     </div>
                 </article>
             </div>
@@ -104,54 +95,16 @@
                     <p class="tl-card__desc" th:if="${!#strings.isEmpty(t.description)}" th:text="${t.description}">설명</p>
                     <p class="tl-card__desc is-empty" th:if="${#strings.isEmpty(t.description)}">설명이 없어요</p>
                     <div class="actions">
-                        <a th:href="@{/web/template/new(from=${t.templateId},resumeId=${resumeId})}">
+                        <a class="primary" th:href="@{/web/template/new(from=${t.templateId},resumeId=${resumeId})}">
                             <i class="icon icon-copy sm"></i> 복사해서 만들기
                         </a>
-                        <button type="button" class="apply js-apply">
-                            <i class="icon icon-check sm"></i> 이력서에 적용
-                        </button>
                     </div>
                 </article>
             </div>
         </div>
     </div>
 
-    <!-- ===== 이력서에 적용 ===== -->
-    <dialog class="modal" id="applyModal" aria-labelledby="applyTitle">
-        <div class="modal__header">
-            <h2 id="applyTitle">이력서에 적용</h2>
-            <button type="button" class="btn icon ghost" data-close aria-label="닫기"><i class="icon icon-close"></i></button>
-        </div>
-        <div class="modal__body">
-            <p class="tl-apply__desc"><strong id="applyTemplateName"></strong> 템플릿을 적용할 이력서를 고르세요.</p>
-
-            <p class="tl-apply__empty" th:if="${#lists.isEmpty(resumes)}">
-                적용할 이력서가 없어요. 이력서를 먼저 작성해 주세요.
-            </p>
-            <label class="tl-apply__field" th:unless="${#lists.isEmpty(resumes)}">
-                <span class="text-sm text-sub fw-medium">이력서</span>
-                <select id="applyResume">
-                    <option th:each="rs : ${resumes}"
-                            th:value="${rs.resumeId}"
-                            th:selected="${rs.resumeId == resumeId}"
-                            th:attr="data-current-template=${rs.templateId}"
-                            th:text="${#strings.isEmpty(rs.title)} ? '제목 없는 이력서' : ${rs.title}">이력서 제목</option>
-                </select>
-            </label>
-            <p class="tl-apply__note text-sm" id="applyNote" aria-live="polite"></p>
-        </div>
-        <div class="modal__footer">
-            <a class="btn ghost sm" th:href="@{/web/resume/regist}" th:if="${#lists.isEmpty(resumes)}">이력서 작성하기</a>
-            <span th:unless="${#lists.isEmpty(resumes)}"></span>
-            <div class="btn-group">
-                <button type="button" class="btn secondary" data-close>취소</button>
-                <button type="button" class="btn primary" id="applyConfirm"
-                        th:disabled="${#lists.isEmpty(resumes)}">적용</button>
-            </div>
-        </div>
-    </dialog>
-
-    <!-- 적용·삭제 결과 -->
+    <!-- 삭제 결과 -->
     <div class="toast d-none" id="listToast" role="status" aria-live="polite"></div>
 
 </body>

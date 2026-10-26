@@ -1,18 +1,17 @@
 /**
  * 내 템플릿 목록
  *  - 썸네일 : A4 미리보기를 카드 너비에 맞춰 축소
- *  - 이력서에 적용 : 이력서를 골라 POST /api/template/apply
- *  - 삭제         : DELETE /api/template/{id}
+ *  - 삭제   : DELETE /api/template/{id}
  */
 (function () {
     'use strict';
 
     var PAGE_WIDTH = 794;
     var TOAST_TIME = 3500;
+    var REMOVE_TIME = 300;   // 삭제 애니메이션(.22s)보다 조금 길게
 
     var cfg = {};
     var el = {};
-    var current = { templateId: null, templateName: '' };
     var toastTimer = null;
 
     /* ---------- 공통 ---------- */
@@ -25,12 +24,11 @@
         return headers;
     }
 
-    function request(method, url, body) {
+    function request(method, url) {
         return fetch(url, {
             method: method,
             headers: csrfHeaders(),
-            credentials: 'same-origin',
-            body: body ? JSON.stringify(body) : undefined
+            credentials: 'same-origin'
         }).then(function (res) {
             return res.json().catch(function () { return {}; }).then(function (json) {
                 if (!res.ok) throw new Error(json.message || ('요청을 처리하지 못했어요. (' + res.status + ')'));
@@ -39,19 +37,13 @@
         });
     }
 
-    /** 아래쪽 알림. link 를 주면 오른쪽에 이동 링크 */
-    function toast(message, isError, link) {
+    /** 아래쪽 알림 */
+    function toast(message, isError) {
         clearTimeout(toastTimer);
-        el.toast.replaceChildren(document.createTextNode(message));
-        if (link) {
-            var a = document.createElement('a');
-            a.href = link.href;
-            a.textContent = link.text;
-            el.toast.appendChild(a);
-        }
+        el.toast.textContent = message;
         el.toast.classList.toggle('is-error', !!isError);
         el.toast.classList.remove('d-none');
-        toastTimer = setTimeout(function () { el.toast.classList.add('d-none'); }, link ? TOAST_TIME * 2 : TOAST_TIME);
+        toastTimer = setTimeout(function () { el.toast.classList.add('d-none'); }, TOAST_TIME);
     }
 
     /* ---------- 썸네일 크기 ---------- */
@@ -75,51 +67,11 @@
         }
     }
 
-    /* ---------- 이력서에 적용 ---------- */
-
-    function openApply(card) {
-        current.templateId = Number(card.getAttribute('data-template-id'));
-        current.templateName = card.getAttribute('data-template-name') || '';
-        el.applyName.textContent = '\'' + current.templateName + '\'';
-        updateApplyNote();
-        el.modal.showModal();
-    }
-
-    function closeApply() {
-        el.modal.close();
-    }
-
-    function selectedOption() {
-        return el.applyResume ? el.applyResume.options[el.applyResume.selectedIndex] : null;
-    }
-
-    function updateApplyNote() {
-        var option = selectedOption();
-        var using = option && Number(option.getAttribute('data-current-template')) === current.templateId;
-        el.applyNote.textContent = using ? '이 이력서는 이미 이 템플릿을 쓰고 있어요.' : '';
-    }
-
-    function confirmApply() {
-        var option = selectedOption();
-        if (!option) return;
-        var resumeId = Number(option.value);
-        var resumeTitle = option.textContent.trim();
-
-        el.applyConfirm.disabled = true;
-        request('POST', cfg.applyUrl, { resumeId: resumeId, templateId: current.templateId })
-            .then(function () {
-                option.setAttribute('data-current-template', String(current.templateId));
-                closeApply();
-                toast('\'' + resumeTitle + '\' 에 적용했어요.', false,
-                    { href: cfg.resumeTemplateUrl + resumeId, text: '확인하러 가기' });
-            })
-            .catch(function (err) { toast(err.message, true); })
-            .finally(function () { el.applyConfirm.disabled = false; });
-    }
-
     /* ---------- 삭제 ---------- */
 
     function deleteTemplate(card) {
+        if (!card || card.classList.contains('is-deleting')) return;
+
         var templateId = card.getAttribute('data-template-id');
         var name = card.getAttribute('data-template-name') || '';
         if (!confirm('\'' + name + '\' 템플릿을 삭제할까요?')) return;
@@ -129,10 +81,11 @@
             .then(function () {
                 card.classList.remove('is-deleting');
                 card.classList.add('is-removed');
-                card.addEventListener('animationend', function () {
+                // 애니메이션이 꺼져 있으면 animationend 가 오지 않으므로 시간으로 지움
+                setTimeout(function () {
                     card.remove();
                     updateMyCount();
-                }, { once: true });
+                }, REMOVE_TIME);
                 toast('\'' + name + '\' 템플릿을 삭제했어요.');
             })
             .catch(function (err) {
@@ -153,18 +106,10 @@
     /* ---------- 시작 ---------- */
 
     document.addEventListener('DOMContentLoaded', function () {
-        var body = document.body;
         cfg = {
-            applyUrl: body.getAttribute('data-apply-url'),
-            deleteUrl: body.getAttribute('data-delete-url'),
-            resumeTemplateUrl: body.getAttribute('data-resume-template-url')
+            deleteUrl: document.body.getAttribute('data-delete-url')
         };
 
-        el.modal = document.getElementById('applyModal');
-        el.applyName = document.getElementById('applyTemplateName');
-        el.applyResume = document.getElementById('applyResume');
-        el.applyNote = document.getElementById('applyNote');
-        el.applyConfirm = document.getElementById('applyConfirm');
         el.toast = document.getElementById('listToast');
         el.myGrid = document.getElementById('myTemplateGrid');
         el.myCount = document.getElementById('myCount');
@@ -173,20 +118,8 @@
         initThumbs();
 
         document.addEventListener('click', function (e) {
-            var applyBtn = e.target.closest('.js-apply');
-            if (applyBtn) { openApply(applyBtn.closest('.tl-card')); return; }
             var deleteBtn = e.target.closest('.js-delete');
             if (deleteBtn) deleteTemplate(deleteBtn.closest('.tl-card'));
         });
-
-        el.modal.querySelectorAll('[data-close]').forEach(function (btn) {
-            btn.addEventListener('click', closeApply);
-        });
-        // 바깥(backdrop) 클릭 시 닫기
-        el.modal.addEventListener('click', function (e) {
-            if (e.target === el.modal) closeApply();
-        });
-        el.applyConfirm.addEventListener('click', confirmApply);
-        if (el.applyResume) el.applyResume.addEventListener('change', updateApplyNote);
     });
 })();

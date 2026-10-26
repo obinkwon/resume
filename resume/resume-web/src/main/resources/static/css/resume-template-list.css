@@ -1,5 +1,5 @@
 /* =========================================================
-   resume-template-list.css  (common.css 토큰·버튼·모달 사용)
+   resume-template-list.css  (common.css 토큰·버튼 사용)
    ========================================================= */
 
 /* ===== 상단 ===== */
@@ -11,7 +11,7 @@
     min-width: 0;
 }
 .page-header__left .btn { margin-top: 2px; }
-.page-header__left p { margin: 4px 0 0; }
+.page-header__left h1 { margin: 0; }
 
 /* ===== 섹션 제목 ===== */
 .tl-title {
@@ -123,8 +123,7 @@
     display: flex;
     gap: 8px;
 }
-.tl-card .actions a,
-.tl-card .actions button {
+.tl-card .actions a {
     flex: 1;
     display: inline-flex;
     align-items: center;
@@ -139,15 +138,13 @@
     background: var(--c-surface-sub);
     transition: background var(--transition), color var(--transition);
 }
-.tl-card .actions a:hover,
-.tl-card .actions button:hover {
+.tl-card .actions a:hover {
     background: var(--c-border);
     color: #111;
 }
-.tl-card .actions .apply { color: var(--c-primary); }
-.tl-card .actions .apply:hover { background: var(--c-primary-soft); color: var(--c-primary-hover); }
-.tl-card .actions a:focus-visible,
-.tl-card .actions button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.tl-card .actions a.primary { color: var(--c-primary); }
+.tl-card .actions a.primary:hover { background: var(--c-primary-soft); color: var(--c-primary-hover); }
+.tl-card .actions a:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
 /* 삭제 중 / 삭제됨 */
 .tl-card.is-deleting { opacity: .5; pointer-events: none; }
@@ -167,30 +164,6 @@
 }
 .empty-state p { margin: 0 0 16px; }
 
-/* ===== 이력서에 적용 모달 ===== */
-.tl-apply__desc { margin: 0; color: var(--c-text-sub); }
-.tl-apply__desc strong { color: var(--c-text); }
-.tl-apply__field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-.tl-apply__field select { margin: 0; }
-.tl-apply__empty {
-    margin: 0;
-    padding: 12px 14px;
-    border-radius: var(--radius-sm);
-    background: #fffbeb;
-    color: #b45309;
-    font-size: 13px;
-}
-.tl-apply__note {
-    min-height: 20px;
-    margin: -12px 0 0;
-    color: #b45309;
-}
-.tl-apply__note:empty { display: none; }
-
 /* ===== 알림 (resume-list 와 같은 모양) ===== */
 .toast {
     position: fixed;
@@ -207,7 +180,6 @@
     box-shadow: var(--shadow-md);
 }
 .toast.is-error { background: var(--c-danger-hover); }
-.toast a { color: #93c5fd; margin-left: 8px; }
 
 /* ===== 좁은 화면 ===== */
 @media (max-width: 1240px) {

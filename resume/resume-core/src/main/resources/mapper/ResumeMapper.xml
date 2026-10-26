@@ -33,6 +33,9 @@
             LEFT JOIN resume_profile p ON p.resume_id = r.resume_id AND p.use_yn = 'Y'
         WHERE r.user_id = #{userId}
             AND r.use_yn = 'Y'
+        <if test="templateId != null">
+            AND template_id = #{templateId}
+        </if>
         ORDER BY r.updated_at DESC
     </select>
 
