@@ -23,17 +23,6 @@ public interface TemplateEditorMapper {
     String TEMPLATE_COLUMNS = "template_id, template_name, description, thumbnail_url, "
             + "html_content, css_content, is_public, created_by, use_yn";
 
-    /** 기본(공개) 템플릿 */
-    @Select("SELECT " + TEMPLATE_COLUMNS + " FROM templates "
-            + "WHERE use_yn = 'Y' AND is_public = true ORDER BY template_id")
-    List<TemplateDto> findPublicTemplates();
-
-    /** 내가 만든 템플릿 */
-    @Select("SELECT " + TEMPLATE_COLUMNS + " FROM templates "
-            + "WHERE use_yn = 'Y' AND created_by = #{loginId} AND (is_public IS NULL OR is_public = false) "
-            + "ORDER BY template_id DESC")
-    List<TemplateDto> findMyTemplates(@Param("loginId") String loginId);
-
     @Select("SELECT " + TEMPLATE_COLUMNS + " FROM templates "
             + "WHERE template_id = #{templateId} AND use_yn = 'Y'")
     TemplateDto findTemplate(@Param("templateId") Long templateId);

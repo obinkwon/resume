@@ -16,6 +16,6 @@ public class TemplateDto {
     private String htmlContent;
     private String cssContent;
     private Boolean isPublic;
-    private String createdBy;
+    private Long createdBy;
     private String useYn;
 }

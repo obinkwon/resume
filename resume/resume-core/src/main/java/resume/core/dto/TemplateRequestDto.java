@@ -13,4 +13,5 @@ public class TemplateRequestDto {
     private Long userId;
     private Long templateId;
     private String title;
+    private Boolean isPublic;
 }

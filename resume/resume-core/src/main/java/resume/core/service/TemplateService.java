@@ -45,7 +45,7 @@ public class TemplateService {
         return t;
     });
 
-    // ↓ worker 스레드에서만 사용
+    // worker 스레드에서만 사용
     private Playwright playwright;
     private Browser browser;
 

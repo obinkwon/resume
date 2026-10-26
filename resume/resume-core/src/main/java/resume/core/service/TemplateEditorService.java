@@ -27,16 +27,6 @@ public class TemplateEditorService {
     private final TemplateValidator templateValidator;
 
     @Transactional(readOnly = true)
-    public List<TemplateDto> findPublicTemplates() {
-        return templateEditorMapper.findPublicTemplates();
-    }
-
-    @Transactional(readOnly = true)
-    public List<TemplateDto> findMyTemplates(String loginId) {
-        return templateEditorMapper.findMyTemplates(loginId);
-    }
-
-    @Transactional(readOnly = true)
     public List<ResumeResponseDto> findMyResumes(String loginId) {
         return templateEditorMapper.findMyResumes(loginId);
     }
@@ -85,7 +75,7 @@ public class TemplateEditorService {
                 .htmlContent(nullToEmpty(req.getHtmlContent()))
                 .cssContent(nullToEmpty(req.getCssContent()))
                 .isPublic(false)
-                .createdBy(loginId)
+                .createdBy(req.getResumeId())
                 .useYn("Y")
                 .build();
 

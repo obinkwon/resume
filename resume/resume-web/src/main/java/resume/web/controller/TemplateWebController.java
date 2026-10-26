@@ -9,38 +9,43 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+import resume.core.dto.ResumeRequestDto;
 import resume.core.dto.TemplateDto;
+import resume.core.dto.TemplateRequestDto;
+import resume.core.dto.UserDto;
+import resume.core.service.ResumeService;
 import resume.core.service.TemplateEditorService;
+import resume.core.service.TemplateService;
+import resume.core.service.UserService;
 import resume.core.template.SampleResumeFactory;
 
 import java.security.Principal;
 
-/**
- * 템플릿 직접 만들기 화면
- *  /web/template/list                     내 템플릿 목록 (새로 만들기, 편집, 이력서에 적용, 삭제)
- *  /web/template/new?resumeId=&from=      새 템플릿 (from: 복사해서 시작할 템플릿)
- *  /web/template/edit/{templateId}?resumeId=
- *  /web/template/sample-preview?templateId=   샘플 데이터 미리보기 (편집기 iframe, 목록 썸네일)
- *
- * resumeId 가 있으면 이력서 화면에서 들어온 것 → 저장 시 그 이력서에 연결, 미리보기에서 내 이력서 데이터로 전환 가능
- */
 @Controller
 @RequestMapping("/web/template")
 @RequiredArgsConstructor
-public class TemplateEditorWebController {
+public class TemplateWebController {
 
+    private final TemplateService templateService;
+    private final UserService userService;
+    private final ResumeService resumeService;
     private final TemplateEditorService templateEditorService;
     private final SampleResumeFactory sampleResumeFactory;
 
     @GetMapping("/list")
-    public String list(@RequestParam(required = false) Long resumeId, Principal principal, Model model) {
+    public String list(ResumeRequestDto resumeRequestDto, Principal principal, Model model) {
         String loginId = principal.getName();
-        if (resumeId != null) checkResume(resumeId, loginId);
+        UserDto userDto = userService.getUserId(loginId);
 
-        model.addAttribute("resumeId", resumeId);
-//        model.addAttribute("myTemplates", templateEditorService.findMyTemplates(loginId));
-//        model.addAttribute("publicTemplates", templateEditorService.findPublicTemplates());
-//        model.addAttribute("myResumes", templateEditorService.findMyResumes(loginId));
+        model.addAttribute("myTemplates", templateService.getTemplateList(TemplateRequestDto.builder()
+                        .userId(userDto.getUserId())
+                        .isPublic(false)
+                        .build()));
+        model.addAttribute("publicTemplates", templateService.getTemplateList(TemplateRequestDto.builder()
+                        .isPublic(true)
+                        .build()));
+        resumeRequestDto.setUserId(userDto.getUserId());
+        model.addAttribute("myResumes", resumeService.getResumeList(resumeRequestDto));
         return "thymeleaf/resume/resume-template-list";
     }
 

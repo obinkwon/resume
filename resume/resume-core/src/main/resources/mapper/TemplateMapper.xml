@@ -23,6 +23,12 @@
             , updated_at
         FROM templates
         WHERE use_yn = 'Y'
+        <if test="isPublic">
+            AND is_public = #{isPublic}
+        </if>
+        <if test="!isPublic">
+            AND created_by = #{userId} AND (is_public IS NULL OR is_public = false)
+        </if>
     </select>
 
     <!-- 이력서 템플릿 상세 조회 -->
