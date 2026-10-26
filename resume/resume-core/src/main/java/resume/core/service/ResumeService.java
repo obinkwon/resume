@@ -8,14 +8,16 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import resume.core.dto.*;
 import resume.core.enums.ResumeFileType;
-import resume.core.importer.ResumeFileTypeDetector;
 import resume.core.exception.ResumeImportException;
-import resume.core.importer.TextNormalizer;
 import resume.core.extractor.ResumeTextExtractor;
-import resume.core.parser.ResumeParser;
+import resume.core.importer.ResumeFileTypeDetector;
+import resume.core.importer.TextNormalizer;
 import resume.core.mapper.PdfLogMapper;
 import resume.core.mapper.ResumeMapper;
 import resume.core.mapper.TemplateMapper;
+import resume.core.parser.ResumeParser;
+import resume.core.record.ResumeImportDebug;
+import resume.core.record.ResumeImportResult;
 
 import java.io.IOException;
 import java.util.List;
@@ -267,15 +269,15 @@ public class ResumeService {
         }
     }
 
-    public ResumeImportResultDto importFile(MultipartFile file) {
+    public ResumeImportResult importFile(MultipartFile file) {
         ExtractedText ex = extractText(file, true);
         return parser.parse(ex.text(), ex.type());
     }
 
     /** 디버그용 : 꺼낸 글자 + 섹션 + 최종 결과 */
-    public ResumeImportDebugDto debugImportFile(MultipartFile file) {
+    public ResumeImportDebug debugImportFile(MultipartFile file) {
         ExtractedText ex = extractText(file, false);
-        return new ResumeImportDebugDto(ex.type().getExtension(), ex.text().length(), ex.text(),
+        return new ResumeImportDebug(ex.type().getExtension(), ex.text().length(), ex.text(),
                 parser.debugSections(ex.text()), parser.parse(ex.text(), ex.type()));
     }
 

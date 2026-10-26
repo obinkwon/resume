@@ -8,9 +8,9 @@
     <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}">
     <title>템플릿 편집</title>
     <link rel="stylesheet" th:href="@{/css/common.css}">
-    <link rel="stylesheet" th:href="@{/css/resume-template-editor.css}">
+    <link rel="stylesheet" th:href="@{/css/resume-template-form.css}">
     <script th:src="@{/js/common.js}"></script>
-    <script th:src="@{/js/resume-template-editor.js}" defer></script>
+    <script th:src="@{/js/resume-template-form.js}" defer></script>
 </head>
 <!--/* resumeId 가 없으면 이력서 없이 템플릿만 만드는 모드 (샘플 데이터로 미리보기) */-->
 <body class="te-body"
@@ -19,7 +19,7 @@
       th:attr="data-resume-id=${resumeId},
                data-base-template-id=${resumeTemplate?.templateId},
                data-own-template=${ownTemplate == true},
-               data-sample-preview-url=@{/web/template/sample-preview},
+               data-preview-url=@{/web/template/preview},
                data-resume-preview-url=${hasResume} ? @{/web/resume/preview/{id}(id=${resumeId})} : '',
                data-save-url=@{/api/template/save},
                data-edit-url=@{/web/template/edit/},
@@ -33,11 +33,7 @@
                     <i class="icon icon-arrow-left sm"></i><span th:text="${hasResume} ? '템플릿 선택' : '내 템플릿'">내 템플릿</span>
                 </a>
                 <div class="te-header__title">
-                    <div class="te-header__row">
-                        <h1 class="te-title">템플릿 편집</h1>
-                        <span class="badge gray" th:unless="${hasResume}">이력서 연결 없음</span>
-                        <span class="badge" th:if="${hasResume}">저장하면 이 이력서에 적용</span>
-                    </div>
+                    <h1 class="te-title">템플릿 편집</h1>
                     <label class="te-name">
                         <span class="text-xs text-muted">이름</span>
                         <input type="text" id="templateName" maxlength="50" autocomplete="off"
@@ -47,7 +43,7 @@
             </div>
             <div class="btn-group">
                 <span class="save-status text-sm" id="saveStatus" aria-live="polite"></span>
-                <button type="button" class="btn ghost sm" id="btnReset">되돌리기</button>
+                <button type="button" class="btn ghost sm" id="btnReset" disabled>되돌리기</button>
                 <button type="button" class="btn secondary sm" id="btnSaveAsNew"
                         th:classappend="${ownTemplate == true} ? '' : 'd-none'">
                     <i class="icon icon-copy sm"></i>새 템플릿으로 저장
@@ -81,7 +77,7 @@
                         <li><i class="dot is-used"></i>템플릿에 넣음</li>
                         <li><i class="dot is-empty"></i>미리보기 데이터에 내용 없음</li>
                     </ul>
-                    <p class="panel-hint">섹션마다 한 번씩만 쓸 수 있고, 태그 사이에 넣어야 해요. HTML 이 비어 있으면 모든 섹션이 기본 순서로 나와요.</p>
+                    <p class="panel-hint">섹션마다 한 번씩만 쓸 수 있고, 태그 사이에 넣어야 해요. 넣은 치환자만 미리보기에 나와요.</p>
                 </section>
 
                 <details class="te-panel class-guide" open>
@@ -109,8 +105,8 @@
                     <span class="te-tabs__hint">Tab 들여쓰기 · Ctrl+S 저장</span>
                 </div>
                 <div class="te-code">
-                    <textarea id="htmlEditor" class="te-textarea is-active" spellcheck="false" autocapitalize="off" autocomplete="off"
-                              aria-label="템플릿 HTML" th:text="${resumeTemplate?.htmlContent}"></textarea>
+                        <textarea id="htmlEditor" class="te-textarea is-active" spellcheck="false" autocapitalize="off" autocomplete="off"
+                                  aria-label="템플릿 HTML" th:text="${resumeTemplate?.htmlContent}"></textarea>
                     <textarea id="cssEditor" class="te-textarea" spellcheck="false" autocapitalize="off" autocomplete="off"
                               aria-label="템플릿 CSS" th:text="${resumeTemplate?.cssContent}"></textarea>
                 </div>

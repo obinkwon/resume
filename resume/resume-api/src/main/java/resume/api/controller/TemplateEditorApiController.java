@@ -2,14 +2,10 @@ package resume.api.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import resume.core.dto.TemplateApplyRequestDto;
 import resume.core.dto.TemplateSaveRequestDto;
 import resume.core.service.TemplateEditorService;
 
@@ -35,16 +31,5 @@ public class TemplateEditorApiController {
     public ResponseEntity<Map<String, Object>> save(@RequestBody TemplateSaveRequestDto req, Principal principal) {
         Long templateId = templateEditorService.save(req, principal.getName());
         return ResponseEntity.ok(Map.of("templateId", templateId, "message", "저장했습니다."));
-    }
-
-    @PostMapping("/apply")
-    public ResponseEntity<Map<String, Object>> apply(@RequestBody TemplateApplyRequestDto req, Principal principal) {
-        templateEditorService.apply(req, principal.getName());
-        return ResponseEntity.ok(Map.of("message", "이력서에 적용했습니다."));
-    }
-
-    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
-    public ResponseEntity<Map<String, Object>> badRequest(RuntimeException e) {
-        return ResponseEntity.badRequest().body(Map.of("message", e.getMessage() == null ? "요청을 처리하지 못했습니다." : e.getMessage()));
     }
 }

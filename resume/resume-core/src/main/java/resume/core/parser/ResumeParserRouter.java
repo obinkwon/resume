@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import resume.core.dto.ResumeImportResultDto;
+import resume.core.record.ResumeImportResult;
 import resume.core.enums.ResumeFileType;
 import resume.core.enums.ResumeSource;
 
@@ -37,7 +37,7 @@ public class ResumeParserRouter implements ResumeParser {
     }
 
     @Override
-    public ResumeImportResultDto parse(String text, ResumeFileType fileType) {
+    public ResumeImportResult parse(String text, ResumeFileType fileType) {
         return pick(text).parse(text, fileType);
     }
 

@@ -1,16 +1,11 @@
-package resume.core.dto;
+package resume.core.record;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-/**
- * 이력서 파일 가져오기 결과 (DB 에 저장하지 않음)
- *  - 필드 이름을 이력서 상세 조회(/api/resume/{id}) 응답과 같게 맞춰서
- *    이력서 작성 폼의 '가져오기'(LIST_SECTIONS.from, addItems) 를 그대로 쓸 수 있음
- *  - 날짜는 'yyyy-MM-dd' 문자열 (일이 없으면 1일)
- */
-public record ResumeImportResultDto(
+// 이력서 파일 가져오기 결과
+public record ResumeImportResult(
         String fileType,
         /* 인식한 사이트 : generic(일반) / jobkorea … */
         String source,

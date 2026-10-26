@@ -1,10 +1,16 @@
 /**
- * 템플릿 편집기 (티스토리 스킨 편집 방식)
+ * 템플릿 편집 화면 resume-template-form (티스토리 스킨 편집 방식)
  *  - 왼쪽: HTML / CSS 편집, 치환자 삽입
  *  - 오른쪽: 미리보기 iframe 에 postMessage 로 실시간 반영
  *      · 이력서에서 들어오면 [내 이력서 / 샘플 데이터] 전환
  *      · 이력서 없이 들어오면 샘플 데이터로만 미리보기
- *  - 저장: 내 템플릿이면 덮어쓰기, 아니면 새 템플릿으로 추가
+ *  - 왼쪽에 쓴 내용만 오른쪽에 나옴
+ *      · HTML 이 비어 있는 템플릿은 기본 구성(치환자 9개)을 왼쪽에 채워서 시작
+ *      · 왼쪽 HTML 을 다 지우면 오른쪽도 빈 화면
+ *  - 화면 모드 (body[data-mode])
+ *      · C(생성) : 새 템플릿, 기본 템플릿 복사 → 저장하면 새 템플릿으로 추가
+ *      · U(수정) : 내 템플릿 편집 → 저장하면 덮어쓰기 ([새 템플릿으로 저장] 도 가능)
+ *      · C 에서 한 번 저장하면 그 템플릿을 수정하는 U 로 바뀜
  *          resumeId 가 있으면 저장 후 그 이력서에 연결
  */
 (function () {
@@ -18,15 +24,25 @@
     var PAGE_WIDTH = 794;      // A4
     var PAGE_HEIGHT = 1123;
 
+    /** 처음 시작할 때 HTML (미리보기의 기본 출력 순서와 같음) */
+    var DEFAULT_HTML = ALLOWED.map(function (n) { return '{{' + n + '}}'; }).join('\n') + '\n';
+    /**
+     * HTML 이 비었을 때 미리보기에 보낼 값
+     * (미리보기는 빈 HTML 을 받으면 모든 섹션을 기본 순서로 그리므로, 내용 없는 주석을 보내 빈 화면으로 만듦)
+     */
+    var EMPTY_PREVIEW_HTML = '<!-- empty -->';
+
+    /** 화면 모드 */
+    var MODE = { CREATE: 'C', UPDATE: 'U' };
+
     var el = {};
     var cfg = {};
     var state = {
         tab: 'html',
         source: 'sample',     // 미리보기 데이터 : resume / sample
         ready: false,
-        dirty: false,
         saving: false,
-        own: false,           // 내 템플릿(덮어쓰기 가능)인지
+        mode: MODE.CREATE,    // C : 생성 / U : 수정(덮어쓰기 가능)
         baseTemplateId: null,
         available: [],
         original: { html: '', css: '', name: '' },
@@ -79,7 +95,8 @@
         if (css.length > MAX_LENGTH) errors.push('CSS 가 너무 깁니다. (최대 ' + MAX_LENGTH.toLocaleString() + '자)');
 
         if (html.trim() === '') {
-            warnings.push('HTML 이 비어 있으면 모든 섹션이 기본 순서로 출력됩니다.');
+            // 저장된 빈 HTML 은 실제 이력서에서 모든 섹션이 나오므로, 화면과 다르지 않게 저장을 막음
+            errors.push('HTML 이 비어 있어요. 치환자를 하나 이상 넣어 주세요.');
         } else {
             var missing = ALLOWED.filter(function (n) { return !used[n]; });
             if (missing.length) {
@@ -129,7 +146,11 @@
         updateVarList(result.used);
 
         if (!state.ready) return;
-        el.frame.contentWindow.postMessage({ type: 'template-preview', html: html, css: css }, window.location.origin);
+        el.frame.contentWindow.postMessage({
+            type: 'template-preview',
+            html: html.trim() ? html : EMPTY_PREVIEW_HTML,
+            css: css
+        }, window.location.origin);
     }
 
     function schedulePreview() {
@@ -226,7 +247,7 @@
     }
 
     function onInput() {
-        markDirty(true);
+        updateDirty();
         schedulePreview();
     }
 
@@ -251,29 +272,42 @@
     }
 
     function reset() {
+        if (!isDirty()) return;
         if (!confirm('편집한 내용을 버리고 마지막 저장 상태로 되돌릴까요?')) return;
         el.html.value = state.original.html;
         el.css.value = state.original.css;
         el.name.value = state.original.name;
-        markDirty(false);
+        updateDirty();
         sendPreview();
     }
 
-    function markDirty(dirty) {
-        state.dirty = dirty;
-        setStatus(dirty ? '저장 안 됨' : '', dirty ? 'dirty' : '');
+    /** 마지막 저장(또는 처음 연) 상태와 다른가 */
+    function isDirty() {
+        return el.html.value !== state.original.html
+            || el.css.value !== state.original.css
+            || el.name.value.trim() !== state.original.name.trim();
+    }
+
+    /** 바뀐 게 있는지는 [되돌리기] 활성화로만 알림 (상태 문구는 비움) */
+    function updateDirty() {
+        el.btnReset.disabled = !isDirty();
+        setStatus('');
     }
 
     function setStatus(text, type) {
         el.status.textContent = text;
-        el.status.className = 'te-bar__status' + (type ? ' is-' + type : '');
+        el.status.className = 'save-status text-sm' + (type ? ' is-' + type : '');
     }
 
-    /** 내 템플릿이면 [저장](덮어쓰기) + [새 템플릿으로 저장], 아니면 [새 템플릿으로 저장] 하나 */
-    function updateOwnership(own) {
-        state.own = own;
-        el.btnSaveText.textContent = own ? '저장' : '새 템플릿으로 저장';
-        el.btnSaveAsNew.classList.toggle('d-none', !own);
+    function isUpdateMode() {
+        return state.mode === MODE.UPDATE;
+    }
+
+    /** U(수정) : [새 템플릿으로 저장] + [저장](덮어쓰기) / C(생성) : [새 템플릿으로 저장] 하나 */
+    function setMode(mode) {
+        state.mode = mode === MODE.UPDATE ? MODE.UPDATE : MODE.CREATE;
+        el.btnSaveText.textContent = isUpdateMode() ? '저장' : '새 템플릿으로 저장';
+        el.btnSaveAsNew.classList.toggle('d-none', !isUpdateMode());
     }
 
     /* ---------------- 저장 ---------------- */
@@ -305,7 +339,7 @@
             return;
         }
 
-        var createsNew = asNew || !state.own;
+        var createsNew = asNew || !isUpdateMode();
         var payload = {
             resumeId: cfg.resumeId,
             baseTemplateId: state.baseTemplateId,
@@ -334,17 +368,17 @@
             .then(function (json) {
                 var templateId = json.templateId != null ? json.templateId : (json.data && json.data.templateId);
 
-                // 이제부터는 저장한 템플릿(내 템플릿)을 편집하는 상태
+                // 이제부터는 저장한 템플릿(내 템플릿)을 수정하는 상태
                 if (templateId != null) {
                     state.baseTemplateId = Number(templateId);
-                    updateOwnership(true);
+                    setMode(MODE.UPDATE);
                     if (window.history && history.replaceState) {
                         var url = cfg.editUrl + templateId + (cfg.resumeId ? '?resumeId=' + cfg.resumeId : '');
                         history.replaceState(null, '', url);
                     }
                 }
                 state.original = { html: html, css: css, name: name };
-                markDirty(false);
+                updateDirty();
                 setStatus(createsNew ? '새 템플릿으로 저장됨' : '저장됨', 'saved');
 
                 if (cfg.resumeId && confirm('저장하고 이력서에 적용했습니다. 템플릿 선택 화면으로 갈까요?')) {
@@ -369,14 +403,14 @@
         var baseId = body.getAttribute('data-base-template-id');
         cfg = {
             resumeId: resumeId ? Number(resumeId) : null,
-            samplePreviewUrl: body.getAttribute('data-sample-preview-url'),
+            samplePreviewUrl: body.getAttribute('data-preview-url'),
             resumePreviewUrl: body.getAttribute('data-resume-preview-url') || '',
             saveUrl: body.getAttribute('data-save-url'),
             editUrl: body.getAttribute('data-edit-url'),
             backUrl: body.getAttribute('data-back-url')
         };
         state.baseTemplateId = baseId ? Number(baseId) : null;
-        state.own = body.getAttribute('data-own-template') === 'true';
+        state.mode = body.getAttribute('data-mode');
         state.source = cfg.resumePreviewUrl ? 'resume' : 'sample';
     }
 
@@ -392,6 +426,7 @@
         el.btnSave = document.getElementById('btnSave');
         el.btnSaveAsNew = document.getElementById('btnSaveAsNew');
         el.btnSaveText = document.getElementById('btnSaveText');
+        el.btnReset = document.getElementById('btnReset');
         el.stage = document.getElementById('previewStage');
         el.page = document.getElementById('previewPage');
         el.zoom = document.getElementById('zoomLabel');
@@ -399,8 +434,12 @@
         el.varItems = Array.prototype.slice.call(document.querySelectorAll('#varList li[data-var]'));
         el.sourceButtons = Array.prototype.slice.call(document.querySelectorAll('#dataToggle [data-source]'));
 
+        // HTML 이 비어 있으면 미리보기에 나오는 기본 구성을 왼쪽에도 채워서 시작 (수정한 것으로 보지 않음)
+        if (el.html.value.trim() === '') el.html.value = DEFAULT_HTML;
+
         state.original = { html: el.html.value, css: el.css.value, name: el.name.value };
-        updateOwnership(state.own);
+        setMode(state.mode);
+        updateDirty();
 
         el.tabs.forEach(function (btn) {
             btn.addEventListener('click', function () { switchTab(btn.getAttribute('data-tab')); });
@@ -412,16 +451,16 @@
             ta.addEventListener('input', onInput);
             ta.addEventListener('keydown', onKeyDown);
         });
-        el.name.addEventListener('input', function () { markDirty(true); });
+        el.name.addEventListener('input', updateDirty);
         document.getElementById('varList').addEventListener('click', onVarClick);
         document.getElementById('btnRefresh').addEventListener('click', reloadFrame);
-        document.getElementById('btnReset').addEventListener('click', reset);
+        el.btnReset.addEventListener('click', reset);
         el.btnSave.addEventListener('click', function () { save(false); });
         el.btnSaveAsNew.addEventListener('click', function () { save(true); });
 
         window.addEventListener('message', onFrameMessage);
         window.addEventListener('beforeunload', function (e) {
-            if (state.dirty) { e.preventDefault(); e.returnValue = ''; }
+            if (isDirty()) { e.preventDefault(); e.returnValue = ''; }
         });
 
         initPreviewSize();

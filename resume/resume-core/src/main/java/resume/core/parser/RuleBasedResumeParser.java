@@ -1,14 +1,14 @@
 package resume.core.parser;
 
-import resume.core.dto.ResumeImportResultDto;
-import resume.core.dto.ResumeImportResultDto.Certificate;
-import resume.core.dto.ResumeImportResultDto.CoverLetter;
-import resume.core.dto.ResumeImportResultDto.Education;
-import resume.core.dto.ResumeImportResultDto.Experience;
-import resume.core.dto.ResumeImportResultDto.Link;
-import resume.core.dto.ResumeImportResultDto.Profile;
-import resume.core.dto.ResumeImportResultDto.Project;
-import resume.core.dto.ResumeImportResultDto.Skill;
+import resume.core.record.ResumeImportResult;
+import resume.core.record.ResumeImportResult.Certificate;
+import resume.core.record.ResumeImportResult.CoverLetter;
+import resume.core.record.ResumeImportResult.Education;
+import resume.core.record.ResumeImportResult.Experience;
+import resume.core.record.ResumeImportResult.Link;
+import resume.core.record.ResumeImportResult.Profile;
+import resume.core.record.ResumeImportResult.Project;
+import resume.core.record.ResumeImportResult.Skill;
 import resume.core.enums.ResumeFileType;
 import resume.core.enums.ResumeSource;
 import resume.core.enums.Section;
@@ -174,7 +174,7 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
     // =========================================================
 
     @Override
-    public ResumeImportResultDto parse(String text, ResumeFileType fileType) {
+    public ResumeImportResult parse(String text, ResumeFileType fileType) {
         // PDF 는 화면 폭에서 줄이 바뀌므로 문장 중간 줄바꿈을 이어 붙임
         boolean wrapped = fileType == ResumeFileType.PDF;
         List<String> allLines = preprocess(toLines(text));
@@ -202,7 +202,7 @@ public abstract class RuleBasedResumeParser implements ResumeParser {
             warnings.add("직무를 찾지 못한 경력이 " + noPosition + "개 있어요. 저장 전에 직무를 입력해 주세요.");
         }
 
-        return new ResumeImportResultDto(fileType.getExtension(), source().getCode(), source().getLabel(),
+        return new ResumeImportResult(fileType.getExtension(), source().getCode(), source().getLabel(),
                 profile, links, skills, educations,
                 certificates, experiences, projects, coverLetters, warnings);
     }

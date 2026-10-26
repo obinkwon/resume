@@ -1,5 +1,5 @@
 /* =========================================================
-   resume-template-editor.css  (common.css 토큰·버튼 사용)
+   resume-template-form.css  (common.css 토큰·버튼 사용)
    화면 전체 높이를 쓰는 3단 편집기 : 치환자 | HTML·CSS | 미리보기
    ========================================================= */
 html, body.te-body { height: 100%; }
@@ -27,21 +27,23 @@ body.te-body { overflow: hidden; }
     gap: 12px;
     min-width: 0;
 }
-.te-header__title { min-width: 0; }
-.te-header__row {
+/* 제목 + 템플릿 이름 한 줄 */
+.te-header__title {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
+    min-width: 0;
 }
-.te-title { margin: 0; font-size: 20px; }
+.te-title { margin: 0; font-size: 20px; white-space: nowrap; }
 
 /* 템플릿 이름 (common.css 의 input 기본값 덮어쓰기) */
 .te-name {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 4px;
+    min-width: 0;
 }
+.te-name span { white-space: nowrap; }
 .te-name input {
     width: 280px;
     margin: 0;
@@ -50,7 +52,6 @@ body.te-body { overflow: hidden; }
 }
 
 .save-status { color: var(--c-text-faint); min-width: 90px; text-align: right; }
-.save-status.is-dirty  { color: #b45309; }
 .save-status.is-saving { color: var(--c-text-muted); }
 .save-status.is-saved  { color: var(--c-success); }
 .save-status.is-error  { color: var(--c-danger); }
@@ -386,5 +387,7 @@ body.te-body { overflow: hidden; }
 }
 @media (max-width: 640px) {
     .te-vars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .te-header__title { flex-wrap: wrap; gap: 8px; }
+    .te-name { width: 100%; }
     .te-name input { width: 100%; }
 }

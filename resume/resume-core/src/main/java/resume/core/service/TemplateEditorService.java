@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import resume.core.dto.TemplateApplyRequestDto;
 import resume.core.dto.TemplateDto;
 import resume.core.dto.TemplateSaveRequestDto;
 import resume.core.mapper.TemplateEditorMapper;
@@ -88,14 +87,6 @@ public class TemplateEditorService {
             templateEditorMapper.updateResumeTemplate(req.getResumeId(), templateId);
         }
         return templateId;
-    }
-
-    /** 만들어 둔 템플릿을 이력서에 연결 */
-    @Transactional
-    public void apply(TemplateApplyRequestDto req, String loginId) {
-        checkMyResume(req.getResumeId(), loginId);
-        findViewable(req.getTemplateId(), loginId);
-        templateEditorMapper.updateResumeTemplate(req.getResumeId(), req.getTemplateId());
     }
 
     private static boolean isPublic(TemplateDto t) {

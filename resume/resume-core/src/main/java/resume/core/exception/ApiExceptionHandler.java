@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
@@ -24,5 +25,10 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(e.getStatus())
                 .contentType(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8))
                 .body(e.getMessage());
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    public ResponseEntity<Map<String, Object>> handleBadRequestError(RuntimeException e) {
+        return ResponseEntity.badRequest().body(Map.of("message", e.getMessage() == null ? "요청을 처리하지 못했습니다." : e.getMessage()));
     }
 }

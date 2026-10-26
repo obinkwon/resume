@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import resume.core.dto.*;
 import resume.core.exception.ResumeImportException;
+import resume.core.record.ResumeImportDebug;
+import resume.core.record.ResumeImportResult;
 import resume.core.security.UserPrincipal;
 import resume.core.service.ResumeService;
 import resume.core.service.TemplateService;
@@ -107,7 +109,7 @@ public class ResumeApiController {
     }
 
     @PostMapping(value = "/import-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResumeImportResultDto importFile(@RequestParam("file") MultipartFile file) {
+    public ResumeImportResult importFile(@RequestParam("file") MultipartFile file) {
         return resumeService.importFile(file);
     }
 
@@ -119,9 +121,9 @@ public class ResumeApiController {
                 .body(e.getMessage());
     }
 
-    /** 이력서 파일 파싱 확인용 — resume.import.debug=true 일 때만 등록 (운영에서는 끄기) */
+    // 이력서 파일 파싱 확인용 — resume.import.debug=true 일 때만 등록 (운영에서는 끄기)
     @PostMapping(value = "/import-file/debug", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResumeImportDebugDto debug(@RequestParam("file") MultipartFile file) {
+    public ResumeImportDebug debug(@RequestParam("file") MultipartFile file) {
         return resumeService.debugImportFile(file);
     }
 

@@ -1,6 +1,6 @@
 package resume.core.parser;
 
-import resume.core.dto.ResumeImportResultDto;
+import resume.core.record.ResumeImportResult;
 import resume.core.enums.ResumeFileType;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public interface ResumeParser {
 
-    ResumeImportResultDto parse(String text, ResumeFileType fileType);
+    ResumeImportResult parse(String text, ResumeFileType fileType);
 
     /** 디버그용 : 섹션별로 나뉜 줄 (구현이 없으면 빈 값) */
     default Map<String, List<String>> debugSections(String text) {
