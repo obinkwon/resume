@@ -1,4 +1,4 @@
-package resume.core.importer.extract;
+package resume.core.extractor;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.xwpf.usermodel.IBodyElement;

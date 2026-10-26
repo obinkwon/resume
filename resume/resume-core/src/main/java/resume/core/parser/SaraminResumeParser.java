@@ -1,8 +1,9 @@
-package resume.core.importer.parse;
+package resume.core.parser;
 
 import org.springframework.stereotype.Component;
 import resume.core.enums.ResumeSource;
 import resume.core.enums.Section;
+import resume.core.record.Period;
 
 import java.util.ArrayList;
 import java.util.List;

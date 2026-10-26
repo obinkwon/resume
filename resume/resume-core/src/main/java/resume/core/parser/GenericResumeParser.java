@@ -1,4 +1,4 @@
-package resume.core.importer.parse;
+package resume.core.parser;
 
 import org.springframework.stereotype.Component;
 import resume.core.enums.ResumeSource;

@@ -16,4 +16,7 @@ public enum ResumeSource {
 
     private final String code;
     private final String label;
+
+    public String getCssKey() { return name().toLowerCase(); }
+    public boolean isImported() { return this != DIRECT; }
 }

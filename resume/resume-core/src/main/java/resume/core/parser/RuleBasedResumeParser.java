@@ -1,4 +1,4 @@
-package resume.core.importer.parse;
+package resume.core.parser;
 
 import resume.core.dto.ResumeImportResultDto;
 import resume.core.dto.ResumeImportResultDto.Certificate;
@@ -12,6 +12,7 @@ import resume.core.dto.ResumeImportResultDto.Skill;
 import resume.core.enums.ResumeFileType;
 import resume.core.enums.ResumeSource;
 import resume.core.enums.Section;
+import resume.core.record.Period;
 
 import java.util.ArrayList;
 import java.util.Arrays;

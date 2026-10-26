@@ -1,4 +1,4 @@
-package resume.core.importer.extract;
+package resume.core.extractor;
 
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;

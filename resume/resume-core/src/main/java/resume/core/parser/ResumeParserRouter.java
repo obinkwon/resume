@@ -1,4 +1,4 @@
-package resume.core.importer.parse;
+package resume.core.parser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

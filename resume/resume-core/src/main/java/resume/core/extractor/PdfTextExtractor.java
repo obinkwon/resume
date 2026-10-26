@@ -1,4 +1,4 @@
-package resume.core.importer.extract;
+package resume.core.extractor;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;

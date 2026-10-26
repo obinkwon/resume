@@ -1,4 +1,4 @@
-package resume.core.importer.parse;
+package resume.core.parser;
 
 import resume.core.dto.ResumeImportResultDto;
 import resume.core.enums.ResumeFileType;

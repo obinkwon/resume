@@ -1,4 +1,4 @@
-package resume.core.importer.parse;
+package resume.core.record;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * @param from    줄 안에서 기간이 시작하는 위치
  * @param to      줄 안에서 기간이 끝나는 위치
  */
-record Period(String start, String end, boolean current, int from, int to) {
+public record Period(String start, String end, boolean current, int from, int to) {
 
     /** 연도 + (월) + (일). 연도 앞뒤가 다른 숫자에 붙어 있으면 날짜로 보지 않음 */
     private static final String DATE =
@@ -44,7 +44,7 @@ record Period(String start, String end, boolean current, int from, int to) {
     private static final Pattern CURRENT = Pattern.compile("^(?:" + CURRENT_WORDS + ")$", Pattern.CASE_INSENSITIVE);
 
     /** 기간(~ 로 이어진 두 날짜)을 찾음. allowSingle 이면 날짜 하나도 인정 */
-    static Period find(String line, boolean allowSingle) {
+    public static Period find(String line, boolean allowSingle) {
         Matcher m = RANGE.matcher(line);
         if (m.find()) {
             String endRaw = m.group(2);
@@ -81,7 +81,7 @@ record Period(String start, String end, boolean current, int from, int to) {
     }
 
     /** 줄에서 기간 부분을 지운 나머지 (기간 자리는 칸 구분 " | " 으로) */
-    String removeFrom(String line) {
+    public String removeFrom(String line) {
         return line.substring(0, from).stripTrailing() + " | " + line.substring(to).stripLeading();
     }
 }

@@ -1,4 +1,4 @@
-package resume.core.importer.extract;
+package resume.core.extractor;
 
 import java.util.ArrayList;
 import java.util.List;
