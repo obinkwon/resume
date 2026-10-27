@@ -14,7 +14,6 @@ import resume.core.dto.TemplateDto;
 import resume.core.dto.TemplateRequestDto;
 import resume.core.security.UserPrincipal;
 import resume.core.service.TemplateService;
-import resume.core.template.SampleResumeFactory;
 
 @Controller
 @RequestMapping("/web/template")
@@ -26,28 +25,10 @@ public class TemplateWebController {
     private static final String COPY_SUFFIX = " 복사본";
 
     private final TemplateService templateService;
-    private final SampleResumeFactory sampleResumeFactory;
 
     @GetMapping("/list")
     public String templateListPage() {
         return "thymeleaf/resume/resume-template-list";
-    }
-
-    @GetMapping("/preview")
-    public String templatePreviewPage(TemplateRequestDto requestDto,
-                                      @AuthenticationPrincipal UserPrincipal principal,
-                                      Model model) {
-        model.addAttribute("resumeDetail", sampleResumeFactory.create());
-        if (requestDto.getTemplateId() != null) {
-            requestDto.setUserId(principal.getUserId());
-            requestDto.setIsPublic(true);
-            TemplateDetailResponseDto template = templateService.getTemplateDetail(requestDto);
-            if (template == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "템플릿을 찾을 수 없습니다.");
-            }
-            model.addAttribute("resumeTemplate", template);
-        }
-        return "thymeleaf/resume/resume-preview";
     }
 
     @GetMapping("/regist")
