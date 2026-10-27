@@ -37,8 +37,7 @@ public class FileApiController {
     public ResponseEntity<UploadResult> postUploadImageUrl(@RequestBody ImageUrlRequest request,
                                                            @AuthenticationPrincipal UserPrincipal principal) {
         UploadType uploadType = UploadType.from(request.type());
-        Long fileId = fileService.uploadImageFromUrl(request.url(), principal.getUserId(), uploadType.getDir());
-        return ResponseEntity.ok(new UploadResult(fileId, "/api/files/" + fileId));
+        return ResponseEntity.ok(fileService.uploadImageFromUrl(request.url(), principal.getUserId(), uploadType.getDir()));
     }
 
     // 파일 조회

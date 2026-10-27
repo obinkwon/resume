@@ -142,9 +142,8 @@ public class FileService {
      *  - 크기·형식 검사는 직접 올린 사진과 같음
      *  - 다운로드는 트랜잭션 밖 (외부 서버가 느려도 DB 커넥션을 붙잡지 않음)
      * @param dir 저장할 폴더 (uploadImage 와 같음)
-     * @return 저장된 file_id
      */
-    public Long uploadImageFromUrl(String imageUrl, Long userId, String dir) {
+    public UploadResult uploadImageFromUrl(String imageUrl, Long userId, String dir) {
         String baseDir = checkDir(dir);
         if (!StringUtils.hasText(imageUrl)) {
             throw new FileException(HttpStatus.BAD_REQUEST, "사진 URL을 입력해 주세요.");
@@ -153,7 +152,8 @@ public class FileService {
         validateImageUrl(url);
 
         DownloadedImage img = downloadImage(url);
-        return storeImage(img.bytes(), userId, baseDir, img.fileName());
+        Long fileId = storeImage(img.bytes(), userId, baseDir, img.fileName());
+        return new UploadResult(fileId, "/api/files/" + fileId);
     }
 
     /** 이미지 검사 → R2 업로드 → files INSERT (업로드·URL 공통). 저장된 file_id 반환 */
