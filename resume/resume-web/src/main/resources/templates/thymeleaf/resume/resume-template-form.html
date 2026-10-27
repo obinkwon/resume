@@ -12,10 +12,10 @@
     <script th:src="@{/js/common.js}"></script>
     <script th:src="@{/js/resume-template-form.js}" defer></script>
 </head>
+<!--/* 내 템플릿 목록에서만 들어오는 화면 — 미리보기는 샘플 데이터로 그림 */-->
 <body class="te-body"
       th:with="backUrl=@{/web/template/list}"
-      th:attr="data-resume-id=${resumeId},
-               data-base-template-id=${resumeTemplate?.templateId},
+      th:attr="data-base-template-id=${resumeTemplate?.templateId},
                data-mode=${mode},
                data-preview-url=@{/web/template/preview},
                data-save-url=@{/api/template/save},
@@ -33,7 +33,7 @@
                     <h1 class="te-title">템플릿 편집</h1>
                     <label class="te-name">
                         <span class="text-xs text-muted">이름</span>
-                        <input type="text" id="templateName" maxlength="50" autocomplete="off" th:value="${resumeTemplate?.templateName} ? ${resumeTemplate.templateName} : '새 템플릿'">
+                        <input type="text" id="templateName" maxlength="50" autocomplete="off" th:value="${resumeTemplate?.templateName} ?: '새 템플릿'">
                     </label>
                     <label class="te-name te-desc">
                         <span class="text-xs text-muted">설명</span>
@@ -110,7 +110,7 @@
                 <ul class="te-messages" id="messages" aria-live="polite"></ul>
             </section>
 
-            <!-- ===== 오른쪽: 미리보기 ===== -->
+            <!-- ===== 오른쪽: 미리보기 (샘플 데이터) ===== -->
             <main class="preview-panel">
                 <div class="preview-toolbar">
                     <span><i class="icon icon-eye sm"></i> 미리보기 · A4 <span id="zoomLabel" class="text-faint">100%</span></span>

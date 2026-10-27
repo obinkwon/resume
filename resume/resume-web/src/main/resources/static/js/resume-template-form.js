@@ -1,10 +1,12 @@
 /**
  * 템플릿 편집 화면 resume-template-form (티스토리 스킨 편집 방식)
+ *  - 내 템플릿 목록에서만 들어옴 (이력서와 연결하지 않음)
  *  - 왼쪽: HTML / CSS 편집, 치환자 삽입
  *  - 상단: 템플릿 이름 / 설명 편집
- *  - 오른쪽: 미리보기 iframe 에 postMessage 로 실시간 반영
- *      · 이력서에서 들어오면 [내 이력서 / 샘플 데이터] 전환
- *      · 이력서 없이 들어오면 샘플 데이터로만 미리보기
+ *  - 오른쪽: 샘플 데이터 미리보기 iframe 에 postMessage 로 실시간 반영
+ *      · 보냄  template-preview { html, css }
+ *      · 받음  preview-ready / template-rendered / preview-height
+ *      · 내용이 A4 한 장보다 길면 미리보기 높이를 늘려 끝까지 보여 줌
  *  - 왼쪽에 쓴 내용만 오른쪽에 나옴
  *      · HTML 이 비어 있는 템플릿은 기본 구성(치환자 9개)을 왼쪽에 채워서 시작
  *      · 왼쪽 HTML 을 다 지우면 오른쪽도 빈 화면
@@ -12,7 +14,6 @@
  *      · C(생성) : 새 템플릿, 기본 템플릿 복사 → 저장하면 새 템플릿으로 추가
  *      · U(수정) : 내 템플릿 편집 → 저장하면 덮어쓰기 ([새 템플릿으로 저장] 도 가능)
  *      · C 에서 한 번 저장하면 그 템플릿을 수정하는 U 로 바뀜
- *          resumeId 가 있으면 저장 후 그 이력서에 연결
  */
 (function () {
     'use strict';
@@ -41,13 +42,13 @@
     var cfg = {};
     var state = {
         tab: 'html',
-        source: 'sample',     // 미리보기 데이터 : resume / sample
         ready: false,
         saving: false,
         mode: MODE.CREATE,    // C : 생성 / U : 수정(덮어쓰기 가능)
         baseTemplateId: null,
         available: [],
         original: { html: '', css: '', name: '', description: '' },
+        frameHeight: PAGE_HEIGHT,
         timer: null
     };
 
@@ -171,10 +172,15 @@
             sendPreview();
         } else if (data.type === 'template-rendered') {
             state.available = data.available || state.available;
+            updateVarList(validate(el.html.value, el.css.value).used);
+        } else if (data.type === 'preview-height') {
+            // 내용이 길면 미리보기를 늘림 (A4 한 장보다 작아지지는 않음)
+            state.frameHeight = Math.max(PAGE_HEIGHT, Math.ceil(Number(data.height) || 0));
+            fitPreview();
         }
     }
 
-    /** A4 미리보기를 미리보기 영역 너비에 맞춰 축소 (최대 100%) */
+    /** A4 너비 미리보기를 미리보기 영역 너비에 맞춰 축소 (최대 100%), 높이는 내용에 맞춤 */
     function fitPreview() {
         var style = window.getComputedStyle(el.stage);
         var padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
@@ -182,9 +188,10 @@
         if (available <= 0) return;
 
         var scale = Math.min(1, available / PAGE_WIDTH);
+        el.frame.style.height = state.frameHeight + 'px';
         el.frame.style.transform = 'scale(' + scale + ')';
         el.page.style.width = Math.floor(PAGE_WIDTH * scale) + 'px';
-        el.page.style.height = Math.floor(PAGE_HEIGHT * scale) + 'px';
+        el.page.style.height = Math.floor(state.frameHeight * scale) + 'px';
         if (el.zoom) el.zoom.textContent = Math.round(scale * 100) + '%';
     }
 
@@ -199,16 +206,7 @@
 
     function reloadFrame() {
         state.ready = false;
-        el.frame.src = cfg.samplePreviewUrl;
-    }
-
-    function switchSource(source) {
-        if (source === state.source) return;
-        state.source = source;
-        el.sourceButtons.forEach(function (btn) {
-            btn.classList.toggle('is-active', btn.getAttribute('data-source') === source);
-        });
-        reloadFrame();
+        el.frame.src = cfg.previewUrl;
     }
 
     /* ---------------- 편집 ---------------- */
@@ -361,7 +359,6 @@
 
         var createsNew = asNew || !isUpdateMode();
         var payload = {
-            resumeId: cfg.resumeId,
             baseTemplateId: state.baseTemplateId,
             saveAsNew: createsNew,
             templateName: name,
@@ -394,16 +391,14 @@
                     state.baseTemplateId = Number(templateId);
                     setMode(MODE.UPDATE);
                     if (window.history && history.replaceState) {
-                        var url = cfg.editUrl + templateId;
-                        history.replaceState(null, '', url);
+                        history.replaceState(null, '', cfg.editUrl + templateId);
                     }
                 }
                 state.original = { html: html, css: css, name: name, description: description };
                 updateDirty();
                 setStatus(createsNew ? '새 템플릿으로 저장됨' : '저장됨', 'saved');
 
-                var doneMsg = cfg.resumeId ? '저장하고 이력서에 적용했습니다. 템플릿 선택 화면으로 갈까요?' : '저장했습니다. 내 템플릿 목록으로 갈까요?';
-                if (confirm(doneMsg)) {
+                if (confirm('저장했습니다. 내 템플릿 목록으로 갈까요?')) {
                     window.location.href = cfg.backUrl;
                 }
             })
@@ -421,18 +416,15 @@
 
     function readConfig() {
         var body = document.body;
-        var resumeId = body.getAttribute('data-resume-id');
         var baseId = body.getAttribute('data-base-template-id');
         cfg = {
-            resumeId: resumeId ? Number(resumeId) : null,
-            samplePreviewUrl: body.getAttribute('data-preview-url'),
+            previewUrl: body.getAttribute('data-preview-url'),
             saveUrl: body.getAttribute('data-save-url'),
             editUrl: body.getAttribute('data-edit-url'),
             backUrl: body.getAttribute('data-back-url')
         };
         state.baseTemplateId = baseId ? Number(baseId) : null;
         state.mode = body.getAttribute('data-mode');
-        state.source = 'sample';
     }
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -454,7 +446,6 @@
         el.zoom = document.getElementById('zoomLabel');
         el.tabs = Array.prototype.slice.call(document.querySelectorAll('.te-tab'));
         el.varItems = Array.prototype.slice.call(document.querySelectorAll('#varList li[data-var]'));
-        el.sourceButtons = Array.prototype.slice.call(document.querySelectorAll('#dataToggle [data-source]'));
 
         // HTML 이 비어 있으면 미리보기에 나오는 기본 구성을 왼쪽에도 채워서 시작 (수정한 것으로 보지 않음)
         if (el.html.value.trim() === '') el.html.value = DEFAULT_HTML;
@@ -470,9 +461,6 @@
 
         el.tabs.forEach(function (btn) {
             btn.addEventListener('click', function () { switchTab(btn.getAttribute('data-tab')); });
-        });
-        el.sourceButtons.forEach(function (btn) {
-            btn.addEventListener('click', function () { switchSource(btn.getAttribute('data-source')); });
         });
         [el.html, el.css].forEach(function (ta) {
             ta.addEventListener('input', onInput);
