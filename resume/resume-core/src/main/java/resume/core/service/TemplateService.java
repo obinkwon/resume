@@ -156,11 +156,17 @@ public class TemplateService {
                 context.addCookies(cookies);
             }
 
-            // 서버 자신 이외의 요청은 바로 차단 — 외부 URL 때문에 렌더링이 멈추는 것 방지
+            // 서버 자신 이외의 요청은 차단 — 외부 URL 때문에 렌더링이 멈추는 것 방지
+            // 단, CSS·폰트는 미리보기 화면과 똑같이 보이도록 허용 (허용 호스트는 미리보기 페이지 CSP 가 제한)
             context.route("**/*", route -> {
                 String u = route.request().url();
-                if (u.startsWith(origin) || u.startsWith("data:") || u.startsWith("blob:")) route.resume();
-                else route.abort();
+                String type = route.request().resourceType();
+                if (u.startsWith(origin) || u.startsWith("data:") || u.startsWith("blob:")
+                        || "stylesheet".equals(type) || "font".equals(type)) {
+                    route.resume();
+                } else {
+                    route.abort();
+                }
             });
 
             Page page = context.newPage();

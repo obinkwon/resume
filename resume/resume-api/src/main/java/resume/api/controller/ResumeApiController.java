@@ -70,8 +70,13 @@ public class ResumeApiController {
         return ResponseEntity.ok(resumeService.saveResumeTemplate(request));
     }
 
+    /**
+     * 이력서 PDF 다운로드
+     * @param templateId 미리보기 화면에서 고른 템플릿 (없으면 이력서에 저장된 템플릿)
+     */
     @GetMapping("/{resumeId:\\d+}/pdf")
     public ResponseEntity<byte[]> getResumeExportPDf(@PathVariable Long resumeId,
+                                                     @RequestParam(required = false) Long templateId,
                                                      HttpServletRequest request,
                                                      @AuthenticationPrincipal UserPrincipal principal) {
         // 본인 이력서인지 확인 + 파일 이름용 제목
@@ -81,9 +86,11 @@ public class ResumeApiController {
         ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetail(requestDto);
         if (resumeDetail == null) return ResponseEntity.notFound().build();
 
+        Long useTemplateId = templateId != null ? templateId : resumeDetail.getTemplateId();
+
         // 서버가 자기 자신에게 요청하는 내부 주소 (프록시·도메인을 거치지 않음)
         String baseUrl = "http://localhost:" + request.getLocalPort() + request.getContextPath();
-        String previewUrl = baseUrl + "/web/resume/preview/" + resumeId;
+        String previewUrl = baseUrl + "/web/resume/preview/" + resumeId + (useTemplateId != null ? "?templateId=" + useTemplateId : "");
 
         byte[] pdf = templateService.render(previewUrl, toBrowserCookies(request, baseUrl));
         String fileName = getFileName(resumeDetail);
