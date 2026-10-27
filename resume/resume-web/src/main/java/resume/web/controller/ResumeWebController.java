@@ -7,7 +7,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import resume.core.dto.ResumeDetailResponseDto;
 import resume.core.dto.ResumeRequestDto;
+import resume.core.dto.TemplateDetailResponseDto;
 import resume.core.dto.TemplateRequestDto;
 import resume.core.security.UserPrincipal;
 import resume.core.service.ResumeService;
@@ -67,18 +69,23 @@ public class ResumeWebController {
                                     @AuthenticationPrincipal UserPrincipal principal,
                                     Model model,
                                     ResumeRequestDto requestDto) {
-        if (requestDto.getTemplateId() == null) return null;
-
+        ResumeDetailResponseDto resumeDetail = sampleResumeFactory.create();
         if (resumeId != null) {
             requestDto.setResumeId(resumeId);
+            resumeDetail = resumeService.getResumeDetail(requestDto);
         }
 
-        model.addAttribute("resumeDetail", requestDto.getResumeId() != null ? resumeService.getResumeDetail(requestDto) : sampleResumeFactory.create());
-        model.addAttribute("resumeTemplate", templateService.getTemplateDetail(TemplateRequestDto.builder()
-                                                                                                            .templateId(requestDto.getTemplateId())
-                                                                                                            .userId(principal.getUserId())
-                                                                                                            .isPublic(true)
-                                                                                                            .build()));
+        TemplateDetailResponseDto resumeTemplate = null;
+        if (requestDto.getTemplateId() != null) {
+            resumeTemplate = templateService.getTemplateDetail(TemplateRequestDto.builder()
+                            .templateId(requestDto.getTemplateId())
+                            .userId(principal.getUserId())
+                            .isPublic(true)
+                            .build());
+        }
+
+        model.addAttribute("resumeDetail", resumeDetail);
+        model.addAttribute("resumeTemplate", resumeTemplate);
         return "thymeleaf/resume/resume-preview";
     }
 }

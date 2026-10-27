@@ -62,7 +62,7 @@
                         </a>
                         <!-- 템플릿이 없으면 href 를 빼서 비활성 -->
                         <a th:with="hasTemplate=${resume.templateId != null}"
-                            th:href="${hasTemplate} ? @{/web/resume/preview(resumeId=${resume.resumeId}, templateId=${resume.templateId})} : null"
+                            th:href="${hasTemplate} ? @{/web/resume/preview/{resumeId}?templateId={templateId}(resumeId=${resume.resumeId}, templateId=${resume.templateId})} : null"
                             th:classappend="${hasTemplate} ? '' : 'is-disabled'"
                             th:attr="aria-disabled=${hasTemplate} ? null : 'true', title=${hasTemplate} ? null : '템플릿을 먼저 선택해 주세요'">
                             <i class="icon icon-eye sm"></i> 미리보기
