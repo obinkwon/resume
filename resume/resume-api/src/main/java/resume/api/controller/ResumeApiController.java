@@ -113,14 +113,6 @@ public class ResumeApiController {
         return resumeService.importFile(file);
     }
 
-    /** resume-form.js 처럼 err.data(텍스트) 를 그대로 alert 할 수 있게 text/plain 으로 보냄 */
-    @ExceptionHandler(ResumeImportException.class)
-    public ResponseEntity<String> handleImportError(ResumeImportException e) {
-        return ResponseEntity.status(e.getStatus())
-                .contentType(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8))
-                .body(e.getMessage());
-    }
-
     // 이력서 파일 파싱 확인용 — resume.import.debug=true 일 때만 등록 (운영에서는 끄기)
     @PostMapping(value = "/import-file/debug", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResumeImportDebug debug(@RequestParam("file") MultipartFile file) {

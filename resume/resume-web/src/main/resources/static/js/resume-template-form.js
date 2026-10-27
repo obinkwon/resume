@@ -1,6 +1,7 @@
 /**
  * 템플릿 편집 화면 resume-template-form (티스토리 스킨 편집 방식)
  *  - 왼쪽: HTML / CSS 편집, 치환자 삽입
+ *  - 상단: 템플릿 이름 / 설명 편집
  *  - 오른쪽: 미리보기 iframe 에 postMessage 로 실시간 반영
  *      · 이력서에서 들어오면 [내 이력서 / 샘플 데이터] 전환
  *      · 이력서 없이 들어오면 샘플 데이터로만 미리보기
@@ -20,6 +21,7 @@
     var PLACEHOLDER = /\{\{\s*([^}]*?)\s*\}\}/g;
     var FORBIDDEN_TAGS = ['script', 'iframe', 'frame', 'frameset', 'object', 'embed', 'link', 'meta', 'base', 'form', 'input', 'button', 'textarea', 'select', 'style'];
     var MAX_LENGTH = 100000;
+    var MAX_DESC_LENGTH = 200;
     var RENDER_DELAY = 300;
     var PAGE_WIDTH = 794;      // A4
     var PAGE_HEIGHT = 1123;
@@ -45,7 +47,7 @@
         mode: MODE.CREATE,    // C : 생성 / U : 수정(덮어쓰기 가능)
         baseTemplateId: null,
         available: [],
-        original: { html: '', css: '', name: '' },
+        original: { html: '', css: '', name: '', description: '' },
         timer: null
     };
 
@@ -253,7 +255,7 @@
 
     /** Tab 키로 들여쓰기, Ctrl/Cmd+S 저장 */
     function onKeyDown(event) {
-        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+        if (isSaveKey(event)) {
             event.preventDefault();
             save(false);
             return;
@@ -262,6 +264,20 @@
             event.preventDefault();
             insertText(event.target, '    ');
         }
+    }
+
+    /** 이름 / 설명 입력칸 : Ctrl/Cmd+S 저장, Enter 로 폼 제출 방지 */
+    function onMetaKeyDown(event) {
+        if (isSaveKey(event)) {
+            event.preventDefault();
+            save(false);
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    }
+
+    function isSaveKey(event) {
+        return (event.ctrlKey || event.metaKey) && event.key && event.key.toLowerCase() === 's';
     }
 
     function onVarClick(event) {
@@ -277,6 +293,7 @@
         el.html.value = state.original.html;
         el.css.value = state.original.css;
         el.name.value = state.original.name;
+        el.desc.value = state.original.description;
         updateDirty();
         sendPreview();
     }
@@ -285,7 +302,8 @@
     function isDirty() {
         return el.html.value !== state.original.html
             || el.css.value !== state.original.css
-            || el.name.value.trim() !== state.original.name.trim();
+            || el.name.value.trim() !== state.original.name.trim()
+            || el.desc.value.trim() !== state.original.description.trim();
     }
 
     /** 바뀐 게 있는지는 [되돌리기] 활성화로만 알림 (상태 문구는 비움) */
@@ -326,6 +344,7 @@
         var html = el.html.value;
         var css = el.css.value;
         var name = el.name.value.trim();
+        var description = el.desc.value.trim();
         var result = validate(html, css);
 
         showMessages(result);
@@ -338,6 +357,11 @@
             el.name.focus();
             return;
         }
+        if (description.length > MAX_DESC_LENGTH) {
+            alert('설명은 ' + MAX_DESC_LENGTH + '자까지 쓸 수 있어요.');
+            el.desc.focus();
+            return;
+        }
 
         var createsNew = asNew || !isUpdateMode();
         var payload = {
@@ -345,6 +369,7 @@
             baseTemplateId: state.baseTemplateId,
             saveAsNew: createsNew,
             templateName: name,
+            description: description,
             htmlContent: html,
             cssContent: css
         };
@@ -377,7 +402,7 @@
                         history.replaceState(null, '', url);
                     }
                 }
-                state.original = { html: html, css: css, name: name };
+                state.original = { html: html, css: css, name: name, description: description };
                 updateDirty();
                 setStatus(createsNew ? '새 템플릿으로 저장됨' : '저장됨', 'saved');
 
@@ -421,6 +446,7 @@
         el.html = document.getElementById('htmlEditor');
         el.css = document.getElementById('cssEditor');
         el.name = document.getElementById('templateName');
+        el.desc = document.getElementById('templateDescription');
         el.frame = document.getElementById('previewFrame');
         el.messages = document.getElementById('messages');
         el.status = document.getElementById('saveStatus');
@@ -438,7 +464,12 @@
         // HTML 이 비어 있으면 미리보기에 나오는 기본 구성을 왼쪽에도 채워서 시작 (수정한 것으로 보지 않음)
         if (el.html.value.trim() === '') el.html.value = DEFAULT_HTML;
 
-        state.original = { html: el.html.value, css: el.css.value, name: el.name.value };
+        state.original = {
+            html: el.html.value,
+            css: el.css.value,
+            name: el.name.value,
+            description: el.desc.value
+        };
         setMode(state.mode);
         updateDirty();
 
@@ -452,7 +483,10 @@
             ta.addEventListener('input', onInput);
             ta.addEventListener('keydown', onKeyDown);
         });
-        el.name.addEventListener('input', updateDirty);
+        [el.name, el.desc].forEach(function (input) {
+            input.addEventListener('input', updateDirty);
+            input.addEventListener('keydown', onMetaKeyDown);
+        });
         document.getElementById('varList').addEventListener('click', onVarClick);
         document.getElementById('btnRefresh').addEventListener('click', reloadFrame);
         el.btnReset.addEventListener('click', reset);

@@ -36,12 +36,11 @@ public class TemplateApiController {
         return ResponseEntity.ok(templateService.getTemplateDetail(requestDto));
     }
 
-    /** 템플릿 저장 (덮어쓰기 또는 새 템플릿) → { templateId } */
     @PostMapping("/save")
-    public ResponseEntity<Map<String, Object>> saveTemplate(@RequestBody TemplateSaveRequestDto requestDto,
+    public ResponseEntity<Long> postTemplateSave(@RequestBody TemplateRequestDto requestDto,
                                                             @AuthenticationPrincipal UserPrincipal principal) {
-        Long templateId = templateService.saveTemplate(requestDto, principal.getUserId());
-        return ResponseEntity.ok(Map.of("templateId", templateId, "message", "저장했습니다."));
+        requestDto.setUserId(principal.getUserId());
+        return ResponseEntity.ok(templateService.saveTemplate(requestDto));
     }
 
     @DeleteMapping("/{templateId}")

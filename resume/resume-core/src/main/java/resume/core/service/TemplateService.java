@@ -83,23 +83,23 @@ public class TemplateService {
      *  - resumeId 가 있으면 그 이력서에 연결
      */
     @Transactional
-    public Long saveTemplate(TemplateSaveRequestDto req, Long userId) {
-        templateValidator.validateOrThrow(req.getTemplateName(), req.getHtmlContent(), req.getCssContent());
-        if (req.getResumeId() != null && templateMapper.countMyResume(req.getResumeId(), userId) == 0) {
+    public Long saveTemplate(TemplateRequestDto requestDto) {
+        templateValidator.validateOrThrow(requestDto.getTemplateName(), requestDto.getHtmlContent(), requestDto.getCssContent());
+        if (requestDto.getResumeId() != null && templateMapper.countMyResume(requestDto.getResumeId(), requestDto.getUserId()) == 0) {
             throw new IllegalArgumentException("이력서를 찾을 수 없습니다.");
         }
 
-        TemplateDetailResponseDto base = req.getBaseTemplateId() == null ? null
-                : templateMapper.selectTemplateDetail(TemplateRequestDto.builder().templateId(req.getBaseTemplateId()).build());
-        boolean overwrite = !Boolean.TRUE.equals(req.getSaveAsNew()) && isOwner(base, userId);
+        TemplateDetailResponseDto base = requestDto.getBaseTemplateId() == null ? null
+                : templateMapper.selectTemplateDetail(TemplateRequestDto.builder().templateId(requestDto.getBaseTemplateId()).build());
+        boolean overwrite = !Boolean.TRUE.equals(requestDto.getSaveAsNew()) && isOwner(base, requestDto.getUserId());
 
         TemplateDto t = TemplateDto.builder()
-                .templateName(req.getTemplateName().trim())
-                .description(StringUtils.hasText(req.getDescription()) ? req.getDescription().trim() : "직접 만든 템플릿")
-                .htmlContent(req.getHtmlContent() == null ? "" : req.getHtmlContent())
-                .cssContent(req.getCssContent() == null ? "" : req.getCssContent())
+                .templateName(requestDto.getTemplateName().trim())
+                .description(StringUtils.hasText(requestDto.getDescription()) ? requestDto.getDescription().trim() : "직접 만든 템플릿")
+                .htmlContent(requestDto.getHtmlContent() == null ? "" : requestDto.getHtmlContent())
+                .cssContent(requestDto.getCssContent() == null ? "" : requestDto.getCssContent())
                 .isPublic(false)
-                .createdBy(userId)
+                .createdBy(requestDto.getUserId())
                 .build();
 
         if (overwrite) {
@@ -111,8 +111,8 @@ public class TemplateService {
             templateMapper.insertTemplate(t);
         }
 
-        if (req.getResumeId() != null) {
-            templateMapper.updateResumeTemplate(req.getResumeId(), t.getTemplateId());
+        if (requestDto.getResumeId() != null) {
+            templateMapper.updateResumeTemplate(requestDto.getResumeId(), t.getTemplateId());
         }
         return t.getTemplateId();
     }

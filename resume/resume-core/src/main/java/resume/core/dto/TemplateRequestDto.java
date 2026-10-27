@@ -14,4 +14,11 @@ public class TemplateRequestDto {
     private Long templateId;
     private String title;
     private Boolean isPublic;
+
+    private Long baseTemplateId;
+    private Boolean saveAsNew;
+    private String templateName;
+    private String description;
+    private String htmlContent;
+    private String cssContent;
 }

@@ -39,6 +39,12 @@
                         <input type="text" id="templateName" maxlength="50" autocomplete="off"
                                th:value="${resumeTemplate?.templateName} ?: '새 템플릿'">
                     </label>
+                    <label class="te-name te-desc">
+                        <span class="text-xs text-muted">설명</span>
+                        <input type="text" id="templateDescription" maxlength="200" autocomplete="off"
+                               placeholder="어떤 템플릿인지 짧게 적어 주세요"
+                               th:value="${resumeTemplate?.description}">
+                    </label>
                 </div>
             </div>
             <div class="btn-group">
@@ -105,8 +111,8 @@
                     <span class="te-tabs__hint">Tab 들여쓰기 · Ctrl+S 저장</span>
                 </div>
                 <div class="te-code">
-                        <textarea id="htmlEditor" class="te-textarea is-active" spellcheck="false" autocapitalize="off" autocomplete="off"
-                                  aria-label="템플릿 HTML" th:text="${resumeTemplate?.htmlContent}"></textarea>
+                            <textarea id="htmlEditor" class="te-textarea is-active" spellcheck="false" autocapitalize="off" autocomplete="off"
+                                      aria-label="템플릿 HTML" th:text="${resumeTemplate?.htmlContent}"></textarea>
                     <textarea id="cssEditor" class="te-textarea" spellcheck="false" autocapitalize="off" autocomplete="off"
                               aria-label="템플릿 CSS" th:text="${resumeTemplate?.cssContent}"></textarea>
                 </div>
