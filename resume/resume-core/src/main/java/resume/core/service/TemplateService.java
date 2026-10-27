@@ -18,10 +18,10 @@ import resume.core.dto.TemplateDetailResponseDto;
 import resume.core.dto.TemplateDto;
 import resume.core.dto.TemplateRequestDto;
 import resume.core.dto.TemplateResponseDto;
-import resume.core.dto.TemplateSaveRequestDto;
 import resume.core.mapper.TemplateMapper;
 import resume.core.template.TemplateValidator;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -37,10 +37,18 @@ public class TemplateService {
 
     private final TemplateMapper templateMapper;
     private final TemplateValidator templateValidator;
-    /** 페이지 로딩 + 렌더링 대기 */
-    private static final double PAGE_TIMEOUT_MS = 30_000;
+
+    /*
+     * 단계별 제한 시간 — 합계(15 + 10 + 5 + 20 = 50초)가 REQUEST_TIMEOUT_SEC 보다 짧아야
+     * 컨트롤러가 포기한 뒤에도 워커가 붙잡혀 다음 요청이 밀리는 일이 없다.
+     */
+    private static final double NAVIGATE_TIMEOUT_MS = 15_000;
+    private static final double RENDER_WAIT_TIMEOUT_MS = 10_000;
+    private static final int FONT_WAIT_TIMEOUT_MS = 5_000;
+    private static final double PDF_TIMEOUT_MS = 20_000;
     /** 요청 하나가 기다리는 최대 시간 (앞 요청 대기 시간 포함) */
     private static final long REQUEST_TIMEOUT_SEC = 60;
+
     @Value("${playwright.browsers-path}")
     private String browsersPath;
     @Value("${playwright.auto-install:false}")
@@ -137,9 +145,8 @@ public class TemplateService {
     }
 
     private byte[] doRender(String url, List<Cookie> cookies) {
-        long t0 = System.currentTimeMillis();
         ensureBrowser();
-        long t1 = System.currentTimeMillis();
+        String origin = originOf(url);
 
         try (BrowserContext context = browser.newContext(new Browser.NewContextOptions()
                 .setViewportSize(794, 1123)
@@ -149,36 +156,53 @@ public class TemplateService {
                 context.addCookies(cookies);
             }
 
-            Page page = context.newPage();
-            page.setDefaultTimeout(PAGE_TIMEOUT_MS);
-
-            // 느린 요청 찾기용 (1초 넘게 걸린 요청만 출력)
-            page.onRequestFinished(req -> {
-                double ms = req.timing().responseEnd;
-                if (ms > 1000) log.info("느린 요청 {}ms : {}", (long) ms, req.url());
+            // 서버 자신 이외의 요청은 바로 차단 — 외부 URL 때문에 렌더링이 멈추는 것 방지
+            context.route("**/*", route -> {
+                String u = route.request().url();
+                if (u.startsWith(origin) || u.startsWith("data:") || u.startsWith("blob:")) route.resume();
+                else route.abort();
             });
 
-            page.navigate(url, new Page.NavigateOptions().setWaitUntil(WaitUntilState.LOAD));
-            long t2 = System.currentTimeMillis();
+            Page page = context.newPage();
+            page.setDefaultTimeout(PDF_TIMEOUT_MS);
 
-            page.waitForSelector("body[data-rendered='true']");
-            long t3 = System.currentTimeMillis();
+            Response response = page.navigate(url, new Page.NavigateOptions()
+                    .setWaitUntil(WaitUntilState.LOAD)
+                    .setTimeout(NAVIGATE_TIMEOUT_MS));
+            if (response != null && response.status() >= 400) {
+                throw new IllegalStateException("미리보기 페이지 응답 오류 (HTTP " + response.status() + ")");
+            }
+            if (!page.url().startsWith(url)) {
+                // 로그인 페이지 등으로 리다이렉트된 경우 — 쿠키(세션)가 안 넘어간 것
+                throw new IllegalStateException("미리보기 페이지가 다른 주소로 이동됨 : " + page.url());
+            }
 
-            page.evaluate("() => document.fonts.ready.then(() => true)");
-            long t4 = System.currentTimeMillis();
+            // resume-preview.js 가 다 그리면 body[data-rendered='true'] 를 붙인다
+            try {
+                page.waitForSelector("body[data-rendered='true']",
+                        new Page.WaitForSelectorOptions().setTimeout(RENDER_WAIT_TIMEOUT_MS));
+            } catch (TimeoutError e) {
+                log.warn("미리보기 렌더 완료 표시가 없어 현재 화면으로 PDF 생성 : {}", url);
+            }
+
+            // 웹폰트 로딩 대기 (최대 FONT_WAIT_TIMEOUT_MS)
+            page.evaluate("ms => Promise.race(["
+                    + "document.fonts.ready.then(() => true),"
+                    + "new Promise(r => setTimeout(() => r(false), ms))])", FONT_WAIT_TIMEOUT_MS);
 
             page.emulateMedia(new Page.EmulateMediaOptions().setMedia(Media.PRINT));
-            byte[] pdf = page.pdf(new Page.PdfOptions()
+            return page.pdf(new Page.PdfOptions()
                     .setFormat("A4")
                     .setPrintBackground(true)
                     .setPreferCSSPageSize(true)
                     .setMargin(new Margin().setTop("0").setRight("0").setBottom("0").setLeft("0")));
-            long t5 = System.currentTimeMillis();
-
-            log.info("PDF 시간 — 브라우저 {}ms / 페이지 로딩 {}ms / 렌더 대기 {}ms / 폰트 {}ms / PDF {}ms / 합계 {}ms",
-                    t1 - t0, t2 - t1, t3 - t2, t4 - t3, t5 - t4, t5 - t0);
-            return pdf;
         }
+    }
+
+    /** "http://localhost:8080/ctx/web/..." → "http://localhost:8080" */
+    private String originOf(String url) {
+        URI uri = URI.create(url);
+        return uri.getScheme() + "://" + uri.getHost() + (uri.getPort() > 0 ? ":" + uri.getPort() : "");
     }
 
     private void ensureBrowser() {
@@ -221,9 +245,7 @@ public class TemplateService {
     public void warmUp() {
         worker.submit(() -> {
             try {
-                long start = System.currentTimeMillis();
                 ensureBrowser();
-                log.info("PDF 브라우저 준비 완료 ({}ms)", System.currentTimeMillis() - start);
             } catch (Exception e) {
                 log.warn("PDF 브라우저 미리 실행 실패 (첫 요청 때 다시 시도)", e);
             }

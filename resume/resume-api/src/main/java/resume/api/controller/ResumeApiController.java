@@ -12,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import resume.core.dto.*;
-import resume.core.exception.ResumeImportException;
 import resume.core.record.ResumeImportDebug;
 import resume.core.record.ResumeImportResult;
 import resume.core.security.UserPrincipal;
@@ -40,8 +39,8 @@ public class ResumeApiController {
 
     @GetMapping("/{resumeId:\\d+}")
     public ResponseEntity<ResumeDetailResponseDto> getResumeDetail(ResumeRequestDto requestDto,
-                                                             @PathVariable Long resumeId,
-                                                             @AuthenticationPrincipal UserPrincipal principal) {
+                                                                   @PathVariable Long resumeId,
+                                                                   @AuthenticationPrincipal UserPrincipal principal) {
         requestDto.setUserId(principal.getUserId());
         requestDto.setResumeId(resumeId);
         return ResponseEntity.ok(resumeService.getResumeDetail(requestDto));
@@ -49,8 +48,8 @@ public class ResumeApiController {
 
     @DeleteMapping("/{resumeId:\\d+}")
     public ResponseEntity<String> deleteResumeRemove(ResumeRequestDto requestDto,
-                                                   @PathVariable Long resumeId,
-                                                   @AuthenticationPrincipal UserPrincipal principal) {
+                                                     @PathVariable Long resumeId,
+                                                     @AuthenticationPrincipal UserPrincipal principal) {
         requestDto.setUserId(principal.getUserId());
         requestDto.setResumeId(resumeId);
         resumeService.removeResume(requestDto);
@@ -66,7 +65,7 @@ public class ResumeApiController {
 
     @PostMapping("/template")
     public ResponseEntity<Long> postResumeTemplate(@RequestBody ResumeRequestDto request,
-                                               @AuthenticationPrincipal UserPrincipal principal) {
+                                                   @AuthenticationPrincipal UserPrincipal principal) {
         request.setLoginId(principal.getUsername());
         return ResponseEntity.ok(resumeService.saveResumeTemplate(request));
     }
@@ -75,7 +74,7 @@ public class ResumeApiController {
     public ResponseEntity<byte[]> getResumeExportPDf(@PathVariable Long resumeId,
                                                      HttpServletRequest request,
                                                      @AuthenticationPrincipal UserPrincipal principal) {
-        // 파일 이름용 제목 (본인 이력서가 아니면 서비스에서 예외가 나도록 되어 있다면 여기서 먼저 막힘)
+        // 본인 이력서인지 확인 + 파일 이름용 제목
         ResumeRequestDto requestDto = new ResumeRequestDto();
         requestDto.setResumeId(resumeId);
         requestDto.setUserId(principal.getUserId());
@@ -130,7 +129,7 @@ public class ResumeApiController {
 
     // "이력서 제목.pdf" — 파일 이름에 못 쓰는 문자는 _ 로
     private String getFileName(ResumeDetailResponseDto resumeDetail) {
-        String title = resumeDetail != null ? resumeDetail.getTitle() : null;
+        String title = resumeDetail.getTitle();
         if (title == null || title.isBlank()) title = "이력서";
         return title.replaceAll("[\\\\/:*?\"<>|\\r\\n]", "_").trim() + ".pdf";
     }
