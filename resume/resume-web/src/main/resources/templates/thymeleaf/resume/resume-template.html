@@ -104,8 +104,8 @@
                 </div>
                 <div class="preview-stage" id="previewStage">
                     <div class="preview-page" id="previewPage">
-                        <!-- 선택한 템플릿의 HTML 틀 + CSS 는 postMessage 로 넘김 -->
-                        <iframe id="previewFrame" th:src="@{/web/resume/preview/{id}(id=${resumeDetail.resumeId})}" title="이력서 미리보기"></iframe>
+                        <!-- 처음엔 이력서에 저장된 템플릿으로 그리고, 선택한 템플릿의 HTML 틀 + CSS 는 postMessage 로 넘김 -->
+                        <iframe id="previewFrame" th:src="@{/web/resume/preview(resumeId=${resumeDetail.resumeId}, templateId=${resumeDetail.templateId})}" title="이력서 미리보기"></iframe>
                     </div>
                 </div>
             </main>

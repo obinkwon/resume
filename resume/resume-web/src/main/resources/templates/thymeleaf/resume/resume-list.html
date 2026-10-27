@@ -60,14 +60,13 @@
                         <a class="template" th:href="@{/web/resume/template/{id}(id=${resume.resumeId})}">
                             <i class="icon icon-copy sm"></i> 템플릿
                         </a>
-                        <!-- 템플릿이 있으면 미리보기 링크 -->
-                        <a th:if="${resume.templateId != null}" th:href="@{/web/resume/preview/{id}(id=${resume.resumeId})}">
+                        <!-- 템플릿이 없으면 href 를 빼서 비활성 -->
+                        <a th:with="hasTemplate=${resume.templateId != null}"
+                            th:href="${hasTemplate} ? @{/web/resume/preview(resumeId=${resume.resumeId}, templateId=${resume.templateId})} : null"
+                            th:classappend="${hasTemplate} ? '' : 'is-disabled'"
+                            th:attr="aria-disabled=${hasTemplate} ? null : 'true', title=${hasTemplate} ? null : '템플릿을 먼저 선택해 주세요'">
                             <i class="icon icon-eye sm"></i> 미리보기
                         </a>
-                        <!-- 템플릿이 없으면 비활성 -->
-                        <span th:unless="${resume.templateId != null}" class="is-disabled" aria-disabled="true" title="템플릿을 먼저 선택해 주세요">
-                                <i class="icon icon-eye sm"></i> 미리보기
-                            </span>
                     </div>
                 </div>
             </div>

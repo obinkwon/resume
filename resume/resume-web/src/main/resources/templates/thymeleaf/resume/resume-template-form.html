@@ -12,12 +12,12 @@
     <script th:src="@{/js/common.js}"></script>
     <script th:src="@{/js/resume-template-form.js}" defer></script>
 </head>
-<!--/* 내 템플릿 목록에서만 들어오는 화면 — 미리보기는 샘플 데이터로 그림 */-->
+<!--/* 내 템플릿 목록에서만 들어오는 화면 — 미리보기는 resumeId 없이 열어 샘플 데이터로 그림 */-->
 <body class="te-body"
       th:with="backUrl=@{/web/template/list}"
       th:attr="data-base-template-id=${resumeTemplate?.templateId},
                data-mode=${mode},
-               data-preview-url=@{/web/template/preview},
+               data-preview-url=@{/web/resume/preview},
                data-save-url=@{/api/template/save},
                data-edit-url=@{/web/template/modify/},
                data-back-url=${backUrl}">

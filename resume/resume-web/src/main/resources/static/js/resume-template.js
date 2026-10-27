@@ -1,5 +1,8 @@
 /* =========================================================
    resume-template.js  (이력서 템플릿 선택)
+   - 미리보기(resume-preview.js)와 주고받는 메시지는 편집 화면과 같은 형식
+       · 보냄  template-preview { html, css }
+       · 받음  preview-ready / preview-height { height }
    ========================================================= */
 (() => {
     'use strict';
@@ -85,6 +88,8 @@
     /** 템플릿 검색어 */
     let keyword = '';
     let frameHeight = 1123;
+    /** 미리보기가 메시지를 받을 준비가 됐는가 (preview-ready 를 받으면 true) */
+    let previewReady = false;
     /** CSS 편집기 잠금 해제 여부 ([수정] 버튼) */
     let cssUnlocked = false;
     /** [수정] 을 누르기 직전의 CSS ([취소] 하면 이 내용으로 되돌림) */
@@ -429,12 +434,18 @@
         setStatus('');
     }
 
+    /**
+     * 선택한 템플릿을 미리보기에 보냄 (편집 화면과 같은 template-preview 형식)
+     *  - HTML 이 빈 템플릿은 그대로 보냄 → 미리보기가 모든 섹션을 기본 순서로 그림 (PDF 와 같음)
+     *  - 미리보기가 아직 준비 안 됐으면 preview-ready 를 받은 뒤 보냄
+     */
     function pushToPreview() {
         const t = current();
-        if (!frame.contentWindow || !t) return;
+        if (!previewReady || !frame.contentWindow || !t) return;
         frame.contentWindow.postMessage({
-            type: 'template:apply',
-            template: { htmlContent: t.htmlContent, cssContent: state.cssContent }
+            type: 'template-preview',
+            html: t.htmlContent,
+            css: state.cssContent
         }, location.origin);
     }
 
@@ -725,13 +736,15 @@
     window.addEventListener('message', e => {
         if (e.origin !== location.origin || e.source !== frame.contentWindow) return;
         const msg = e.data || {};
-        if (msg.type === 'preview:ready') pushToPreview();
-        if (msg.type === 'preview:height') {
-            frameHeight = Math.max(1123, Math.ceil(msg.height));
+        if (msg.type === 'preview-ready') {
+            // 미리보기가 열림 → 지금 선택된 템플릿을 보냄
+            previewReady = true;
+            pushToPreview();
+        } else if (msg.type === 'preview-height') {
+            frameHeight = Math.max(1123, Math.ceil(Number(msg.height) || 0));
             fitPreview();
         }
     });
-    frame.addEventListener('load', pushToPreview);
 
     function fitPreview() {
         const style = getComputedStyle(stage);
