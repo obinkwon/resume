@@ -12,15 +12,12 @@
     <script th:src="@{/js/common.js}"></script>
     <script th:src="@{/js/resume-template-form.js}" defer></script>
 </head>
-<!--/* resumeId 가 없으면 이력서 없이 템플릿만 만드는 모드 (샘플 데이터로 미리보기) */-->
 <body class="te-body"
-      th:with="hasResume=${resumeId != null},
-               backUrl=${resumeId != null} ? @{/web/resume/template/{id}(id=${resumeId})} : @{/web/template/list}"
+      th:with="backUrl=@{/web/template/list}"
       th:attr="data-resume-id=${resumeId},
                data-base-template-id=${resumeTemplate?.templateId},
                data-mode=${mode},
                data-preview-url=@{/web/template/preview},
-               data-resume-preview-url=${hasResume} ? @{/web/resume/preview/{id}(id=${resumeId})} : '',
                data-save-url=@{/api/template/save},
                data-edit-url=@{/web/template/modify/},
                data-back-url=${backUrl}">
@@ -30,28 +27,24 @@
         <header class="te-header">
             <div class="te-header__left">
                 <a class="btn secondary sm" th:href="${backUrl}">
-                    <i class="icon icon-arrow-left sm"></i><span th:text="${hasResume} ? '템플릿 선택' : '내 템플릿'">내 템플릿</span>
+                    <i class="icon icon-arrow-left sm"></i><span>내 템플릿</span>
                 </a>
                 <div class="te-header__title">
                     <h1 class="te-title">템플릿 편집</h1>
                     <label class="te-name">
                         <span class="text-xs text-muted">이름</span>
-                        <input type="text" id="templateName" maxlength="50" autocomplete="off"
-                               th:value="${resumeTemplate?.templateName} ?: '새 템플릿'">
+                        <input type="text" id="templateName" maxlength="50" autocomplete="off" th:value="${resumeTemplate?.templateName} ? ${resumeTemplate.templateName} : '새 템플릿'">
                     </label>
                     <label class="te-name te-desc">
                         <span class="text-xs text-muted">설명</span>
-                        <input type="text" id="templateDescription" maxlength="200" autocomplete="off"
-                               placeholder="어떤 템플릿인지 짧게 적어 주세요"
-                               th:value="${resumeTemplate?.description}">
+                        <input type="text" id="templateDescription" maxlength="200" autocomplete="off" placeholder="어떤 템플릿인지 짧게 적어 주세요" th:value="${resumeTemplate?.description}">
                     </label>
                 </div>
             </div>
             <div class="btn-group">
                 <span class="save-status text-sm" id="saveStatus" aria-live="polite"></span>
                 <button type="button" class="btn ghost sm" id="btnReset" disabled>되돌리기</button>
-                <button type="button" class="btn secondary sm" id="btnSaveAsNew"
-                        th:classappend="${mode == 'U'} ? '' : 'd-none'">
+                <button type="button" class="btn secondary sm" id="btnSaveAsNew" th:classappend="${mode == 'U'} ? '' : 'd-none'">
                     <i class="icon icon-copy sm"></i>새 템플릿으로 저장
                 </button>
                 <button type="button" class="btn primary sm" id="btnSave">
@@ -111,10 +104,8 @@
                     <span class="te-tabs__hint">Tab 들여쓰기 · Ctrl+S 저장</span>
                 </div>
                 <div class="te-code">
-                            <textarea id="htmlEditor" class="te-textarea is-active" spellcheck="false" autocapitalize="off" autocomplete="off"
-                                      aria-label="템플릿 HTML" th:text="${resumeTemplate?.htmlContent}"></textarea>
-                    <textarea id="cssEditor" class="te-textarea" spellcheck="false" autocapitalize="off" autocomplete="off"
-                              aria-label="템플릿 CSS" th:text="${resumeTemplate?.cssContent}"></textarea>
+                    <textarea id="htmlEditor" class="te-textarea is-active" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="템플릿 HTML" th:text="${resumeTemplate?.htmlContent}"></textarea>
+                    <textarea id="cssEditor" class="te-textarea" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="템플릿 CSS" th:text="${resumeTemplate?.cssContent}"></textarea>
                 </div>
                 <ul class="te-messages" id="messages" aria-live="polite"></ul>
             </section>
@@ -124,11 +115,6 @@
                 <div class="preview-toolbar">
                     <span><i class="icon icon-eye sm"></i> 미리보기 · A4 <span id="zoomLabel" class="text-faint">100%</span></span>
                     <div class="btn-group">
-                        <div class="seg" id="dataToggle" th:if="${hasResume}" role="group" aria-label="미리보기 데이터">
-                            <button type="button" class="seg__btn is-active" data-source="resume">내 이력서</button>
-                            <button type="button" class="seg__btn" data-source="sample">샘플 데이터</button>
-                        </div>
-                        <span class="badge gray" th:unless="${hasResume}">샘플 데이터</span>
                         <button type="button" class="btn ghost sm" id="btnRefresh">새로고침</button>
                     </div>
                 </div>
@@ -140,6 +126,5 @@
             </main>
         </div>
     </div>
-
 </body>
 </html>

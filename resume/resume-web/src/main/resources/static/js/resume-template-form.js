@@ -174,10 +174,6 @@
         }
     }
 
-    function previewUrl() {
-        return state.source === 'resume' && cfg.resumePreviewUrl ? cfg.resumePreviewUrl : cfg.samplePreviewUrl;
-    }
-
     /** A4 미리보기를 미리보기 영역 너비에 맞춰 축소 (최대 100%) */
     function fitPreview() {
         var style = window.getComputedStyle(el.stage);
@@ -203,7 +199,7 @@
 
     function reloadFrame() {
         state.ready = false;
-        el.frame.src = previewUrl();
+        el.frame.src = cfg.samplePreviewUrl;
     }
 
     function switchSource(source) {
@@ -430,14 +426,13 @@
         cfg = {
             resumeId: resumeId ? Number(resumeId) : null,
             samplePreviewUrl: body.getAttribute('data-preview-url'),
-            resumePreviewUrl: body.getAttribute('data-resume-preview-url') || '',
             saveUrl: body.getAttribute('data-save-url'),
             editUrl: body.getAttribute('data-edit-url'),
             backUrl: body.getAttribute('data-back-url')
         };
         state.baseTemplateId = baseId ? Number(baseId) : null;
         state.mode = body.getAttribute('data-mode');
-        state.source = cfg.resumePreviewUrl ? 'resume' : 'sample';
+        state.source = 'sample';
     }
 
     document.addEventListener('DOMContentLoaded', function () {

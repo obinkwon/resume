@@ -13,8 +13,7 @@
     <script th:src="@{/js/resume-template-list.js}" defer></script>
 </head>
 <!--/* 템플릿 목록은 화면이 열린 뒤 JS 가 /api/template/list 로 불러와서 그림 */-->
-<body th:with="hasResume=${resumeId != null}"
-      th:attr="data-resume-id=${resumeId},
+<body th:attr="data-resume-id=${resumeId},
                data-list-url=@{/api/template/list},
                data-delete-url=@{/api/template/},
                data-edit-url=@{/web/template/modify/},
@@ -76,6 +75,5 @@
 
     <!-- 삭제 결과 -->
     <div class="toast d-none" id="listToast" role="status" aria-live="polite"></div>
-
 </body>
 </html>
