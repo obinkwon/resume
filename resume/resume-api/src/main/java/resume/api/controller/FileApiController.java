@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import resume.core.dto.FileDto;
 import resume.core.enums.UploadType;
+import resume.core.record.ImageUrlRequest;
 import resume.core.record.StoredFile;
 import resume.core.record.UploadResult;
 import resume.core.security.UserPrincipal;
@@ -29,6 +30,15 @@ public class FileApiController {
                                                         @AuthenticationPrincipal UserPrincipal principal) {
         UploadType uploadType = UploadType.from(type);
         return ResponseEntity.ok(fileService.uploadImage(file, principal.getUserId(), uploadType.getDir()));
+    }
+
+    // 외부 URL 의 이미지를 서버가 받아서 업로드 (업로드 사진과 똑같이 저장)
+    @PostMapping(value = "/upload/image-url", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UploadResult> postUploadImageUrl(@RequestBody ImageUrlRequest request,
+                                                           @AuthenticationPrincipal UserPrincipal principal) {
+        UploadType uploadType = UploadType.from(request.type());
+        Long fileId = fileService.uploadImageFromUrl(request.url(), principal.getUserId(), uploadType.getDir());
+        return ResponseEntity.ok(new UploadResult(fileId, "/api/files/" + fileId));
     }
 
     // 파일 조회

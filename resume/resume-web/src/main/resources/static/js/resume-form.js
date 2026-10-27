@@ -1,6 +1,7 @@
 /* =========================================================
    resume-form.js  (이력서 작성 폼)
-   프로필 사진    : 파일 업로드(profileImageId) 또는 외부 URL(profileImageUrl) 중 하나 (저장해야 반영)
+   프로필 사진    : 파일 업로드 또는 외부 URL → 둘 다 바로 서버(R2)에 저장 → profileImageId (저장해야 반영)
+                    (profileImageUrl 은 예전에 URL 로 저장된 이력서의 사진에만 값이 있음)
    항목 추가·삭제 : 외부 링크 / 기술 스택 / 자기소개서 / 학력 / 자격증 / 경력 / 프로젝트
    가져오기       : 다른 이력서 / 이력서 파일(PDF·docx·hwpx) 내용을 골라 이 폼에 채움 (저장해야 반영)
    저장           : 화면 입력값을 모아 검사 후 /api/resume/save 로 전송
@@ -14,6 +15,7 @@
         resumeDetail: id => `/api/resume/${encodeURIComponent(id)}`,
         importFile: '/api/resume/import-file',
         uploadImage: '/api/files/upload/image',
+        uploadImageUrl: '/api/files/upload/image-url',
         fileView: id => `/api/files/${encodeURIComponent(id)}`
     };
 
@@ -30,6 +32,7 @@
     const PHOTO_EXT = ['jpg', 'jpeg', 'png', 'webp'];
     const PHOTO_MAX = 5 * 1024 * 1024;
     const PHOTO_HINT = 'JPG · PNG · WEBP, 5MB 이하';
+    const PHOTO_URL_MAX = 1000;
 
     const LINK_TYPES = [
         ['github', 'GitHub'],
@@ -135,6 +138,20 @@
         body.append('file', file);
         body.append('type', type);
         return postMultipart(API.uploadImage, body, { tooLarge: '사진은 5MB까지 올릴 수 있어요.' });
+    }
+
+    /**
+     * POST /api/files/upload/image-url (JSON : url + type) → { fileId, url }
+     *  - 서버가 URL 의 사진을 받아 업로드 사진과 똑같이 저장
+     */
+    function uploadImageFromUrl(url, type) {
+        return callApi({
+            url: API.uploadImageUrl,
+            method: 'POST',
+            data: { url, type },
+            success: result => result,
+            error: err => { throw err; }
+        });
     }
 
     // ---------- 상태 ----------
@@ -305,7 +322,8 @@
     }
 
     // ---------- 프로필 사진 ----------
-    // 업로드 → profileImageId, URL → profileImageUrl (둘 중 하나만 값이 있음)
+    // 업로드·URL 모두 서버에 저장 → profileImageId
+    // profileImageUrl 은 예전에 URL 로 저장된 이력서를 가져온 경우에만 값이 있음 (둘 중 하나만 값이 있음)
     const $photoFrame  = $('#photoFrame');
     const photoImg     = document.getElementById('photoPreview');
     const photoFile    = document.getElementById('photoFile');
@@ -313,6 +331,7 @@
     const $photoUrlRow = $('#photoUrlRow');
     const $photoUrlIn  = $('#photoUrlInput');
     const $photoUrlBtn = $('#btnPhotoUrl');
+    const $photoUrlApply = $('#btnPhotoUrlApply');
     const $photoId     = $form.find('[name="profileImageId"]');
     const $photoUrl    = $form.find('[name="profileImageUrl"]');
     /** 사진을 빠르게 바꿨을 때 늦게 온 결과 무시용 */
@@ -326,7 +345,7 @@
         return !!($photoId.val() || $photoUrl.val());
     }
 
-    /** 사진 바꾸기 : { id } 업로드 파일 / { url } 외부 URL / {} 없음 */
+    /** 사진 바꾸기 : { id } 저장된 파일 / { url } 외부 URL(예전 이력서) / {} 없음 */
     function setPhoto({ id = null, url = null } = {}) {
         $photoId.val(url ? '' : (id ?? ''));
         $photoUrl.val(url ?? '');
@@ -340,6 +359,12 @@
         $photoUrlRow.toggleClass('d-none', !open);
         $photoUrlBtn.attr('aria-expanded', String(open));
         if (open) $photoUrlIn.val($photoUrl.val()).trigger('focus');
+    }
+
+    /** 불러오는 중 표시 (사진 칸 스피너 + URL [적용] 버튼 막기) */
+    function setPhotoBusy(on) {
+        $photoFrame.toggleClass('is-loading', on);
+        $photoUrlApply.prop('disabled', on);
     }
 
     /** 파일 고름 → 화면에서 먼저 검사 → 바로 미리보기 → 서버에 올림 */
@@ -362,7 +387,8 @@
 
         toggleUrlRow(false);
         photoImg.src = local;
-        $photoFrame.addClass('has-image is-loading').removeClass('is-broken');
+        $photoFrame.addClass('has-image').removeClass('is-broken');
+        setPhotoBusy(true);
         photoMsg('사진을 올리는 중이에요…');
 
         try {
@@ -376,16 +402,22 @@
             setPhoto(prev);                              // 원래 사진으로 되돌림
             photoMsg(err.message, true);
         } finally {
+            if (seq === photoSeq) setPhotoBusy(false);
             URL.revokeObjectURL(local);
             photoFile.value = '';                        // 같은 파일을 다시 골라도 change 가 일어나게
         }
     }
 
-    /** URL 검사 → 실제로 이미지가 열리는지 확인 → 적용 */
-    function applyPhotoUrl() {
+    /**
+     * URL 검사 → 서버가 사진을 받아 저장 → 저장된 파일로 적용
+     *  - 브라우저에서 열리는지가 아니라 서버가 실제로 받을 수 있는지로 확인 (PDF 와 같은 결과)
+     *  - 실패하면 URL 입력칸은 그대로 열어 두고 이유를 보여 줌
+     */
+    async function applyPhotoUrl() {
+        if ($photoUrlApply.prop('disabled')) return;
         const raw = $photoUrlIn.val().trim();
         if (!raw) return photoMsg('사진 URL을 입력해 주세요.', true);
-        if (raw.length > 1000) return photoMsg('URL이 너무 길어요. (1000자까지)', true);
+        if (raw.length > PHOTO_URL_MAX) return photoMsg(`URL이 너무 길어요. (${PHOTO_URL_MAX}자까지)`, true);
 
         let url;
         try {
@@ -396,20 +428,23 @@
         if (url.protocol !== 'https:') return photoMsg('https:// 로 시작하는 주소만 쓸 수 있어요.', true);
 
         const seq = ++photoSeq;
-        photoMsg('사진을 확인하는 중이에요…');
-        const test = new Image();
-        test.referrerPolicy = 'no-referrer';
-        test.onload = () => {
+        setPhotoBusy(true);
+        photoMsg('사진을 가져오는 중이에요…');
+
+        try {
+            const result = await uploadImageFromUrl(url.href, UPLOAD_TYPE.profile);
             if (seq !== photoSeq) return;
-            setPhoto({ url: url.href });
+            setPhoto({ id: result.fileId });
             toggleUrlRow(false);
-            photoMsg('사진을 적용했어요. [저장]을 눌러야 반영돼요.');
-        };
-        test.onerror = () => {
+            photoMsg('사진을 가져왔어요. [저장]을 눌러야 반영돼요.');
+        } catch (err) {
             if (seq !== photoSeq) return;
-            photoMsg('이 주소에서 사진을 불러오지 못했어요. 이미지 주소가 맞는지 확인해 주세요.', true);
-        };
-        test.src = url.href;
+            console.error('프로필 사진 URL 가져오기 실패', err);
+            photoMsg(err.message, true);
+            $photoUrlIn.trigger('focus');
+        } finally {
+            if (seq === photoSeq) setPhotoBusy(false);
+        }
     }
 
     function markPhotoBroken() {
@@ -422,23 +457,27 @@
     photoFile.addEventListener('change', () => uploadPhoto(photoFile.files[0]));
 
     $photoUrlBtn.on('click', () => toggleUrlRow($photoUrlRow.hasClass('d-none')));
-    $('#btnPhotoUrlApply').on('click', applyPhotoUrl);
+    $photoUrlApply.on('click', applyPhotoUrl);
     $('#btnPhotoUrlCancel').on('click', () => {
+        // 가져오던 중이면 결과 버림
+        photoSeq++;
+        setPhotoBusy(false);
         toggleUrlRow(false);
         photoMsg();
     });
     $photoUrlIn.on('keydown', e => {
         if (e.key === 'Enter') { e.preventDefault(); applyPhotoUrl(); }
-        if (e.key === 'Escape') { e.preventDefault(); toggleUrlRow(false); photoMsg(); }
+        if (e.key === 'Escape') { e.preventDefault(); $('#btnPhotoUrlCancel').trigger('click'); }
     });
 
     $('#btnPhotoRemove').on('click', () => {
         photoSeq++;                                      // 올리던 중이면 결과 버림
+        setPhotoBusy(false);
         setPhoto({});
         photoMsg('사진을 뺐어요. [저장]을 눌러야 반영돼요.');
     });
 
-    // 저장된 외부 URL 사진이 지워졌거나 막힌 경우
+    // 저장된 사진이 지워졌거나 (예전 외부 URL 사진이) 막힌 경우
     photoImg.addEventListener('error', () => {
         if (photoImg.getAttribute('src')) markPhotoBroken();
     });
@@ -534,6 +573,11 @@
     // ---------- 저장 ----------
     $('#btnResumeSave').on('click', async function () {
         if (isSaving) return;                    // 중복 클릭 방지
+        // 사진을 올리거나 가져오는 중이면 끝난 뒤 저장
+        if ($photoFrame.hasClass('is-loading')) {
+            alert('프로필 사진을 처리하는 중이에요. 잠시 후 다시 저장해 주세요.');
+            return;
+        }
         const $doc = $(document);
         const errors = [];
 
@@ -1006,10 +1050,11 @@
             PROFILE_FIELDS.forEach(k => {
                 if (d.profile?.[k]) $form.find(`[name="${k}"]`).val(d.profile[k]);
             });
-            // 사진도 있으면 같이 가져옴 (업로드 사진은 같은 파일을 함께 씀)
+            // 사진도 있으면 같이 가져옴 (업로드 사진은 같은 파일을 함께 씀, 예전 URL 사진은 URL 그대로)
             const photo = profilePhoto(d);
             if (photo) {
                 photoSeq++;
+                setPhotoBusy(false);
                 toggleUrlRow(false);
                 setPhoto(photo);
                 photoMsg();
