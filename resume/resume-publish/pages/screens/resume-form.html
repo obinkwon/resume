@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>이력서 작성 · 수정 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/resume-form.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<!-- 원본 : resume-web templates/thymeleaf/resume/resume-form.html (수정 화면 · 항목마다 1건씩 채운 상태) -->
+<body>
+    <div class="container form-page">
+        <div class="page-header">
+            <div class="page-header__left">
+                <a class="btn secondary sm" href="resume-list.html"><i class="icon icon-arrow-left sm"></i>목록</a>
+                <h1>이력서 수정</h1>
+            </div>
+            <div class="btn-group">
+                <a class="btn outline" href="import-modal.html"><i class="icon icon-download"></i> 이력서 불러오기</a>
+            </div>
+        </div>
+
+        <!-- 가져오기 후 안내 -->
+        <div class="notice" role="status">
+            <i class="icon icon-check"></i>
+            <span>'사람인에서 가져온 이력서' 에서 경력 1개, 프로젝트 1개를 가져왔어요. 저장해야 반영돼요.</span>
+            <button type="button" class="btn icon sm ghost" aria-label="안내 닫기"><i class="icon icon-close sm"></i></button>
+        </div>
+
+        <form>
+            <div class="section">
+                <div class="section-header">
+                    <h2>이력서 정보</h2>
+                    <span class="hint">목록에서 구분하는 이름이에요</span>
+                </div>
+                <label class="field">
+                    <span class="label">이력서 제목</span>
+                    <input type="text" name="title" placeholder="이력서 제목" value="백엔드 개발자 이력서">
+                </label>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>인적 사항</h2>
+                </div>
+                <div class="profile-grid">
+                    <div class="photo">
+                        <div class="photo__frame">
+                            <img alt="프로필 사진 미리보기">
+                            <div class="photo__placeholder" aria-hidden="true">
+                                <i class="icon icon-user"></i>
+                                <span>사진 없음</span>
+                            </div>
+                            <span class="photo__spinner" aria-hidden="true"></span>
+                            <button type="button" class="btn icon sm danger-ghost photo__remove" aria-label="사진 빼기"><i class="icon icon-close sm"></i></button>
+                        </div>
+                        <div class="photo__actions">
+                            <button type="button" class="btn secondary sm"><i class="icon icon-upload sm"></i> 사진 올리기</button>
+                            <button type="button" class="btn secondary sm" aria-expanded="true" aria-controls="photoUrlRow"><i class="icon icon-link sm"></i> URL 입력</button>
+                        </div>
+                        <!-- URL 입력을 누르면 보임 -->
+                        <div class="photo__url" id="photoUrlRow">
+                            <input type="url" placeholder="https://" maxlength="1000" aria-label="사진 URL">
+                            <div class="photo__url-actions">
+                                <button type="button" class="btn outline sm">적용</button>
+                                <button type="button" class="btn ghost sm">취소</button>
+                            </div>
+                        </div>
+                        <p class="photo__msg" role="status">JPG · PNG · WEBP, 5MB 이하</p>
+                    </div>
+
+                    <div class="profile-fields">
+                        <label class="field"><span class="label">이름</span><input type="text" name="name" placeholder="이름" value="김이력"></label>
+                        <label class="field"><span class="label">이메일</span><input type="email" name="email" placeholder="example@email.com" value="resume@example.com"></label>
+                        <label class="field"><span class="label">전화번호</span><input type="text" name="phone" placeholder="010-0000-0000" value="010-1234-5678"></label>
+                        <label class="field"><span class="label">주소</span><input type="text" name="address" placeholder="주소" value="서울특별시 마포구"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>외부 링크</h2>
+                    <button type="button" class="btn outline sm addBtn"><i class="icon icon-plus sm"></i> 링크 추가</button>
+                </div>
+                <div class="item-row-header link-cols"><span>유형</span><span>표시 이름</span><span>URL</span><span></span></div>
+                <div>
+                    <div class="item-row link-cols">
+                        <select name="linkType"><option value="">유형 선택</option><option selected>GitHub</option><option>LinkedIn</option><option>블로그</option><option>포트폴리오</option><option>웹사이트</option><option>기타</option></select>
+                        <input type="text" name="displayName" placeholder="예: 기술 블로그" value="깃허브">
+                        <input type="url" name="url" placeholder="https://" value="https://github.com/example">
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제"><i class="icon icon-close"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>간단 소개</h2>
+                    <span class="hint">이력서 목록 카드에도 보여요</span>
+                </div>
+                <label class="field">
+                    <textarea name="introduction" rows="4" placeholder="핵심 역량과 경력을 3~5문장으로 요약해 주세요">결제 · 정산 도메인에서 4년간 Spring Boot 기반 API 를 설계하고 운영했습니다.</textarea>
+                </label>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>자기소개서</h2>
+                    <button type="button" class="btn outline sm addBtn"><i class="icon icon-plus sm"></i> 항목 추가</button>
+                </div>
+                <div class="preset-row">
+                    <span class="preset-row__label">빠른 추가</span>
+                    <button type="button" class="btn ghost sm">성장과정</button>
+                    <button type="button" class="btn ghost sm">성격의 장단점</button>
+                    <button type="button" class="btn ghost sm">지원동기</button>
+                    <button type="button" class="btn ghost sm">직무 역량</button>
+                    <button type="button" class="btn ghost sm">입사 후 포부</button>
+                </div>
+                <div>
+                    <div class="item-card">
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제"><i class="icon icon-close"></i></button>
+                        <div class="cover-head">
+                            <label class="field"><span class="label">항목 제목</span><input type="text" name="coverTitle" maxlength="200" placeholder="예: 지원동기" value="지원동기"></label>
+                        </div>
+                        <label class="field">
+                            <span class="label">내용</span>
+                            <textarea name="coverContent" rows="8" placeholder="내용을 입력해 주세요">많은 사용자가 매일 쓰는 결제 서비스를 더 안정적으로 만들고 싶어 지원했습니다.</textarea>
+                        </label>
+                        <div class="char-count">45자</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>기술 스택</h2>
+                    <button type="button" class="btn outline sm addBtn"><i class="icon icon-plus sm"></i> 기술 추가</button>
+                </div>
+                <div class="item-row-header"><span>기술명</span><span>카테고리</span><span>숙련도</span><span></span></div>
+                <div>
+                    <div class="item-row">
+                        <input type="text" name="skillName" placeholder="예: Spring Boot" value="Spring Boot">
+                        <input type="text" name="category" placeholder="예: Backend" value="Backend">
+                        <select name="proficiency"><option value="">숙련도 선택</option><option>1 - 초급</option><option>2</option><option>3 - 중급</option><option>4</option><option selected>5 - 고급</option></select>
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제"><i class="icon icon-close"></i></button>
+                    </div>
+                    <div class="item-row">
+                        <input type="text" name="skillName" placeholder="예: Spring Boot">
+                        <input type="text" name="category" placeholder="예: Backend">
+                        <select name="proficiency"><option value="">숙련도 선택</option></select>
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제"><i class="icon icon-close"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>학력</h2>
+                    <button type="button" class="btn outline sm addBtn"><i class="icon icon-plus sm"></i> 학력 추가</button>
+                </div>
+                <div>
+                    <div class="item-card">
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제"><i class="icon icon-close"></i></button>
+                        <label class="field"><span class="label">학교명</span><input type="text" name="schoolName" placeholder="학교" value="한국대학교"></label>
+                        <label class="field"><span class="label">전공</span><input type="text" name="major" placeholder="전공" value="컴퓨터공학"></label>
+                        <label class="field"><span class="label">학위</span><input type="text" name="degree" placeholder="예: 학사" value="학사"></label>
+                        <div class="date-row">
+                            <label class="field"><span class="label">입학일</span><input type="date" name="startDate" value="2016-03-02"></label>
+                            <label class="field"><span class="label">졸업일</span><input type="date" name="endDate" value="2020-02-20"></label>
+                        </div>
+                        <label class="field"><span class="label">학력 설명</span><textarea name="description" placeholder="학력 설명" rows="3"></textarea></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>자격증</h2>
+                    <button type="button" class="btn outline sm addBtn"><i class="icon icon-plus sm"></i> 자격증 추가</button>
+                </div>
+                <div>
+                    <div class="item-card">
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제"><i class="icon icon-close"></i></button>
+                        <label class="field"><span class="label">자격증명</span><input type="text" name="certificateName" placeholder="예: 정보처리기사" value="정보처리기사"></label>
+                        <div class="date-row">
+                            <label class="field"><span class="label">발급 기관</span><input type="text" name="issuer" placeholder="예: 한국산업인력공단" value="한국산업인력공단"></label>
+                            <label class="field"><span class="label">취득일</span><input type="date" name="issuedDate" value="2020-11-20"></label>
+                        </div>
+                        <label class="field"><span class="label">자격증 설명</span><textarea name="description" placeholder="자격증 설명" rows="3"></textarea></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>경력</h2>
+                    <button type="button" class="btn outline sm addBtn"><i class="icon icon-plus sm"></i> 경력 추가</button>
+                </div>
+                <div>
+                    <div class="item-card">
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제"><i class="icon icon-close"></i></button>
+                        <label class="field"><span class="label">회사명</span><input type="text" name="companyName" placeholder="회사명" value="(주)예시페이"></label>
+                        <label class="field"><span class="label">직무</span><input type="text" name="position" placeholder="직무" value="백엔드 개발"></label>
+                        <div class="date-row">
+                            <label class="field"><span class="label">입사일</span><input type="date" name="startDate" value="2022-01-03"></label>
+                            <label class="field"><span class="label">퇴사일</span><input type="date" name="endDate"></label>
+                        </div>
+                        <label class="check"><input type="checkbox" name="isCurrent" checked><span>재직중</span></label>
+                        <label class="field"><span class="label">업무 내용</span><textarea name="description" placeholder="업무 내용">결제 승인 · 취소 API 설계, 정산 배치 성능 개선 (처리 시간 40% 단축)</textarea></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2>프로젝트</h2>
+                    <button type="button" class="btn outline sm addBtn"><i class="icon icon-plus sm"></i> 프로젝트 추가</button>
+                </div>
+                <div>
+                    <div class="item-card">
+                        <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제"><i class="icon icon-close"></i></button>
+                        <label class="field"><span class="label">프로젝트명</span><input type="text" name="projectName" placeholder="프로젝트명" value="정산 시스템 개편"></label>
+                        <div class="date-row">
+                            <label class="field"><span class="label">시작일</span><input type="date" name="startDate" value="2023-03-01"></label>
+                            <label class="field"><span class="label">종료일</span><input type="date" name="endDate" value="2023-09-30"></label>
+                        </div>
+                        <label class="field"><span class="label">담당 역할</span><input type="text" name="role" placeholder="역할" value="백엔드 리드"></label>
+                        <label class="field"><span class="label">프로젝트 설명</span><textarea name="description" placeholder="설명">일 단위 정산을 실시간 정산으로 바꾼 프로젝트</textarea></label>
+                        <label class="field"><span class="label">사용 기술</span><input type="text" name="techStack" placeholder="Java, Spring Boot, MyBatis" value="Java, Spring Boot, MyBatis, PostgreSQL"></label>
+                        <label class="field"><span class="label">URL</span><input type="text" name="demoUrl" placeholder="URL"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <span class="form-actions__hint text-sm text-muted">불러온 내용도 저장해야 반영돼요</span>
+                <button type="button" class="btn primary lg"><i class="icon icon-save"></i>저장</button>
+            </div>
+        </form>
+    </div>
+    <div data-partial="publishBar"></div>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

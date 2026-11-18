@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>내 템플릿 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/resume-template-list.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<!-- 원본 : resume-web templates/thymeleaf/resume/resume-template-list.html (카드는 resume-template-list.js 가 그리는 마크업을 옮김) -->
+<body>
+    <div class="container">
+        <div class="page-header">
+            <div class="page-header__left">
+                <a class="btn secondary sm" href="resume-list.html"><i class="icon icon-arrow-left sm"></i><span>목록</span></a>
+                <h1>내 템플릿</h1>
+            </div>
+            <div class="btn-group">
+                <a class="btn primary" href="template-form.html"><i class="icon icon-plus"></i> 새 템플릿</a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="tl-title">내가 만든 템플릿 <span class="badge gray">2</span></h2>
+            <div class="tl-grid">
+                <article class="tl-card">
+                    <a class="tl-thumb template-card__thumb" href="template-form.html" aria-label="내 사이드바 편집"><span class="mini" data-layout="sidebar" data-banner="true" style="--t-color:#7C3AED"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></a>
+                    <div class="tl-card__head">
+                        <h3 class="ellipsis" title="내 사이드바">내 사이드바</h3>
+                        <button type="button" class="btn icon sm danger-ghost tl-card__delete" title="삭제" aria-label="내 사이드바 삭제"><i class="icon icon-trash sm" aria-hidden="true"></i></button>
+                    </div>
+                    <p class="tl-card__desc">보라색 헤더, 왼쪽에 기술 · 학력</p>
+                    <div class="actions"><a href="template-form.html"><i class="icon icon-edit sm" aria-hidden="true"></i> 편집</a></div>
+                </article>
+                <article class="tl-card">
+                    <a class="tl-thumb template-card__thumb" href="template-form.html" aria-label="설명 없는 템플릿 편집"><span class="mini" data-layout="single" data-banner="false" style="--t-color:#2D3748"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></a>
+                    <div class="tl-card__head">
+                        <h3 class="ellipsis" title="설명 없는 템플릿">설명 없는 템플릿</h3>
+                        <button type="button" class="btn icon sm danger-ghost tl-card__delete" title="삭제" aria-label="설명 없는 템플릿 삭제"><i class="icon icon-trash sm" aria-hidden="true"></i></button>
+                    </div>
+                    <p class="tl-card__desc is-empty">설명이 없어요</p>
+                    <div class="actions"><a href="template-form.html"><i class="icon icon-edit sm" aria-hidden="true"></i> 편집</a></div>
+                </article>
+            </div>
+        </div>
+
+        <!-- 상태별 안내 (실제 화면에서는 하나만 보임) -->
+        <div class="section">
+            <h2 class="tl-title">상태 안내 <span class="text-sm text-faint fw-normal">불러오는 중 · 실패 · 비었음</span></h2>
+            <div class="empty-state" role="status"><p>템플릿을 불러오는 중…</p></div>
+            <div class="empty-state" role="alert">
+                <p>템플릿 목록을 불러오지 못했어요.</p>
+                <button type="button" class="btn secondary">다시 시도</button>
+            </div>
+            <div class="empty-state">
+                <p>아직 만든 템플릿이 없어요. 빈 템플릿에서 시작하거나 아래 기본 템플릿을 복사해 보세요.</p>
+                <a class="btn outline" href="template-form.html"><i class="icon icon-plus"></i> 빈 템플릿에서 시작</a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="tl-title">
+                기본 템플릿에서 시작
+                <span class="text-sm text-faint fw-normal">복사해서 만들면 원본은 그대로 남아요</span>
+            </h2>
+            <div class="tl-grid">
+                <article class="tl-card">
+                    <a class="tl-thumb template-card__thumb" href="template-form.html" aria-label="심플 복사해서 만들기"><span class="mini" data-layout="single" data-banner="false" style="--t-color:#2D3748"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></a>
+                    <div class="tl-card__head"><h3 class="ellipsis">심플</h3><span class="badge">기본</span></div>
+                    <p class="tl-card__desc">여백이 넉넉한 한 컬럼 기본형</p>
+                    <div class="actions"><a class="primary" href="template-form.html"><i class="icon icon-copy sm" aria-hidden="true"></i> 복사해서 만들기</a></div>
+                </article>
+                <article class="tl-card">
+                    <a class="tl-thumb template-card__thumb" href="template-form.html" aria-label="모던 사이드바 복사해서 만들기"><span class="mini" data-layout="sidebar" data-banner="true" style="--t-color:#2563EB"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></a>
+                    <div class="tl-card__head"><h3 class="ellipsis">모던 사이드바</h3><span class="badge">기본</span></div>
+                    <p class="tl-card__desc">색 헤더와 왼쪽 사이드바가 있는 디자인</p>
+                    <div class="actions"><a class="primary" href="template-form.html"><i class="icon icon-copy sm" aria-hidden="true"></i> 복사해서 만들기</a></div>
+                </article>
+                <article class="tl-card">
+                    <a class="tl-thumb template-card__thumb" href="template-form.html" aria-label="모던 분할 복사해서 만들기"><span class="mini" data-layout="split" data-banner="true" style="--t-color:#0F766E"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></a>
+                    <div class="tl-card__head"><h3 class="ellipsis">모던 분할</h3><span class="badge">기본</span></div>
+                    <p class="tl-card__desc">좌우 2단으로 정보를 한눈에</p>
+                    <div class="actions"><a class="primary" href="template-form.html"><i class="icon icon-copy sm" aria-hidden="true"></i> 복사해서 만들기</a></div>
+                </article>
+            </div>
+        </div>
+    </div>
+    <div data-partial="publishBar"></div>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

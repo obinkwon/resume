@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>색상 · 타이포그래피 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<body>
+    <main class="pub-page">
+        <h1 class="pub-page-title">색상 · 타이포그래피</h1>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">색상 <code>:root --c-*</code></h2>
+            <p class="pub-note">common.css 맨 위의 변수입니다. 새 색은 변수로 추가하고 화면 CSS 에서는 변수만 씁니다.</p>
+            <div class="pub-demo">
+                <div class="pub-swatches" id="swatches"></div>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">모서리 · 그림자</h2>
+            <div class="pub-demo pub-row">
+                <div class="pub-swatch" style="width:150px; border-radius: var(--radius-sm)"><div class="pub-swatch-info"><b>--radius-sm</b><span>6px · 입력칸</span></div></div>
+                <div class="pub-swatch" style="width:150px; border-radius: var(--radius-md)"><div class="pub-swatch-info"><b>--radius-md</b><span>8px · 섹션 · 버튼</span></div></div>
+                <div class="pub-swatch" style="width:150px; border-radius: var(--radius-lg)"><div class="pub-swatch-info"><b>--radius-lg</b><span>12px · 카드 · 모달</span></div></div>
+                <div class="pub-swatch" style="width:150px; border-radius: var(--radius-full)"><div class="pub-swatch-info"><b>--radius-full</b><span>999px · 뱃지</span></div></div>
+                <div class="pub-swatch" style="width:150px; box-shadow: var(--shadow-sm)"><div class="pub-swatch-info"><b>--shadow-sm</b><span>카드 기본</span></div></div>
+                <div class="pub-swatch" style="width:150px; box-shadow: var(--shadow-md)"><div class="pub-swatch-info"><b>--shadow-md</b><span>카드 hover · 모달</span></div></div>
+                <div class="pub-swatch" style="width:150px; box-shadow: var(--focus-ring)"><div class="pub-swatch-info"><b>--focus-ring</b><span>포커스 테두리</span></div></div>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">글자 크기 · 굵기</h2>
+            <p class="pub-note">본문 글꼴은 <code>Pretendard, sans-serif</code> 입니다. 사이트 화면은 글꼴 파일을 따로 불러오지 않아 설치된 글꼴을 씁니다.</p>
+            <div class="pub-demo">
+                <p class="text-lg">.text-lg 이력서를 한 번만 입력해 두세요</p>
+                <p class="text-md">.text-md 이력서를 한 번만 입력해 두세요</p>
+                <p>기본 이력서를 한 번만 입력해 두세요</p>
+                <p class="text-sm">.text-sm 이력서를 한 번만 입력해 두세요</p>
+                <p class="text-xs">.text-xs 이력서를 한 번만 입력해 두세요</p>
+                <p class="fw-normal">.fw-normal 보통</p>
+                <p class="fw-medium">.fw-medium 중간</p>
+                <p class="fw-bold">.fw-bold 굵게</p>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">글자 색</h2>
+            <div class="pub-demo">
+                <p>기본 <code>--c-text</code></p>
+                <p class="text-sub">.text-sub 보조 설명</p>
+                <p class="text-muted">.text-muted 흐린 안내</p>
+                <p class="text-faint">.text-faint 아주 흐린 안내</p>
+                <p class="text-primary">.text-primary 강조</p>
+                <p class="text-success">.text-success 성공</p>
+                <p class="text-danger">.text-danger 오류</p>
+            </div>
+        </section>
+    </main>
+    <div data-partial="publishBar"></div>
+    <script>
+        // common.css 의 --c-* 변수를 읽어서 견본으로 그림 (변수를 추가하면 여기도 자동으로 나옴)
+        (function(){
+            var names = [];
+            Array.prototype.forEach.call(document.styleSheets, function(sheet){
+                try {
+                    Array.prototype.forEach.call(sheet.cssRules, function(rule){
+                        if (rule.selectorText !== ":root") return;
+                        for (var i = 0; i < rule.style.length; i++) {
+                            if (rule.style[i].indexOf("--c-") === 0) names.push(rule.style[i]);
+                        }
+                    });
+                } catch (e) { /* file:// 에서 막힌 시트는 건너뜀 */ }
+            });
+            var root = getComputedStyle(document.documentElement);
+            var box = document.getElementById("swatches");
+            names.forEach(function(name){
+                var value = root.getPropertyValue(name).trim();
+                box.insertAdjacentHTML("beforeend",
+                    '<div class="pub-swatch"><div class="pub-swatch-color" style="background:' + value + '"></div>' +
+                    '<div class="pub-swatch-info"><b>' + name + '</b><span>' + value + '</span></div></div>');
+            });
+            if (!names.length) box.textContent = "브라우저가 CSS 를 읽지 못했어요. 로컬 서버로 열어 주세요.";
+        })();
+    </script>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

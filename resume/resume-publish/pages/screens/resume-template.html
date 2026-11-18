@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>템플릿 선택 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/resume-template.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<!-- 원본 : resume-web templates/thymeleaf/resume/resume-template.html
+     카드 · 스위치는 resume-template.js 가 그리는 마크업을 옮김 (CSS 를 고쳐 '새 템플릿으로 저장' 안내가 뜬 상태) -->
+<body>
+    <div class="builder">
+        <header class="builder-header">
+            <div class="builder-header__left">
+                <a class="btn secondary sm" href="resume-list.html"><i class="icon icon-arrow-left sm"></i>목록</a>
+                <div><h1 class="builder-title">템플릿 선택</h1></div>
+            </div>
+            <div class="btn-group">
+                <span class="save-status text-sm" aria-live="polite">저장하지 않은 변경이 있어요</span>
+                <button type="button" class="btn ghost sm">되돌리기</button>
+                <button type="button" class="btn secondary sm"><i class="icon icon-printer sm"></i>PDF 다운로드</button>
+                <button type="button" class="btn primary sm"><i class="icon icon-save sm"></i>저장</button>
+            </div>
+        </header>
+        <div class="builder-layout">
+            <aside class="sidebar">
+                <section class="panel">
+                    <h2 class="panel-title">
+                        <span><span class="step">1</span>템플릿 선택</span>
+                        <span class="hint" aria-live="polite">5개</span>
+                    </h2>
+                    <div class="template-search" hidden>
+                        <input type="search" placeholder="템플릿 이름으로 찾기" aria-label="템플릿 검색" autocomplete="off">
+                    </div>
+                    <div class="template-scroll">
+                        <div class="template-group">
+                            <h3 class="template-group__title">기본 템플릿 <span>4</span></h3>
+                            <div class="template-grid" role="radiogroup" aria-label="기본 템플릿">
+                                <button type="button" class="template-card" role="radio" aria-checked="false" aria-busy="false">
+                                    <span class="template-card__thumb"><span class="mini" data-layout="single" data-banner="false" style="--t-color:#2D3748"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></span>
+                                    <span class="template-card__name">심플</span>
+                                    <span class="template-card__desc">여백이 넉넉한 한 컬럼 기본형</span>
+                                </button>
+                                <button type="button" class="template-card" role="radio" aria-checked="true" aria-busy="false">
+                                    <span class="template-card__thumb"><span class="mini" data-layout="sidebar" data-banner="true" style="--t-color:#2563EB"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></span>
+                                    <span class="template-card__name">모던 사이드바</span>
+                                    <span class="template-card__desc">색 헤더와 왼쪽 사이드바가 있는 디자인</span>
+                                </button>
+                                <button type="button" class="template-card" role="radio" aria-checked="false" aria-busy="false">
+                                    <span class="template-card__thumb"><span class="mini" data-layout="split" data-banner="true" style="--t-color:#0F766E"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></span>
+                                    <span class="template-card__name">모던 분할</span>
+                                    <span class="template-card__desc">좌우 2단으로 정보를 한눈에</span>
+                                </button>
+                                <button type="button" class="template-card" role="radio" aria-checked="false" aria-busy="false">
+                                    <span class="template-card__thumb"><span class="mini" data-layout="single" data-banner="false" style="--t-color:#E05A2B"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></span>
+                                    <span class="template-card__name">사람인 스타일</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="template-group">
+                            <h3 class="template-group__title">내 템플릿 <span>1</span></h3>
+                            <div class="template-grid" role="radiogroup" aria-label="내 템플릿">
+                                <button type="button" class="template-card" role="radio" aria-checked="false" aria-busy="false">
+                                    <span class="template-card__thumb"><span class="mini" data-layout="sidebar" data-banner="true" style="--t-color:#7C3AED"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></span>
+                                    <span class="template-card__name">내 사이드바</span>
+                                    <span class="template-card__desc">보라색 헤더, 왼쪽에 기술 · 학력</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <details class="panel panel-collapsible" open>
+                    <summary class="panel-title">
+                        <span><span class="step">2</span>섹션 표시</span>
+                        <span class="hint">끄면 이력서에서 숨겨져요</span>
+                    </summary>
+                    <ul class="section-toggles">
+                        <li class="section-toggle"><span class="section-name">간단 소개</span><label class="switch" title="표시"><input type="checkbox" checked aria-label="간단 소개 표시"><span></span></label></li>
+                        <li class="section-toggle"><span class="section-name">자기소개서</span><label class="switch" title="표시"><input type="checkbox" checked aria-label="자기소개서 표시"><span></span></label></li>
+                        <li class="section-toggle"><span class="section-name">경력</span><label class="switch" title="표시"><input type="checkbox" checked aria-label="경력 표시"><span></span></label></li>
+                        <li class="section-toggle"><span class="section-name">프로젝트</span><label class="switch" title="표시"><input type="checkbox" checked aria-label="프로젝트 표시"><span></span></label></li>
+                        <li class="section-toggle"><span class="section-name">학력</span><label class="switch" title="표시"><input type="checkbox" checked aria-label="학력 표시"><span></span></label></li>
+                        <li class="section-toggle is-hidden"><span class="section-name">자격증</span><label class="switch" title="표시"><input type="checkbox" aria-label="자격증 표시"><span></span></label></li>
+                        <li class="section-toggle"><span class="section-name">기술 스택</span><label class="switch" title="표시"><input type="checkbox" checked aria-label="기술 스택 표시"><span></span></label></li>
+                        <li class="section-toggle"><span class="section-name">외부 링크</span><label class="switch" title="표시"><input type="checkbox" checked aria-label="외부 링크 표시"><span></span></label></li>
+                    </ul>
+                </details>
+                <section class="panel">
+                    <h2 class="panel-title">
+                        <span><span class="step">3</span>CSS 수정</span>
+                        <button type="button" class="btn ghost sm"><i class="icon icon-close sm"></i>취소</button>
+                    </h2>
+                    <p class="css-note">CSS 를 고치면 원본은 그대로 두고 새 템플릿으로 저장돼요.</p>
+                    <textarea class="css-editor" spellcheck="false" aria-label="템플릿 CSS">:root {
+  --primary: #2563EB;
+  --font: 'Pretendard';
+}
+
+.r-header {
+  background: var(--primary);
+  color: #fff;
+}</textarea>
+                    <p class="css-count">98 / 20,000</p>
+                    <p class="css-warning" role="alert">외부 파일을 불러오는 @import 는 사용할 수 없어요.</p>
+                    <details class="class-guide">
+                        <summary>사용할 수 있는 클래스</summary>
+                        <dl>
+                            <dt>:root</dt>
+                            <dd><code>--primary</code> 대표 색상 · <code>--font</code> 폰트 · <code>--scale</code> 글자 크기 배율</dd>
+                            <dt>.r-header</dt>          <dd>상단 인적사항 영역</dd>
+                            <dt>.r-section</dt>         <dd>섹션 전체 — <code>[data-section="experience"]</code> 처럼 구분</dd>
+                            <dt>.r-item</dt>            <dd>경력·프로젝트·자기소개서 등 항목 하나</dd>
+                        </dl>
+                        <p class="panel-hint">외부 파일을 불러오는 <code>@import</code>, <code>url()</code> 은 사용할 수 없어요.</p>
+                    </details>
+                </section>
+            </aside>
+            <main class="preview-panel">
+                <div class="preview-toolbar">
+                    <span><i class="icon icon-eye sm"></i> 미리보기 · A4</span>
+                    <span>맞춤</span>
+                </div>
+                <div class="preview-stage">
+                    <div class="preview-page">
+                        <iframe src="resume-preview.html" title="이력서 미리보기"></iframe>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <div data-partial="publishBar"></div>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

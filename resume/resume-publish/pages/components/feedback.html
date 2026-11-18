@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>모달 · 토스트 · 안내 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/resume-form.css" rel="stylesheet">
+    <link href="../../css/resume-list.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<body>
+    <main class="pub-page">
+        <h1 class="pub-page-title">모달 · 토스트 · 안내</h1>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">모달 <code>dialog.modal</code></h2>
+            <p class="pub-note">열기 <code>dialog.showModal()</code> · 닫기 <code>dialog.close()</code>. 머리 · 본문 · 바닥 세 칸입니다. 실제 사용 예는 화면 › 이력서 불러오기 모달.</p>
+            <div class="pub-demo pub-row">
+                <button type="button" class="btn primary" onclick="document.getElementById('demoModal').showModal()">모달 열기</button>
+            </div>
+            <dialog class="modal" id="demoModal" aria-labelledby="demoTitle">
+                <div class="modal__header">
+                    <h2 id="demoTitle">모달 제목</h2>
+                    <button type="button" class="btn icon ghost" aria-label="닫기" onclick="this.closest('dialog').close()"><i class="icon icon-close"></i></button>
+                </div>
+                <div class="modal__body">
+                    <p>본문 내용이 들어갑니다. 길어지면 본문만 스크롤됩니다.</p>
+                </div>
+                <div class="modal__footer">
+                    <span class="text-sm text-muted">안내 문구</span>
+                    <div class="btn-group">
+                        <button type="button" class="btn secondary" onclick="this.closest('dialog').close()">취소</button>
+                        <button type="button" class="btn primary" onclick="this.closest('dialog').close()">확인</button>
+                    </div>
+                </div>
+            </dialog>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">토스트 <code>.toast</code> · <code>.is-error</code></h2>
+            <p class="pub-note">화면 아래 가운데에 잠깐 떴다 사라집니다 (목록 화면의 삭제 결과). 버튼을 누르면 2초 동안 보입니다.</p>
+            <div class="pub-demo pub-row">
+                <button type="button" class="btn secondary" onclick="showToast('이력서를 삭제했어요.', false)">성공 토스트</button>
+                <button type="button" class="btn danger-ghost" onclick="showToast('삭제하지 못했어요. 다시 시도해 주세요.', true)">오류 토스트</button>
+            </div>
+            <div class="toast d-none" id="demoToast" role="status" aria-live="polite"></div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">저장 안내 <code>.notice</code></h2>
+            <p class="pub-note">이력서 작성 화면에서 불러오기 뒤 "저장해야 반영된다"는 안내입니다.</p>
+            <div class="pub-demo">
+                <div class="notice" role="status">
+                    <i class="icon icon-check"></i>
+                    <span>'백엔드 개발자 이력서' 에서 경력 2개, 프로젝트 3개를 가져왔어요. 저장해야 반영돼요.</span>
+                    <button type="button" class="btn icon sm ghost" aria-label="안내 닫기"><i class="icon icon-close sm"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">빈 화면 <code>.empty-state</code></h2>
+            <div class="pub-demo">
+                <div class="empty-state">
+                    <p>아직 작성된 이력서가 없어요. 새 이력서를 만들어보세요!</p>
+                    <a class="btn outline" href="#none"><i class="icon icon-plus"></i> 첫 이력서 작성하기</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div data-partial="publishBar"></div>
+    <script>
+        function showToast(text, error){
+            var toast = document.getElementById("demoToast");
+            toast.textContent = text;
+            toast.classList.toggle("is-error", error);
+            toast.classList.remove("d-none");
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(function(){ toast.classList.add("d-none"); }, 2000);
+        }
+    </script>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

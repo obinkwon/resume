@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>폼 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/resume-form.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<body>
+    <main class="pub-page">
+        <h1 class="pub-page-title">폼</h1>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">입력칸 <code>.field</code></h2>
+            <p class="pub-note">input · textarea · select 의 기본 모양은 common.css, 라벨 묶음 <code>.field</code> 는 resume-form.css 입니다.</p>
+            <div class="pub-demo">
+                <label class="field">
+                    <span class="label">이력서 제목</span>
+                    <input type="text" placeholder="이력서 제목" value="백엔드 개발자 이력서">
+                </label>
+                <label class="field">
+                    <span class="label">빈 칸 (placeholder)</span>
+                    <input type="email" placeholder="example@email.com">
+                </label>
+                <label class="field">
+                    <span class="label">선택</span>
+                    <select><option>숙련도 선택</option><option selected>3 - 중급</option></select>
+                </label>
+                <label class="field">
+                    <span class="label">긴 글</span>
+                    <textarea rows="3" placeholder="핵심 역량과 경력을 3~5문장으로 요약해 주세요"></textarea>
+                </label>
+                <div class="char-count">128 / 1,000</div>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">체크 <code>.check</code> · 날짜 줄 <code>.date-row</code></h2>
+            <div class="pub-demo">
+                <div class="date-row">
+                    <label class="field"><span class="label">입사일</span><input type="date" value="2022-01-03"></label>
+                    <label class="field"><span class="label">퇴사일</span><input type="date"></label>
+                </div>
+                <label class="check"><input type="checkbox" checked><span>재직중</span></label>
+                <label class="check"><input type="checkbox"><span>체크 안 함</span></label>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">섹션 머리 <code>.section-header</code> · 빠른 추가 <code>.preset-row</code></h2>
+            <div class="pub-demo is-bg">
+                <div class="section">
+                    <div class="section-header">
+                        <h2>자기소개서</h2>
+                        <button type="button" class="btn outline sm addBtn"><i class="icon icon-plus sm"></i> 항목 추가</button>
+                    </div>
+                    <div class="preset-row">
+                        <span class="preset-row__label">빠른 추가</span>
+                        <button type="button" class="btn ghost sm">성장과정</button>
+                        <button type="button" class="btn ghost sm">지원동기</button>
+                        <button type="button" class="btn ghost sm">입사 후 포부</button>
+                    </div>
+                </div>
+                <div class="section">
+                    <div class="section-header">
+                        <h2>간단 소개</h2>
+                        <span class="hint">이력서 목록 카드에도 보여요</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">한줄형 항목 <code>.item-row</code></h2>
+            <p class="pub-note">기술 스택 · 외부 링크처럼 칸이 적은 항목. 링크는 <code>.link-cols</code> 로 칸 너비를 바꿉니다.</p>
+            <div class="pub-demo">
+                <div class="item-row-header"><span>기술명</span><span>카테고리</span><span>숙련도</span><span></span></div>
+                <div class="item-row">
+                    <input type="text" value="Spring Boot">
+                    <input type="text" value="Backend">
+                    <select><option>5 - 고급</option></select>
+                    <button type="button" class="btn icon danger-ghost" aria-label="삭제"><i class="icon icon-close"></i></button>
+                </div>
+                <div class="item-row-header link-cols"><span>유형</span><span>표시 이름</span><span>URL</span><span></span></div>
+                <div class="item-row link-cols">
+                    <select><option>GitHub</option></select>
+                    <input type="text" value="깃허브">
+                    <input type="url" value="https://github.com/example">
+                    <button type="button" class="btn icon danger-ghost" aria-label="삭제"><i class="icon icon-close"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">카드형 항목 <code>.item-card</code></h2>
+            <p class="pub-note">경력 · 프로젝트 · 학력 · 자격증 · 자기소개서. 삭제 버튼은 오른쪽 위에 붙습니다.</p>
+            <div class="pub-demo">
+                <div class="item-card">
+                    <button type="button" class="btn icon danger-ghost removeBtn" aria-label="삭제"><i class="icon icon-close"></i></button>
+                    <label class="field"><span class="label">회사명</span><input type="text" value="(주)예시테크"></label>
+                    <label class="field"><span class="label">직무</span><input type="text" value="백엔드 개발"></label>
+                    <div class="date-row">
+                        <label class="field"><span class="label">입사일</span><input type="date" value="2022-01-03"></label>
+                        <label class="field"><span class="label">퇴사일</span><input type="date"></label>
+                    </div>
+                    <label class="check"><input type="checkbox" checked><span>재직중</span></label>
+                    <label class="field"><span class="label">업무 내용</span><textarea>결제 API 설계와 운영</textarea></label>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div data-partial="publishBar"></div>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

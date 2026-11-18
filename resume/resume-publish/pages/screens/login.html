@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>로그인 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/login.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<!-- 원본 : resume-web templates/thymeleaf/resume/login.html (오류 안내는 ?error 일 때만 보임) -->
+<body class="login-page">
+    <div class="login-card">
+        <div class="login-card__head">
+            <h1>이력서 작성</h1>
+            <p class="text-muted text-md">사용자 ID를 입력하고 이력서 작성을 시작해보세요.</p>
+        </div>
+
+        <div class="login-error" role="alert">
+            로그인에 실패했습니다. 사용자 ID를 확인해 주세요.
+        </div>
+
+        <form onsubmit="location.href='resume-list.html'; return false;">
+            <div class="form-group">
+                <label for="userKey">사용자 ID</label>
+                <input type="text" id="userKey" name="userKey" placeholder="사용자 ID를 입력하세요" maxlength="100" required autocomplete="username">
+            </div>
+            <button type="submit" class="btn primary block">
+                시작하기 <i class="icon icon-arrow-right sm"></i>
+            </button>
+        </form>
+
+        <p class="login-card__foot">처음이라면 원하는 ID로 바로 시작할 수 있어요.</p>
+    </div>
+    <div data-partial="publishBar"></div>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

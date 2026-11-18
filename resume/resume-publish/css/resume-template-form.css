@@ -1,0 +1,393 @@
+/* =========================================================
+   resume-template-form.css  (common.css 토큰·버튼 사용)
+   화면 전체 높이를 쓰는 3단 편집기 : 치환자 | HTML·CSS | 미리보기
+   ========================================================= */
+html, body.te-body { height: 100%; }
+body.te-body { overflow: hidden; }
+
+.te {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* ===== 상단 바 ===== */
+.te-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 24px;
+    background: var(--c-surface);
+    border-bottom: 1px solid var(--c-border);
+}
+.te-header__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+/* 제목 + 템플릿 이름 한 줄 */
+.te-header__title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+.te-title { margin: 0; font-size: 20px; white-space: nowrap; }
+
+/* 템플릿 이름 (common.css 의 input 기본값 덮어쓰기) */
+.te-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.te-name span { white-space: nowrap; }
+.te-name input {
+    width: 280px;
+    margin: 0;
+    padding: 5px 10px;
+    font-size: 13px;
+}
+
+.save-status { color: var(--c-text-faint); min-width: 90px; text-align: right; }
+.save-status.is-saving { color: var(--c-text-muted); }
+.save-status.is-saved  { color: var(--c-success); }
+.save-status.is-error  { color: var(--c-danger); }
+
+/* ===== 3단 레이아웃 ===== */
+.te-layout {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 260px minmax(380px, 1fr) minmax(420px, 1.05fr);
+    gap: 16px;
+    padding: 16px 24px 24px;
+}
+
+/* ===== 왼쪽 패널 ===== */
+.te-side {
+    min-height: 0;
+    overflow-y: auto;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+}
+.te-panel {
+    padding: 16px 18px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.te-panel:last-child { border-bottom: none; }
+.te-panel__title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--c-text-label);
+}
+.te-panel__title .hint { font-size: 12px; font-weight: 400; color: var(--c-text-faint); }
+
+.panel-hint {
+    margin: 10px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--c-text-muted);
+}
+
+/* 치환자 목록 */
+.te-vars {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+}
+.te-vars button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 10px 7px 24px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    background: var(--c-surface-sub);
+    color: var(--c-text);
+    text-align: left;
+    transition: border-color var(--transition), background var(--transition);
+}
+.te-vars button:hover { border-color: var(--c-primary); background: var(--c-primary-soft); }
+.te-vars button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.te-vars button::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    margin-top: -3.5px;
+    border-radius: 50%;
+    background: var(--c-border-strong);
+}
+.te-vars code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--c-primary);
+}
+.te-vars span { font-size: 12px; color: var(--c-text-muted); }
+
+.te-vars li.is-used button::before { background: var(--c-primary); }
+.te-vars li.is-empty code { opacity: .55; }
+.te-vars li.is-empty span::after { content: " · 내용 없음"; color: var(--c-text-faint); }
+
+.te-legend {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin: 10px 0 0;
+    padding: 0;
+    font-size: 12px;
+    color: var(--c-text-muted);
+}
+.te-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; }
+.dot.is-used  { background: var(--c-primary); }
+.dot.is-empty { background: var(--c-text-faint); }
+
+/* 클래스 안내 (resume-template 화면과 같은 모양) */
+.class-guide summary { cursor: pointer; list-style: none; margin: 0; }
+.class-guide summary::-webkit-details-marker { display: none; }
+.class-guide summary::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    margin-left: auto;
+    border-right: 2px solid var(--c-text-faint);
+    border-bottom: 2px solid var(--c-text-faint);
+    transform: rotate(45deg);
+    transition: transform var(--transition);
+}
+.class-guide[open] summary { margin-bottom: 10px; }
+.class-guide[open] summary::after { transform: rotate(-135deg); }
+.class-guide dl {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    margin: 0;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    background: var(--c-surface-sub);
+    font-size: 12px;
+}
+.class-guide dt {
+    margin-top: 6px;
+    font-family: ui-monospace, monospace;
+    color: var(--c-primary);
+}
+.class-guide dt:first-child { margin-top: 0; }
+.class-guide dd { margin: 0; color: var(--c-text-sub); line-height: 1.5; }
+.class-guide code,
+.panel-hint code {
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--c-border);
+    font-size: 11px;
+}
+
+/* ===== 가운데 편집기 (resume-template 의 CSS 편집기와 같은 색) ===== */
+.te-editor {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid #1e293b;
+    border-radius: var(--radius-lg);
+    background: #0f172a;
+}
+.te-tabs {
+    display: flex;
+    align-items: stretch;
+    background: #020617;
+    border-bottom: 1px solid #1e293b;
+}
+.te-tab {
+    padding: 10px 18px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    transition: color var(--transition), border-color var(--transition);
+}
+.te-tab:hover { color: #cbd5e1; }
+.te-tab:focus-visible { outline: none; color: #fff; box-shadow: inset 0 0 0 2px rgba(37, 99, 235, .6); }
+.te-tab.is-active {
+    color: #fff;
+    border-bottom-color: var(--c-primary);
+    background: #0f172a;
+}
+.te-tabs__hint {
+    margin-left: auto;
+    align-self: center;
+    padding: 0 14px;
+    font-size: 11px;
+    color: #475569;
+}
+
+.te-code { position: relative; flex: 1; min-height: 0; }
+/* common.css 의 textarea 기본값(width·padding·margin·border·focus) 덮어쓰기 */
+.te-textarea {
+    display: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 0;
+    resize: none;
+    background: #0f172a;
+    color: #e2e8f0;
+    caret-color: #fff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    tab-size: 4;
+    white-space: pre;
+    overflow: auto;
+}
+.te-textarea.is-active { display: block; }
+.te-textarea:focus { border: none; box-shadow: none; }
+.te-textarea::selection { background: #334155; }
+
+/* 검사 결과 */
+.te-messages {
+    list-style: none;
+    margin: 0;
+    padding: 8px;
+    max-height: 32%;
+    overflow-y: auto;
+    display: grid;
+    gap: 6px;
+    background: var(--c-surface);
+}
+.te-messages:empty { display: none; }
+.te-msg {
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    line-height: 1.5;
+}
+.te-msg--error { background: var(--c-danger-soft); color: var(--c-danger); }
+.te-msg--warn  { background: #fffbeb; color: #b45309; }
+.te-msg::before { font-weight: 700; margin-right: 4px; }
+.te-msg--error::before { content: "오류"; }
+.te-msg--warn::before  { content: "안내"; }
+
+/* ===== 오른쪽 미리보기 (resume-template 화면과 같은 모양) ===== */
+.preview-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: #e9ecf2;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+}
+.preview-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px 8px 16px;
+    background: var(--c-surface);
+    border-bottom: 1px solid var(--c-border);
+    font-size: 13px;
+    color: var(--c-text-muted);
+}
+.preview-toolbar .btn-group { gap: 6px; }
+
+.preview-stage {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+/* A4(794px) iframe 을 JS 가 scale 로 맞추고, 바깥은 축소된 크기만큼만 차지 */
+.preview-page {
+    width: 794px;
+    height: 1123px;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .12);
+}
+.preview-page iframe {
+    display: block;
+    width: 794px;
+    height: 1123px;
+    border: none;
+    background: #fff;
+    transform-origin: top left;
+}
+
+/* [내 이력서 | 샘플 데이터] 전환 */
+.seg {
+    display: inline-flex;
+    padding: 2px;
+    border-radius: var(--radius-sm);
+    background: #f1f5f9;
+}
+.seg__btn {
+    padding: 4px 10px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--c-text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    transition: background var(--transition), color var(--transition);
+}
+.seg__btn:hover { color: var(--c-text); }
+.seg__btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.seg__btn.is-active {
+    background: var(--c-surface);
+    color: var(--c-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ===== 좁은 화면 ===== */
+@media (max-width: 1280px) {
+    .te-layout { grid-template-columns: 220px minmax(340px, 1fr) minmax(360px, 1fr); }
+    .te-name input { width: 200px; }
+}
+@media (max-width: 1024px) {
+    body.te-body { overflow: auto; }
+    .te { height: auto; }
+    .te-header { flex-wrap: wrap; padding: 12px 16px; }
+    .te-layout { grid-template-columns: 1fr; padding: 16px; }
+    .te-side { overflow: visible; }
+    .te-vars { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .te-editor { height: 60vh; }
+    .preview-panel { height: 80vh; }
+}
+@media (max-width: 640px) {
+    .te-vars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .te-header__title { flex-wrap: wrap; gap: 8px; }
+    .te-name { width: 100%; }
+    .te-name input { width: 100%; }
+}

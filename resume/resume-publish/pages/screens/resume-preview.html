@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>이력서 미리보기 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <link href="../../fonts/pretendard-subset.css" rel="stylesheet">
+    <link href="../../fonts/google-fonts.css" rel="stylesheet">
+    <link href="../../css/resume-preview.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+    <style id="templateCss"></style>
+    <script src="../../js/resume-preview.js" defer></script>
+</head>
+<!-- 원본 : resume-web templates/thymeleaf/resume/resume-preview.html
+     템플릿은 기본 템플릿 '모던 사이드바' (db/postgresql_template_DML.sql) 를 아래 스크립트로 넣음 -->
+<body>
+    <div class="resume" id="resume"></div>
+    <div class="r-pool" id="sectionPool" hidden>
+        <header class="r-header" data-section="profile">
+            <div class="r-header__main">
+                <h1 class="r-name">김이력</h1>
+            </div>
+            <ul class="r-contact">
+                <li class="r-contact__email">resume@example.com</li>
+                <li class="r-contact__phone">010-1234-5678</li>
+                <li class="r-contact__address">서울특별시 마포구</li>
+            </ul>
+        </header>
+
+        <section class="r-section" data-section="intro">
+            <h2 class="r-section__title">자기소개</h2>
+            <p class="r-text">결제 · 정산 도메인에서 4년간 Spring Boot 기반 API 를 설계하고 운영했습니다. 장애를 줄이는 설계와 읽기 쉬운 코드를 중요하게 생각합니다.</p>
+        </section>
+
+        <section class="r-section" data-section="cover">
+            <h2 class="r-section__title">자기소개서</h2>
+            <article class="r-item">
+                <div class="r-item__head"><h3 class="r-item__title">지원동기</h3></div>
+                <p class="r-text">많은 사용자가 매일 쓰는 결제 서비스를 더 안정적으로 만들고 싶어 지원했습니다.</p>
+            </article>
+        </section>
+
+        <section class="r-section" data-section="experience">
+            <h2 class="r-section__title">경력</h2>
+            <article class="r-item">
+                <div class="r-item__head">
+                    <div>
+                        <h3 class="r-item__title">(주)예시페이</h3>
+                        <p class="r-item__sub">백엔드 개발</p>
+                    </div>
+                    <span class="r-period"><span>2022.01</span> ~ <span>재직 중</span></span>
+                </div>
+                <p class="r-text">결제 승인 · 취소 API 설계, 정산 배치 성능 개선 (처리 시간 40% 단축)</p>
+            </article>
+            <article class="r-item">
+                <div class="r-item__head">
+                    <div>
+                        <h3 class="r-item__title">(주)스타트업</h3>
+                        <p class="r-item__sub">웹 개발</p>
+                    </div>
+                    <span class="r-period"><span>2020.03</span> ~ <span>2021.12</span></span>
+                </div>
+                <p class="r-text">사내 관리자 페이지와 주문 API 개발</p>
+            </article>
+        </section>
+
+        <section class="r-section" data-section="project">
+            <h2 class="r-section__title">프로젝트</h2>
+            <article class="r-item">
+                <div class="r-item__head">
+                    <div>
+                        <h3 class="r-item__title">정산 시스템 개편</h3>
+                        <p class="r-item__sub">백엔드 리드</p>
+                    </div>
+                    <span class="r-period"><span>2023.03</span> ~ <span>2023.09</span></span>
+                </div>
+                <p class="r-text">일 단위 정산을 실시간 정산으로 바꾼 프로젝트</p>
+                <ul class="r-tags"><li>Java</li><li>Spring Boot</li><li>MyBatis</li><li>PostgreSQL</li></ul>
+                <p class="r-url">https://example.com/settlement</p>
+            </article>
+        </section>
+
+        <section class="r-section" data-section="education">
+            <h2 class="r-section__title">학력</h2>
+            <article class="r-item">
+                <div class="r-item__head">
+                    <div>
+                        <h3 class="r-item__title">한국대학교</h3>
+                        <p class="r-item__sub">컴퓨터공학 · 학사</p>
+                    </div>
+                    <span class="r-period"><span>2016.03</span> ~ <span>2020.02</span></span>
+                </div>
+            </article>
+        </section>
+
+        <section class="r-section" data-section="certificate">
+            <h2 class="r-section__title">자격증</h2>
+            <article class="r-item">
+                <div class="r-item__head">
+                    <div>
+                        <h3 class="r-item__title">정보처리기사</h3>
+                        <p class="r-item__sub">한국산업인력공단</p>
+                    </div>
+                    <span class="r-period">2020.11</span>
+                </div>
+            </article>
+        </section>
+
+        <section class="r-section" data-section="skill">
+            <h2 class="r-section__title">기술 스택</h2>
+            <ul class="r-tags">
+                <li data-level="5" data-category="Backend">Java</li>
+                <li data-level="5" data-category="Backend">Spring Boot</li>
+                <li data-level="4" data-category="Backend">MyBatis</li>
+                <li data-level="4" data-category="DB">PostgreSQL</li>
+                <li data-level="3" data-category="DevOps">Docker</li>
+            </ul>
+        </section>
+
+        <section class="r-section" data-section="link">
+            <h2 class="r-section__title">외부 링크</h2>
+            <ul class="r-links">
+                <li data-type="github"><span class="r-link__name">깃허브</span><span class="r-link__url">https://github.com/example</span></li>
+                <li data-type="blog"><span class="r-link__name">기술 블로그</span><span class="r-link__url">https://blog.example.com</span></li>
+            </ul>
+        </section>
+    </div>
+    <div data-partial="publishBar"></div>
+    <script>
+        // 서버가 body[data-template-html/css] 에 넣는 값 (기본 템플릿 '모던 사이드바')
+        document.body.dataset.templateHtml = `<div class="r-top">{{profile}}</div>
+<div class="r-columns">
+  <aside class="r-aside">
+    {{skill}}
+    {{education}}
+    {{certificate}}
+    {{link}}
+  </aside>
+  <main class="r-main">
+    {{intro}}
+    {{cover}}
+    {{experience}}
+    {{project}}
+  </main>
+</div>`;
+        document.body.dataset.templateCss = `:root {
+  --primary: #2563EB;
+  --font: 'Pretendard';
+}
+
+.resume { padding-top: 0; }
+
+.r-header {
+  margin: 0 -52px 32px;
+  padding: 40px 52px 28px;
+  background: var(--primary);
+  color: #fff;
+}
+.r-contact { color: rgba(255, 255, 255, .85); }
+
+.r-columns {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+}
+.r-aside {
+  align-self: start;
+  padding: 18px;
+  border-radius: 8px;
+  background: var(--tint);
+}
+.r-aside .r-item__head { flex-direction: column; gap: 2px; }
+.r-aside .r-tags li { background: #fff; }
+
+.r-section__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.r-section__title::before {
+  content: "";
+  width: 4px;
+  height: 1em;
+  border-radius: 2px;
+  background: var(--primary);
+}
+.r-main .r-item {
+  padding-left: 12px;
+  border-left: 2px solid var(--line);
+}`;
+    </script>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

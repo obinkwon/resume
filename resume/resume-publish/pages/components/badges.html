@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>뱃지 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/resume-list.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<body>
+    <main class="pub-page">
+        <h1 class="pub-page-title">뱃지</h1>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">기본 · 상태 <code>.badge</code></h2>
+            <div class="pub-demo pub-row">
+                <span class="badge">기본</span>
+                <span class="badge gray">3</span>
+                <span class="badge success">저장됨</span>
+                <span class="badge danger">오류</span>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">출처 뱃지 <code>.source-badge--*</code></h2>
+            <p class="pub-note">이력서 목록 카드에 붙습니다. 값은 <code>ResumeSource</code> enum 의 cssKey 이고, 파일에서 가져온 출처는 업로드 아이콘이 붙습니다.</p>
+            <div class="pub-demo pub-row">
+                <span class="badge source-badge source-badge--direct"><span>직접 작성</span></span>
+                <span class="badge source-badge source-badge--saramin"><i class="icon icon-upload sm" aria-hidden="true"></i><span>사람인</span></span>
+                <span class="badge source-badge source-badge--wanted"><i class="icon icon-upload sm" aria-hidden="true"></i><span>원티드</span></span>
+                <span class="badge source-badge source-badge--jobkorea"><i class="icon icon-upload sm" aria-hidden="true"></i><span>잡코리아</span></span>
+                <span class="badge source-badge source-badge--remember"><i class="icon icon-upload sm" aria-hidden="true"></i><span>리멤버</span></span>
+                <span class="badge source-badge source-badge--linkedin"><i class="icon icon-upload sm" aria-hidden="true"></i><span>LinkedIn</span></span>
+                <span class="badge source-badge source-badge--file"><i class="icon icon-upload sm" aria-hidden="true"></i><span>파일 업로드</span></span>
+            </div>
+        </section>
+    </main>
+    <div data-partial="publishBar"></div>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

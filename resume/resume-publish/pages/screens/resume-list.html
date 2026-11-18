@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>이력서 목록 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/resume-list.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<!-- 원본 : resume-web templates/thymeleaf/resume/resume-list.html -->
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1>이력서 템플릿 목록</h1>
+            <div class="btn-group">
+                <a class="btn secondary" href="template-list.html"><i class="icon icon-copy"></i> 내 템플릿</a>
+                <a class="btn primary" href="resume-form.html"><i class="icon icon-plus"></i> 새 이력서 작성</a>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="resume-list">
+                <div class="resume-card">
+                    <div class="resume-card__head">
+                        <h3 class="ellipsis" title="백엔드 개발자 이력서">백엔드 개발자 이력서</h3>
+                        <button type="button" class="btn icon sm danger-ghost resume-card__delete" title="삭제" aria-label="백엔드 개발자 이력서 삭제"><i class="icon icon-trash sm"></i></button>
+                    </div>
+                    <p class="resume-card__intro">결제 · 정산 도메인에서 4년간 Spring Boot 기반 API 를 설계하고 운영했습니다.</p>
+                    <div class="resume-card__meta">
+                        <span class="badge source-badge source-badge--direct"><span>직접 작성</span></span>
+                        <time class="resume-card__date" title="마지막 수정 2026-11-15 10:00">3일 전 수정</time>
+                    </div>
+                    <div class="actions">
+                        <a href="resume-form.html"><i class="icon icon-edit sm"></i> 수정</a>
+                        <a class="template" href="resume-template.html"><i class="icon icon-copy sm"></i> 템플릿</a>
+                        <a href="resume-preview.html"><i class="icon icon-eye sm"></i> 미리보기</a>
+                    </div>
+                </div>
+                <div class="resume-card">
+                    <div class="resume-card__head">
+                        <h3 class="ellipsis" title="사람인에서 가져온 이력서">사람인에서 가져온 이력서</h3>
+                        <button type="button" class="btn icon sm danger-ghost resume-card__delete" title="삭제" aria-label="삭제"><i class="icon icon-trash sm"></i></button>
+                    </div>
+                    <p class="resume-card__intro">사용자 경험을 먼저 생각하는 프론트엔드 개발자입니다.</p>
+                    <div class="resume-card__meta">
+                        <span class="badge source-badge source-badge--saramin" title="원본 파일: 사람인_이력서.pdf"><i class="icon icon-upload sm" aria-hidden="true"></i><span>사람인</span></span>
+                        <time class="resume-card__date">어제 수정</time>
+                    </div>
+                    <div class="actions">
+                        <a href="resume-form.html"><i class="icon icon-edit sm"></i> 수정</a>
+                        <a class="template" href="resume-template.html"><i class="icon icon-copy sm"></i> 템플릿</a>
+                        <a href="resume-preview.html"><i class="icon icon-eye sm"></i> 미리보기</a>
+                    </div>
+                </div>
+                <div class="resume-card">
+                    <div class="resume-card__head">
+                        <h3 class="ellipsis" title="제목이 아주 길어서 한 줄을 넘는 이력서의 말줄임 확인용 더미 제목">제목이 아주 길어서 한 줄을 넘는 이력서의 말줄임 확인용 더미 제목</h3>
+                        <button type="button" class="btn icon sm danger-ghost resume-card__delete" title="삭제" aria-label="삭제"><i class="icon icon-trash sm"></i></button>
+                    </div>
+                    <p class="resume-card__intro is-empty">간단 소개가 아직 없어요</p>
+                    <div class="resume-card__meta">
+                        <span class="badge source-badge source-badge--file"><i class="icon icon-upload sm" aria-hidden="true"></i><span>파일 업로드</span></span>
+                        <time class="resume-card__date">방금 전 수정</time>
+                    </div>
+                    <div class="actions">
+                        <a href="resume-form.html"><i class="icon icon-edit sm"></i> 수정</a>
+                        <a class="template" href="resume-template.html"><i class="icon icon-copy sm"></i> 템플릿</a>
+                        <a class="is-disabled" aria-disabled="true" title="템플릿을 먼저 선택해 주세요"><i class="icon icon-eye sm"></i> 미리보기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 이력서가 하나도 없을 때 (실제 화면에서는 목록 대신 보임) -->
+        <div class="section">
+            <div class="empty-state">
+                <p>아직 작성된 이력서가 없어요. 새 이력서를 만들어보세요!</p>
+                <a class="btn outline" href="resume-form.html"><i class="icon icon-plus"></i> 첫 이력서 작성하기</a>
+            </div>
+        </div>
+    </div>
+    <div data-partial="publishBar"></div>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

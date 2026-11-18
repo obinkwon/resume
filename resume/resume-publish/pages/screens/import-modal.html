@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>이력서 불러오기 모달 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/resume-form.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<!-- 원본 : resume-web templates/thymeleaf/fragments/import-modal.html ("내 다른 이력서" 탭에서 이력서를 고른 상태) -->
+<body>
+    <div class="container form-page">
+        <div class="page-header">
+            <div class="page-header__left">
+                <a class="btn secondary sm" href="resume-list.html"><i class="icon icon-arrow-left sm"></i>목록</a>
+                <h1>이력서 수정</h1>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn outline" onclick="document.getElementById('importModal').showModal()"><i class="icon icon-download"></i> 이력서 불러오기</button>
+            </div>
+        </div>
+    </div>
+
+    <dialog class="modal" id="importModal" aria-labelledby="importTitle">
+        <div class="modal__header">
+            <h2 id="importTitle">이력서 불러오기</h2>
+            <button type="button" class="btn icon ghost" aria-label="닫기" onclick="this.closest('dialog').close()"><i class="icon icon-close"></i></button>
+        </div>
+
+        <div class="modal__body">
+            <section class="import-step">
+                <h3 class="import-step__title">
+                    <span><span class="import-step__num">1</span>가져올 곳</span>
+                </h3>
+                <div class="import-source" role="tablist" aria-label="가져올 곳">
+                    <button type="button" class="import-source__tab" role="tab" aria-selected="true"><i class="icon icon-copy sm"></i> 내 다른 이력서</button>
+                    <button type="button" class="import-source__tab" role="tab" aria-selected="false" onclick="location.href='import-modal-file.html'"><i class="icon icon-upload sm"></i> 이력서 파일</button>
+                </div>
+                <div role="tabpanel">
+                    <ul class="import-resumes" role="radiogroup" aria-label="가져올 이력서">
+                        <li><label class="resume-option"><input type="radio" name="importResume" checked><span class="resume-option__title">사람인에서 가져온 이력서</span><span class="resume-option__date">2026-11-17</span></label></li>
+                        <li><label class="resume-option"><input type="radio" name="importResume"><span class="resume-option__title">프론트엔드 지원용</span><span class="resume-option__date">2026-11-02</span></label></li>
+                        <li><label class="resume-option"><input type="radio" name="importResume"><span class="resume-option__title">제목이 아주 길어서 한 줄을 넘는 이력서의 말줄임 확인용 더미 제목</span><span class="resume-option__date">2026-10-21</span></label></li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="import-options">
+                <section class="import-step">
+                    <h3 class="import-step__title">
+                        <span><span class="import-step__num">2</span>가져올 항목</span>
+                        <label class="check import-all"><input type="checkbox" checked><span>전체 선택</span></label>
+                    </h3>
+                    <ul class="import-sections">
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">인적 사항</span><span class="section-option__count">있음</span></label></li>
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">외부 링크</span><span class="section-option__count">2개</span></label></li>
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">간단 소개</span><span class="section-option__count">있음</span></label></li>
+                        <li><label class="section-option is-empty"><input type="checkbox" disabled><span class="section-option__name">자기소개서</span><span class="section-option__count">없음</span></label></li>
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">기술 스택</span><span class="section-option__count">6개</span></label></li>
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">학력</span><span class="section-option__count">1개</span></label></li>
+                        <li><label class="section-option is-empty"><input type="checkbox" disabled><span class="section-option__name">자격증</span><span class="section-option__count">없음</span></label></li>
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">경력</span><span class="section-option__count">2개</span></label></li>
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">프로젝트</span><span class="section-option__count">3개</span></label></li>
+                    </ul>
+                </section>
+
+                <section class="import-step">
+                    <h3 class="import-step__title">
+                        <span><span class="import-step__num">3</span>가져오는 방식</span>
+                    </h3>
+                    <div class="import-modes" role="radiogroup" aria-label="가져오는 방식">
+                        <label class="mode-option">
+                            <input type="radio" name="importMode" value="append" checked>
+                            <span><strong>추가</strong><small>지금 항목 뒤에 붙여요. 같은 기술·링크는 건너뛰어요.</small></span>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="importMode" value="replace">
+                            <span><strong>바꾸기</strong><small>선택한 섹션의 지금 항목을 지우고 채워요.</small></span>
+                        </label>
+                    </div>
+                    <p class="import-hint">인적 사항·간단 소개는 하나뿐이라 값이 있는 칸만 덮어써요.</p>
+                </section>
+            </div>
+        </div>
+
+        <div class="modal__footer">
+            <span class="text-sm text-muted" aria-live="polite">7개 섹션 선택</span>
+            <div class="btn-group">
+                <button type="button" class="btn secondary" onclick="this.closest('dialog').close()">취소</button>
+                <button type="button" class="btn primary">가져오기</button>
+            </div>
+        </div>
+    </dialog>
+    <div data-partial="publishBar"></div>
+    <script>document.getElementById("importModal").showModal();</script>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

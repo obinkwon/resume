@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>카드 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/resume-list.css" rel="stylesheet">
+    <link href="../../css/resume-template-list.css" rel="stylesheet">
+    <link href="../../css/resume-template.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<body>
+    <main class="pub-page">
+        <h1 class="pub-page-title">카드</h1>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">이력서 카드 <code>.resume-card</code></h2>
+            <p class="pub-note">템플릿이 없으면 미리보기 링크에 <code>.is-disabled</code> 를 붙이고 href 를 뺍니다. 소개가 없으면 <code>.is-empty</code> 안내 문구.</p>
+            <div class="pub-demo is-bg">
+                <div class="resume-list">
+                    <div class="resume-card">
+                        <div class="resume-card__head">
+                            <h3 class="ellipsis" title="백엔드 개발자 이력서">백엔드 개발자 이력서</h3>
+                            <button type="button" class="btn icon sm danger-ghost resume-card__delete" title="삭제" aria-label="백엔드 개발자 이력서 삭제"><i class="icon icon-trash sm"></i></button>
+                        </div>
+                        <p class="resume-card__intro">결제 · 정산 도메인에서 4년간 Spring Boot 기반 API 를 설계하고 운영했습니다.</p>
+                        <div class="resume-card__meta">
+                            <span class="badge source-badge source-badge--direct"><span>직접 작성</span></span>
+                            <time class="resume-card__date" datetime="2026-11-15T10:00:00" title="마지막 수정 2026-11-15 10:00">3일 전 수정</time>
+                        </div>
+                        <div class="actions">
+                            <a href="#none"><i class="icon icon-edit sm"></i> 수정</a>
+                            <a class="template" href="#none"><i class="icon icon-copy sm"></i> 템플릿</a>
+                            <a href="#none"><i class="icon icon-eye sm"></i> 미리보기</a>
+                        </div>
+                    </div>
+                    <div class="resume-card">
+                        <div class="resume-card__head">
+                            <h3 class="ellipsis" title="제목이 아주 길어서 한 줄을 넘는 이력서의 말줄임 확인용 더미 제목">제목이 아주 길어서 한 줄을 넘는 이력서의 말줄임 확인용 더미 제목</h3>
+                            <button type="button" class="btn icon sm danger-ghost resume-card__delete" title="삭제" aria-label="삭제"><i class="icon icon-trash sm"></i></button>
+                        </div>
+                        <p class="resume-card__intro is-empty">간단 소개가 아직 없어요</p>
+                        <div class="resume-card__meta">
+                            <span class="badge source-badge source-badge--saramin" title="원본 파일: 사람인_이력서.pdf"><i class="icon icon-upload sm" aria-hidden="true"></i><span>사람인</span></span>
+                            <time class="resume-card__date">방금 전 수정</time>
+                        </div>
+                        <div class="actions">
+                            <a href="#none"><i class="icon icon-edit sm"></i> 수정</a>
+                            <a class="template" href="#none"><i class="icon icon-copy sm"></i> 템플릿</a>
+                            <a class="is-disabled" aria-disabled="true" title="템플릿을 먼저 선택해 주세요"><i class="icon icon-eye sm"></i> 미리보기</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">미니 썸네일 <code>.mini[data-layout]</code></h2>
+            <p class="pub-note">템플릿에 이미지가 없을 때 칸 구성(single · sidebar · split) · 대표 색(<code>--t-color</code>) · 색 헤더(<code>data-banner</code>)로 그립니다.</p>
+            <div class="pub-demo">
+                <div class="template-grid" role="radiogroup" aria-label="템플릿">
+                    <button type="button" class="template-card" role="radio" aria-checked="true">
+                        <span class="template-card__thumb"><span class="mini" data-layout="single" data-banner="false" style="--t-color:#2D3748"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></span>
+                        <span class="template-card__name">심플</span>
+                        <span class="template-card__desc">여백이 넉넉한 한 컬럼 기본형</span>
+                    </button>
+                    <button type="button" class="template-card" role="radio" aria-checked="false">
+                        <span class="template-card__thumb"><span class="mini" data-layout="sidebar" data-banner="true" style="--t-color:#2563EB"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></span>
+                        <span class="template-card__name">모던 사이드바</span>
+                        <span class="template-card__desc">색 헤더와 왼쪽 사이드바가 있는 디자인</span>
+                    </button>
+                    <button type="button" class="template-card" role="radio" aria-checked="false" aria-busy="true">
+                        <span class="template-card__thumb"><span class="mini" data-layout="split" data-banner="true" style="--t-color:#0F766E"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></span>
+                        <span class="template-card__name">모던 분할 (불러오는 중)</span>
+                        <span class="template-card__desc">좌우 2단으로 정보를 한눈에</span>
+                    </button>
+                </div>
+                <p class="pub-note" style="margin-top:.75rem">템플릿 선택 화면의 카드 <code>.template-card</code>: <code>aria-checked</code> 선택, <code>aria-busy</code> 불러오는 중.</p>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">템플릿 카드 <code>.tl-card</code></h2>
+            <p class="pub-note">내 템플릿 화면. 내 것은 편집 · 삭제, 기본 템플릿은 "기본" 뱃지와 복사 링크.</p>
+            <div class="pub-demo is-bg">
+                <div class="tl-grid">
+                    <article class="tl-card">
+                        <a class="tl-thumb template-card__thumb" href="#none" aria-label="내 사이드바 편집"><span class="mini" data-layout="sidebar" data-banner="true" style="--t-color:#7C3AED"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></a>
+                        <div class="tl-card__head">
+                            <h3 class="ellipsis" title="내 사이드바">내 사이드바</h3>
+                            <button type="button" class="btn icon sm danger-ghost tl-card__delete" title="삭제" aria-label="내 사이드바 삭제"><i class="icon icon-trash sm" aria-hidden="true"></i></button>
+                        </div>
+                        <p class="tl-card__desc">보라색 헤더, 왼쪽에 기술 · 학력</p>
+                        <div class="actions"><a href="#none"><i class="icon icon-edit sm" aria-hidden="true"></i> 편집</a></div>
+                    </article>
+                    <article class="tl-card">
+                        <a class="tl-thumb template-card__thumb" href="#none" aria-label="설명 없는 템플릿 편집"><span class="mini" data-layout="single" data-banner="false" style="--t-color:#2D3748"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></a>
+                        <div class="tl-card__head">
+                            <h3 class="ellipsis">설명 없는 템플릿</h3>
+                            <button type="button" class="btn icon sm danger-ghost tl-card__delete" title="삭제" aria-label="삭제"><i class="icon icon-trash sm" aria-hidden="true"></i></button>
+                        </div>
+                        <p class="tl-card__desc is-empty">설명이 없어요</p>
+                        <div class="actions"><a href="#none"><i class="icon icon-edit sm" aria-hidden="true"></i> 편집</a></div>
+                    </article>
+                    <article class="tl-card">
+                        <a class="tl-thumb template-card__thumb" href="#none" aria-label="심플 복사해서 만들기"><span class="mini" data-layout="single" data-banner="false" style="--t-color:#2D3748"><span class="mini__head"></span><span class="mini__body"><span class="mini__col"></span><span class="mini__col mini__col--aside"></span></span></span></a>
+                        <div class="tl-card__head">
+                            <h3 class="ellipsis">심플</h3>
+                            <span class="badge">기본</span>
+                        </div>
+                        <p class="tl-card__desc">여백이 넉넉한 한 컬럼 기본형</p>
+                        <div class="actions"><a class="primary" href="#none"><i class="icon icon-copy sm" aria-hidden="true"></i> 복사해서 만들기</a></div>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div data-partial="publishBar"></div>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

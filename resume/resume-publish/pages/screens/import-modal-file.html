@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>이력서 불러오기 모달 (파일) - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/resume-form.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<!-- 원본 : resume-web templates/thymeleaf/fragments/import-modal.html ("이력서 파일" 탭) -->
+<body>
+    <div class="container form-page">
+        <div class="page-header">
+            <div class="page-header__left">
+                <a class="btn secondary sm" href="resume-list.html"><i class="icon icon-arrow-left sm"></i>목록</a>
+                <h1>이력서 작성</h1>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn outline" onclick="document.getElementById('importModal').showModal()"><i class="icon icon-download"></i> 이력서 불러오기</button>
+            </div>
+        </div>
+
+        <!-- 끌어놓기 칸 상태별 모양 (모달 뒤에서 확인용) -->
+        <div class="section">
+            <div class="section-header"><h2>끌어놓기 칸 상태 <code>.import-drop</code></h2></div>
+            <p class="text-sm text-muted">기본 · 불러오는 중(<code>.is-loading</code> + <code>aria-busy</code>) · 완료(<code>.is-done</code>) · 실패(<code>.is-error</code>)</p>
+            <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px">
+                <label class="import-drop" aria-busy="false">
+                    <input type="file" accept=".pdf,.docx,.hwpx">
+                    <i class="icon icon-upload import-drop__icon" aria-hidden="true"></i>
+                    <span class="import-drop__spinner" aria-hidden="true"></span>
+                    <strong class="import-drop__title">파일을 끌어다 놓거나 눌러서 선택</strong>
+                    <small class="import-drop__desc">PDF · Word(.docx) · 한글(.hwpx) · 10MB 이하</small>
+                </label>
+                <label class="import-drop is-loading" aria-busy="true">
+                    <input type="file" accept=".pdf,.docx,.hwpx">
+                    <i class="icon icon-upload import-drop__icon" aria-hidden="true"></i>
+                    <span class="import-drop__spinner" aria-hidden="true"></span>
+                    <strong class="import-drop__title">사람인_이력서.pdf</strong>
+                    <small class="import-drop__desc">내용을 읽는 중…</small>
+                </label>
+                <label class="import-drop is-done" aria-busy="false">
+                    <input type="file" accept=".pdf,.docx,.hwpx">
+                    <i class="icon icon-check import-drop__icon" aria-hidden="true"></i>
+                    <span class="import-drop__spinner" aria-hidden="true"></span>
+                    <strong class="import-drop__title">사람인_이력서.pdf</strong>
+                    <small class="import-drop__desc">사람인 양식으로 읽었어요</small>
+                </label>
+                <label class="import-drop is-error" aria-busy="false">
+                    <input type="file" accept=".pdf,.docx,.hwpx">
+                    <i class="icon icon-close import-drop__icon" aria-hidden="true"></i>
+                    <span class="import-drop__spinner" aria-hidden="true"></span>
+                    <strong class="import-drop__title">이력서.hwp</strong>
+                    <small class="import-drop__desc">지원하지 않는 파일 형식이에요. PDF · DOCX · HWPX 만 올릴 수 있어요.</small>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <dialog class="modal" id="importModal" aria-labelledby="importTitle">
+        <div class="modal__header">
+            <h2 id="importTitle">이력서 불러오기</h2>
+            <button type="button" class="btn icon ghost" aria-label="닫기" onclick="this.closest('dialog').close()"><i class="icon icon-close"></i></button>
+        </div>
+
+        <div class="modal__body">
+            <section class="import-step">
+                <h3 class="import-step__title">
+                    <span><span class="import-step__num">1</span>가져올 곳</span>
+                </h3>
+                <div class="import-source" role="tablist" aria-label="가져올 곳">
+                    <button type="button" class="import-source__tab" role="tab" aria-selected="false" onclick="location.href='import-modal.html'"><i class="icon icon-copy sm"></i> 내 다른 이력서</button>
+                    <button type="button" class="import-source__tab" role="tab" aria-selected="true"><i class="icon icon-upload sm"></i> 이력서 파일</button>
+                </div>
+                <div role="tabpanel">
+                    <label class="import-drop is-done" aria-busy="false">
+                        <input type="file" accept=".pdf,.docx,.hwpx">
+                        <i class="icon icon-check import-drop__icon" aria-hidden="true"></i>
+                        <span class="import-drop__spinner" aria-hidden="true"></span>
+                        <strong class="import-drop__title">사람인_이력서.pdf</strong>
+                        <small class="import-drop__desc" aria-live="polite">사람인 양식으로 읽었어요</small>
+                    </label>
+                    <ul class="import-warnings" role="status">
+                        <li>경력 1건은 직무를 찾지 못했어요. 가져온 뒤 직무를 채워 주세요.</li>
+                        <li>날짜 형식을 알 수 없는 학력 1건은 기간을 비워 뒀어요.</li>
+                    </ul>
+                    <p class="import-hint">다른 구직 사이트에서 받은 이력서 파일을 자동으로 나눠 채워요. 틀린 곳이 있을 수 있으니 가져온 뒤 꼭 확인해 주세요.</p>
+                </div>
+            </section>
+
+            <div class="import-options">
+                <section class="import-step">
+                    <h3 class="import-step__title">
+                        <span><span class="import-step__num">2</span>가져올 항목</span>
+                        <label class="check import-all"><input type="checkbox"><span>전체 선택</span></label>
+                    </h3>
+                    <ul class="import-sections">
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">인적 사항</span><span class="section-option__count">있음</span></label></li>
+                        <li><label class="section-option is-empty"><input type="checkbox" disabled><span class="section-option__name">외부 링크</span><span class="section-option__count">없음</span></label></li>
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">간단 소개</span><span class="section-option__count">있음</span></label></li>
+                        <li><label class="section-option"><input type="checkbox"><span class="section-option__name">자기소개서</span><span class="section-option__count">2개</span></label></li>
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">기술 스택</span><span class="section-option__count">8개</span></label></li>
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">학력</span><span class="section-option__count">2개</span></label></li>
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">자격증</span><span class="section-option__count">1개</span></label></li>
+                        <li><label class="section-option"><input type="checkbox" checked><span class="section-option__name">경력</span><span class="section-option__count">2개</span></label></li>
+                        <li><label class="section-option is-empty"><input type="checkbox" disabled><span class="section-option__name">프로젝트</span><span class="section-option__count">없음</span></label></li>
+                    </ul>
+                </section>
+
+                <section class="import-step">
+                    <h3 class="import-step__title">
+                        <span><span class="import-step__num">3</span>가져오는 방식</span>
+                    </h3>
+                    <div class="import-modes" role="radiogroup" aria-label="가져오는 방식">
+                        <label class="mode-option">
+                            <input type="radio" name="importMode" value="append">
+                            <span><strong>추가</strong><small>지금 항목 뒤에 붙여요. 같은 기술·링크는 건너뛰어요.</small></span>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="importMode" value="replace" checked>
+                            <span><strong>바꾸기</strong><small>선택한 섹션의 지금 항목을 지우고 채워요.</small></span>
+                        </label>
+                    </div>
+                    <p class="import-hint">인적 사항·간단 소개는 하나뿐이라 값이 있는 칸만 덮어써요.</p>
+                </section>
+            </div>
+        </div>
+
+        <div class="modal__footer">
+            <span class="text-sm text-muted" aria-live="polite">6개 섹션 선택</span>
+            <div class="btn-group">
+                <button type="button" class="btn secondary" onclick="this.closest('dialog').close()">취소</button>
+                <button type="button" class="btn primary">가져오기</button>
+            </div>
+        </div>
+    </dialog>
+    <div data-partial="publishBar"></div>
+    <script>document.getElementById("importModal").showModal();</script>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

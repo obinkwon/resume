@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>버튼 · 아이콘 - 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../css/common.css" rel="stylesheet">
+    <link href="../../css/resume-form.css" rel="stylesheet">
+    <link href="../../publish/publish.css" rel="stylesheet">
+</head>
+<body>
+    <main class="pub-page">
+        <h1 class="pub-page-title">버튼 · 아이콘</h1>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">종류 <code>.btn.primary</code> 등</h2>
+            <p class="pub-note">버튼은 <code>.btn</code> + 종류 클래스 하나. 화면에서 가장 중요한 동작 하나만 primary 를 씁니다.</p>
+            <div class="pub-demo">
+                <div class="pub-row">
+                    <button type="button" class="btn primary"><i class="icon icon-save"></i>저장</button>
+                    <button type="button" class="btn secondary">취소</button>
+                    <button type="button" class="btn outline"><i class="icon icon-download"></i> 이력서 불러오기</button>
+                    <button type="button" class="btn ghost">되돌리기</button>
+                    <button type="button" class="btn danger">삭제</button>
+                    <button type="button" class="btn danger-ghost">삭제</button>
+                </div>
+                <div class="pub-row">
+                    <span class="pub-label">비활성 (disabled · .disabled)</span>
+                    <button type="button" class="btn primary" disabled>가져오기</button>
+                    <button type="button" class="btn ghost" disabled>되돌리기</button>
+                    <a class="btn secondary disabled" href="#none" aria-disabled="true">링크 버튼</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">크기 <code>.sm</code> <code>.lg</code> <code>.block</code></h2>
+            <div class="pub-demo">
+                <div class="pub-row">
+                    <button type="button" class="btn primary sm"><i class="icon icon-save sm"></i>저장</button>
+                    <button type="button" class="btn primary"><i class="icon icon-save"></i>저장</button>
+                    <button type="button" class="btn primary lg"><i class="icon icon-save"></i>저장</button>
+                </div>
+                <div class="pub-row" style="max-width: 360px">
+                    <button type="button" class="btn primary block">시작하기 <i class="icon icon-arrow-right sm"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">아이콘 버튼 <code>.btn.icon</code></h2>
+            <p class="pub-note">글자가 없으니 <code>aria-label</code> 을 꼭 넣습니다.</p>
+            <div class="pub-demo pub-row">
+                <button type="button" class="btn icon ghost" aria-label="닫기"><i class="icon icon-close"></i></button>
+                <button type="button" class="btn icon danger-ghost" aria-label="삭제"><i class="icon icon-close"></i></button>
+                <button type="button" class="btn icon sm danger-ghost" aria-label="삭제"><i class="icon icon-trash sm"></i></button>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">버튼 묶음 <code>.btn-group</code></h2>
+            <div class="pub-demo">
+                <div class="btn-group">
+                    <span class="text-sm text-muted">저장됨</span>
+                    <button type="button" class="btn ghost sm" disabled>되돌리기</button>
+                    <button type="button" class="btn secondary sm"><i class="icon icon-printer sm"></i>PDF 다운로드</button>
+                    <button type="button" class="btn primary sm"><i class="icon icon-save sm"></i>저장</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="pub-section">
+            <h2 class="pub-section-title">아이콘 <code>.icon.icon-*</code></h2>
+            <p class="pub-note">CSS mask 라서 글자색을 따라갑니다. <code>.sm</code> 14px · 기본 16px · <code>.lg</code> 20px. <code>icon-user</code> · <code>icon-link</code> 는 resume-form.css 에 있습니다.</p>
+            <div class="pub-demo pub-row" id="icons"></div>
+        </section>
+    </main>
+    <div data-partial="publishBar"></div>
+    <script>
+        ["arrow-left","arrow-right","plus","close","check","edit","trash","save","download","copy","eye","search","upload","file","printer","user","link"].forEach(function(name){
+            document.getElementById("icons").insertAdjacentHTML("beforeend",
+                '<span class="badge gray"><i class="icon icon-' + name + ' lg"></i> icon-' + name + '</span>');
+        });
+    </script>
+    <script src="../../publish/partials.js"></script>
+    <script src="../../publish/publish.js"></script>
+</body>
+</html>

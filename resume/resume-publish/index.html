@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <title>이력서 빌더 퍼블리싱</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/common.css" rel="stylesheet">
+    <link href="publish/publish.css" rel="stylesheet">
+</head>
+<body>
+    <header class="pub-index-head">
+        <div class="container pub-index-brand">
+            <h1>이력서 빌더 퍼블리싱 산출물</h1>
+            <p>사이트 CSS 를 수정하거나 추가할 때 화면으로 확인하고 저장하는 곳입니다.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- 그룹 · 페이지 목록은 publish/catalog.js 에서 읽어 index.js 가 그림 -->
+        <div id="groups"></div>
+
+        <section class="pub-how">
+            <h2>산출물 추가 방법</h2>
+            <ol>
+                <li><code>css/</code> 의 CSS 를 수정하거나 새 파일을 추가합니다. resume-web 의 <code>static/css/</code> 와 구조가 같아서 파일을 그대로 옮길 수 있습니다.</li>
+                <li><code>pages/changes/_template.html</code> 을 복사해 <code>yyyyMMdd-이름.html</code> 로 저장하고, 변경 내용과 미리보기를 채웁니다. 기존 컴포넌트 · 화면 페이지가 바뀌면 함께 고칩니다.</li>
+                <li><code>publish/catalog.js</code> 의 해당 그룹에 페이지를 등록하면 이 목록에 나타납니다.</li>
+                <li>확정되면 바뀐 CSS 를 resume-web 의 같은 경로로 옮기고, 산출물의 반영 상태를 바꿉니다.</li>
+            </ol>
+        </section>
+    </main>
+
+    <script src="publish/catalog.js"></script>
+    <script src="publish/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+/* =========================================================
+   resume-template-list.css  (common.css 토큰·버튼 사용)
+   썸네일 칸 기본 모양(.template-card__thumb)과 미니 그림(.mini)은 common.css
+   ========================================================= */
+
+/* ===== 상단 ===== */
+.page-header { gap: 16px; }
+.page-header__left {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+}
+.page-header__left .btn { margin-top: 2px; }
+.page-header__left h1 { margin: 0; }
+
+/* ===== 섹션 제목 ===== */
+.tl-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    font-size: 16px;
+}
+
+/* ===== 카드 목록 ===== */
+.tl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.tl-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    background: var(--c-surface);
+    border: 1px solid #eef0f4;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .2s ease, transform .2s ease, opacity .2s ease;
+}
+.tl-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+/* 썸네일 칸 (기본 모양은 common.css 의 .template-card__thumb) : 누르면 편집·복사로 이동 */
+.tl-thumb:hover { border-color: var(--c-border-strong); }
+.tl-thumb:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* 이 화면의 카드는 템플릿 선택 화면보다 커서 미니 그림 여백·머리 높이를 조금 키움 */
+.tl-thumb .mini {
+    inset: 14px;
+    gap: 10px;
+}
+.tl-thumb .mini__head { height: 20px; }
+.tl-thumb .mini__body { gap: 10px; }
+.tl-thumb .mini[data-banner="true"] .mini__head {
+    height: 26px;
+    margin: -14px -14px 0;
+}
+
+/* 제목 + 삭제 */
+.tl-card__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+.tl-card__head h3 {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-size: 16px;
+}
+.tl-card__head .badge { flex-shrink: 0; }
+
+/* 평소엔 흐리게, 카드에 마우스를 올리거나 키보드로 오면 또렷하게 */
+.tl-card__delete {
+    margin: -4px -6px 0 0;
+    opacity: .55;
+    transition: opacity var(--transition), background var(--transition), color var(--transition);
+}
+.tl-card:hover .tl-card__delete,
+.tl-card__delete:focus-visible { opacity: 1; }
+
+/* 설명 : 2줄까지 */
+.tl-card__desc {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    min-height: calc(1.5em * 2);
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--c-text-sub);
+    word-break: break-all;
+}
+.tl-card__desc.is-empty {
+    color: var(--c-text-faint);
+    font-style: italic;
+}
+
+/* 아래 버튼 줄 (resume-list 카드와 같은 모양) */
+.tl-card .actions {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    gap: 8px;
+}
+.tl-card .actions a {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    text-decoration: none;
+    color: var(--c-text-sub);
+    background: var(--c-surface-sub);
+    transition: background var(--transition), color var(--transition);
+}
+.tl-card .actions a:hover {
+    background: var(--c-border);
+    color: #111;
+}
+.tl-card .actions a.primary { color: var(--c-primary); }
+.tl-card .actions a.primary:hover { background: var(--c-primary-soft); color: var(--c-primary-hover); }
+.tl-card .actions a:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* 삭제 중 / 삭제됨 */
+.tl-card.is-deleting { opacity: .5; pointer-events: none; }
+.tl-card.is-removed { animation: tl-card-out .22s ease forwards; }
+@keyframes tl-card-out {
+    to { opacity: 0; transform: scale(.96); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .tl-card, .tl-card.is-removed { transition: none; animation-duration: .01s; }
+    .tl-card:hover { transform: none; }
+}
+
+/* 비어 있을 때 */
+.empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--c-text-faint);
+}
+.empty-state p { margin: 0 0 16px; }
+
+/* ===== 알림 (resume-list 와 같은 모양) ===== */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 32px;
+    z-index: 100;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 32px);
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    background: var(--c-text);
+    color: #fff;
+    font-size: 14px;
+    box-shadow: var(--shadow-md);
+}
+.toast.is-error { background: var(--c-danger-hover); }
+
+/* ===== 좁은 화면 ===== */
+@media (max-width: 1240px) {
+    .container { width: auto; margin: 24px 16px; }
+}
+@media (max-width: 640px) {
+    .page-header { flex-wrap: wrap; }
+    .page-header__left { flex-direction: column; gap: 8px; }
+    .page-header .btn-group { width: 100%; }
+    .page-header .btn-group .btn { flex: 1; }
+}
